@@ -1,0 +1,19 @@
+# Build outputs
+bin/
+obj/
+
+# Decompiled game code (reference only, not for distribution)
+drg code/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Claude session data
+.claude/
+
+# OS files
+Thumbs.db
+.DS_Store
