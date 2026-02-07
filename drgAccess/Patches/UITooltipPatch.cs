@@ -85,6 +85,9 @@ public static class UITooltipPatch
 
         // Remove rich text tags
         text = System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "");
+        // Remove serial number patterns like "nº cm-718-689" or "n° XX-XXX-XXX"
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"[Nn][º°]\s*\S+", "");
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ");
         return text.Trim();
     }
 }

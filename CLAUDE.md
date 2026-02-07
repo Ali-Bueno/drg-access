@@ -19,12 +19,20 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Mutators**: Reads mutator name and description
 - **Shop Items**: Reads item name, stats, and description
 - **Toggle Settings**: Announces On/Off state when clicked
-- **Tooltips**: Basic tooltip reading
+- **Tooltips**: Tooltip reading with rich text and serial number cleanup
 - **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score)
-- **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, and missions
+- **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, missions, and biomes
 - **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
 - **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables). Coordinates with SetValueText patch via frame counter to avoid double announcements
 - **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next)
+- **Stat Upgrades**: Reads localized title, description, stat type + value, level, cost, and affordability
+- **Gear Inventory**: Reads gear name, slot type, rarity, tier, stat mods, and quirk descriptions
+- **Mineral Market**: Reads localized button text instead of raw enum names
+- **Localized Game Data**: Stat names, rarity names, and gear slot types use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
+- **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
+
+### Known Issues
+- [ ] Biome description/lore not reading — `BiomeData.Lore` and `locLore.GetLocalizedString()` both fail silently. Page description TMP shows a score number instead of lore. Needs investigation into why the native Lore getter returns empty/throws.
 
 ### Pending Improvements
 - [ ] In-game HUD reading (health, XP, wave, etc.)
@@ -79,6 +87,9 @@ references/tolk/               # Tolk DLL references
 | `UIBiomeSelectButton` | Biome selection |
 | `UIHazLevelButton` | Hazard level selection |
 | `UIMutatorView` / `UIMutatorButton` | Hazard modifiers |
+| `UIStatUpgradeButton` | Stat upgrade menu (localized title/desc, stat values, cost) |
+| `UIMineralMarketButton` | Mineral market (reads localized TMP children) |
+| `UIGearViewCompact` | Gear inventory (name, rarity, stats, quirks) |
 | `UISliderToggle` | Toggle settings |
 | `UITooltip` | Tooltips |
 | `UISettingsSlider` | Settings sliders (label + value) |
@@ -110,6 +121,8 @@ references/tolk/               # Tolk DLL references
 **Target Framerate slider** has `textMultiplier=100`, making `valueText` show "6000" instead of "60". Corrected by name check (`Target_Framerate_SettingsSlider`) — do NOT apply generic textMultiplier correction as other sliders use it legitimately (e.g. volume 0-1 → 0-100).
 
 **Rule of thumb:** Only patch methods that are **declared directly on the target class**, not inherited from base classes. When in doubt, check the decompiled code.
+
+**Localization approach:** Always prefer the game's own localized text. Use `LocalizedString.GetLocalizedString()`, `StatSettingCollection.Get(statType).GetDisplayName`, `UiRarityData.GetRarityName(rarity)`, `LocalizedResources.GearType*` etc. Only mod-created messages (labels like "Stats:", "Level", "Cost:") should be in English. Cache ScriptableObject singletons via `Resources.FindObjectsOfTypeAll<T>()` with a "searched" flag to avoid repeated lookups.
 
 ---
 

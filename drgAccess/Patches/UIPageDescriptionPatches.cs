@@ -1,6 +1,7 @@
 using HarmonyLib;
 using DRS.UI;
 using TMPro;
+using UnityEngine.Localization;
 using System.Text;
 
 namespace drgAccess.Patches;
@@ -105,13 +106,62 @@ public static class UIPageDescriptionPatches
     public static class BiomePage_OnBiomeSelect
     {
         [HarmonyPostfix]
-        public static void Postfix(UIBiomeSelectPage __instance)
+        public static void Postfix(UIBiomeSelectPage __instance, BiomeLevelData biomeLevelData)
         {
-            AnnounceDescription(__instance.title, __instance.description, "BiomePage");
+            AnnounceBiomeDescription(__instance, biomeLevelData);
         }
     }
 
     // === Helpers ===
+
+    private static void AnnounceBiomeDescription(UIBiomeSelectPage page, BiomeLevelData biomeLevelData)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+
+            // Read title from the page's TMP field
+            var titleTMP = page.title;
+            if (titleTMP != null && !string.IsNullOrEmpty(titleTMP.text))
+                sb.Append(CleanText(titleTMP.text));
+
+            // Read lore from BiomeData instead of page description TMP (which may show score)
+            if (biomeLevelData != null)
+            {
+                var biomeData = biomeLevelData.BiomeData;
+                if (biomeData != null)
+                {
+                    string lore = null;
+                    try { lore = biomeData.Lore; }
+                    catch { /* Native getter failed */ }
+
+                    if (string.IsNullOrEmpty(lore))
+                    {
+                        try
+                        {
+                            var locLore = biomeData.locLore;
+                            if (locLore != null)
+                                lore = locLore.GetLocalizedString();
+                        }
+                        catch { /* Localized lore not available */ }
+                    }
+
+                    if (!string.IsNullOrEmpty(lore))
+                    {
+                        if (sb.Length > 0) sb.Append(". ");
+                        sb.Append(CleanText(lore));
+                    }
+                }
+            }
+
+            if (sb.Length > 0)
+                ScreenReader.Say(sb.ToString());
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIPageDescriptionPatches.BiomePage error: {ex.Message}");
+        }
+    }
 
     private static void AnnounceChallengeSetPageDescription(UIChallengeSetSelectPage page)
     {
@@ -166,6 +216,9 @@ public static class UIPageDescriptionPatches
         if (string.IsNullOrEmpty(text))
             return text;
         text = System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "");
+        // Remove serial number patterns like "nº cm-718-689" or "n° XX-XXX-XXX"
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"[Nn][º°]\s*\S+", "");
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ");
         return text.Trim();
     }
 }

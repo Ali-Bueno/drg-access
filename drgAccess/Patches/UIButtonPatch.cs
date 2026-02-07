@@ -1,7 +1,9 @@
 using HarmonyLib;
 using DRS.UI;
 using Assets.Scripts.UI;
+using Assets.Scripts.Data;
 using UnityEngine.EventSystems;
+using UnityEngine.Localization;
 using TMPro;
 using UnityEngine;
 using System.Text;
@@ -15,6 +17,59 @@ namespace drgAccess.Patches;
 [HarmonyPatch(typeof(UIButton))]
 public static class UIButtonPatch
 {
+    // Cached localization data for stat names, rarity, and gear slot types
+    private static StatSettingCollection _statSettings;
+    private static UiRarityData _rarityData;
+    private static LocalizedResources _localizedResources;
+    private static bool _statSettingsSearched;
+    private static bool _rarityDataSearched;
+    private static bool _localizedResourcesSearched;
+
+    private static StatSettingCollection GetStatSettings()
+    {
+        if (_statSettings != null) return _statSettings;
+        if (_statSettingsSearched) return null;
+        _statSettingsSearched = true;
+        try
+        {
+            var all = Resources.FindObjectsOfTypeAll<StatSettingCollection>();
+            if (all != null && all.Length > 0)
+                _statSettings = all[0];
+        }
+        catch { /* Not available */ }
+        return _statSettings;
+    }
+
+    private static UiRarityData GetRarityData()
+    {
+        if (_rarityData != null) return _rarityData;
+        if (_rarityDataSearched) return null;
+        _rarityDataSearched = true;
+        try
+        {
+            var all = Resources.FindObjectsOfTypeAll<UiRarityData>();
+            if (all != null && all.Length > 0)
+                _rarityData = all[0];
+        }
+        catch { /* Not available */ }
+        return _rarityData;
+    }
+
+    private static LocalizedResources GetLocalizedResources()
+    {
+        if (_localizedResources != null) return _localizedResources;
+        if (_localizedResourcesSearched) return null;
+        _localizedResourcesSearched = true;
+        try
+        {
+            var all = Resources.FindObjectsOfTypeAll<LocalizedResources>();
+            if (all != null && all.Length > 0)
+                _localizedResources = all[0];
+        }
+        catch { /* Not available */ }
+        return _localizedResources;
+    }
+
     [HarmonyPatch(nameof(UIButton.OnSelect))]
     [HarmonyPostfix]
     public static void OnSelect_Postfix(UIButton __instance, BaseEventData bed)
@@ -491,6 +546,24 @@ public static class UIButtonPatch
 
     private static string GetStatTypeName(EStatType statType)
     {
+        // Try localized name from game's StatSettingCollection
+        try
+        {
+            var settings = GetStatSettings();
+            if (settings != null)
+            {
+                var stat = settings.Get(statType);
+                if (stat != null)
+                {
+                    string name = stat.GetDisplayName;
+                    if (!string.IsNullOrEmpty(name))
+                        return CleanText(name);
+                }
+            }
+        }
+        catch { /* Fall back to English */ }
+
+        // English fallback
         return statType switch
         {
             EStatType.MAX_HP => "Max HP",
@@ -523,6 +596,20 @@ public static class UIButtonPatch
 
     private static bool IsPercentageStat(EStatType statType)
     {
+        // Try to get from game's StatSetting data
+        try
+        {
+            var settings = GetStatSettings();
+            if (settings != null)
+            {
+                var stat = settings.Get(statType);
+                if (stat != null)
+                    return stat.IsPercentage;
+            }
+        }
+        catch { /* Fall back to hardcoded */ }
+
+        // Fallback
         return statType switch
         {
             EStatType.MAX_HP => false,
@@ -787,12 +874,29 @@ public static class UIButtonPatch
         try
         {
             var sb = new StringBuilder();
-            sb.Append("Mission Node");
+
+            // Read biome name from biomeLevelData
+            var biomeLevelData = button.biomeLevelData;
+            if (biomeLevelData != null)
+            {
+                var biomeData = biomeLevelData.BiomeData;
+                if (biomeData != null)
+                {
+                    string biomeName = biomeData.DisplayName;
+                    if (!string.IsNullOrEmpty(biomeName))
+                        sb.Append(CleanText(biomeName));
+                }
+            }
+
+            if (sb.Length == 0)
+                sb.Append("Mission Node");
 
             var reqText = button.biomeGoalRequirementText;
             if (reqText != null && !string.IsNullOrEmpty(reqText.text))
             {
-                sb.Append(". " + CleanText(reqText.text));
+                string cleanReq = CleanText(reqText.text);
+                if (!string.IsNullOrEmpty(cleanReq))
+                    sb.Append(". " + cleanReq);
             }
 
             if (button.isLocked)
@@ -945,13 +1049,38 @@ public static class UIButtonPatch
         try
         {
             var sb = new StringBuilder();
-            sb.Append("Fixed Run");
 
-            var counterText = button.completedCounter;
-            if (counterText != null && !string.IsNullOrEmpty(counterText.text))
+            // Try to read meaningful text from the button's side group TMP children
+            string runName = null;
+            var sideGroup = button.isLocked ? button.sideLockedGroup : button.sideGroup;
+            if (sideGroup != null)
             {
-                sb.Append(". " + CleanText(counterText.text));
+                var tmps = sideGroup.GetComponentsInChildren<TextMeshProUGUI>();
+                if (tmps != null)
+                {
+                    foreach (var tmp in tmps)
+                    {
+                        if (tmp == null || tmp == button.completedCounter)
+                            continue;
+                        string text = CleanText(tmp.text);
+                        if (!string.IsNullOrEmpty(text))
+                        {
+                            // Skip texts that are just numbers (visual counters/sprites)
+                            if (int.TryParse(text, out _))
+                                continue;
+                            if (runName == null)
+                                runName = text;
+                            else
+                                runName += ". " + text;
+                        }
+                    }
+                }
             }
+
+            if (!string.IsNullOrEmpty(runName))
+                sb.Append(runName);
+            else
+                sb.Append("Fixed Run");
 
             if (button.isLocked)
             {
@@ -975,13 +1104,81 @@ public static class UIButtonPatch
             var data = button.data;
             if (data != null)
             {
-                string title = data.Title;
+                // Use localized title, fall back to Title property
+                string title = null;
+                try
+                {
+                    var locTitle = data.LocTitle;
+                    if (locTitle != null)
+                        title = locTitle.GetLocalizedString();
+                }
+                catch { /* Localized title not available */ }
+                if (string.IsNullOrEmpty(title))
+                    title = data.Title;
                 if (!string.IsNullOrEmpty(title))
                     sb.Append(CleanText(title));
-            }
 
-            int level = button.currentLevel;
-            sb.Append($", Level {level}");
+                // Try to get localized description
+                try
+                {
+                    var locDesc = data.LocDescription;
+                    if (locDesc != null)
+                    {
+                        string desc = locDesc.GetLocalizedString();
+                        if (!string.IsNullOrEmpty(desc))
+                            sb.Append(". " + CleanText(desc));
+                    }
+                }
+                catch { /* Localized description not available */ }
+
+                // Add stat type and current value
+                try
+                {
+                    string statName = GetStatTypeName(data.StatType);
+                    int level = button.currentLevel;
+                    float currentValue = data.GetValue(level);
+                    if (IsPercentageStat(data.StatType))
+                        sb.Append($". {statName}: +{currentValue:0}%");
+                    else
+                        sb.Append($". {statName}: +{currentValue:0}");
+                }
+                catch { /* Stat info not available */ }
+
+                int level2 = button.currentLevel;
+                int maxLevel = data.Levels != null ? data.Levels.Length : 0;
+
+                if (maxLevel > 0)
+                    sb.Append($", Level {level2}/{maxLevel}");
+                else
+                    sb.Append($", Level {level2}");
+
+                // Read price for next level
+                if (level2 < maxLevel)
+                {
+                    try
+                    {
+                        var prices = data.GetPrice(level2);
+                        if (prices != null && prices.Count > 0)
+                        {
+                            sb.Append(", Cost: ");
+                            for (int i = 0; i < prices.Count; i++)
+                            {
+                                var cv = prices[i];
+                                if (cv != null)
+                                {
+                                    if (i > 0) sb.Append(", ");
+                                    sb.Append($"{cv.Value} {cv.Type}");
+                                }
+                            }
+                        }
+                    }
+                    catch { /* Price reading failed, skip */ }
+                }
+                else
+                {
+                    sb.Append(", Max level");
+                }
+            }
 
             if (!button.canAfford)
             {
@@ -1040,11 +1237,31 @@ public static class UIButtonPatch
         try
         {
             var sb = new StringBuilder();
-            sb.Append(button.material.ToString());
 
-            string action = button.marketAction.ToString();
-            sb.Append($", {action}");
+            // Read localized text from TMP children instead of enum ToString()
+            var tmps = button.GetComponentsInChildren<TextMeshProUGUI>();
+            if (tmps != null && tmps.Length > 0)
+            {
+                foreach (var tmp in tmps)
+                {
+                    if (tmp == null) continue;
+                    string text = CleanText(tmp.text);
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        if (sb.Length > 0) sb.Append(", ");
+                        sb.Append(text);
+                    }
+                }
+            }
 
+            // Fallback to enum values if no TMP text found
+            if (sb.Length == 0)
+            {
+                sb.Append(button.material.ToString());
+                sb.Append($", {button.marketAction}");
+            }
+
+            // Add price
             int price = button.marketAction == UIMineralMarketButton.EMineralMarketAction.BUY ? button.buyPrice : button.sellPrice;
             sb.Append($", Price: {price}");
 
@@ -1099,12 +1316,96 @@ public static class UIButtonPatch
         try
         {
             var sb = new StringBuilder();
-            sb.Append("Gear");
 
+            // Read gear name from data
+            var gear = button.gear;
+            if (gear != null)
+            {
+                var gearData = gear.Data;
+                if (gearData != null)
+                {
+                    string gearName = gearData.GetTitle();
+                    if (!string.IsNullOrEmpty(gearName))
+                        sb.Append(CleanText(gearName));
+
+                    // Slot type
+                    string slotType = GetGearSlotTypeText(gearData.SlotType);
+                    if (!string.IsNullOrEmpty(slotType))
+                    {
+                        if (sb.Length > 0) sb.Append(", ");
+                        sb.Append(slotType);
+                    }
+                }
+
+                // Rarity
+                string rarity = GetRarityText(gear.Rarity);
+                if (!string.IsNullOrEmpty(rarity))
+                {
+                    if (sb.Length > 0) sb.Append(", ");
+                    sb.Append(rarity);
+                }
+            }
+
+            if (sb.Length == 0)
+                sb.Append("Gear");
+
+            // Tier
             var tierText = button.tierText;
             if (tierText != null && !string.IsNullOrEmpty(tierText.text))
             {
-                sb.Append(" Tier " + CleanText(tierText.text));
+                sb.Append(", Tier " + CleanText(tierText.text));
+            }
+
+            // Stats from gear view
+            if (gear != null)
+            {
+                try
+                {
+                    var statMods = gear.StatMods;
+                    if (statMods != null && statMods.Count > 0)
+                    {
+                        sb.Append(". Stats: ");
+                        for (int i = 0; i < statMods.Count; i++)
+                        {
+                            var mod = statMods[i];
+                            if (mod == null) continue;
+                            if (i > 0) sb.Append(", ");
+                            string statName = GetStatTypeName(mod.StatType);
+                            float val = mod.value;
+                            if (IsPercentageStat(mod.StatType))
+                                sb.Append($"{statName}: {val:+0;-0}%");
+                            else
+                                sb.Append($"{statName}: {val:+0;-0}");
+                        }
+                    }
+                }
+                catch { /* StatMods not available */ }
+
+                // Quirk description
+                try
+                {
+                    var gearData = gear.Data;
+                    if (gearData != null)
+                    {
+                        string quirkDesc = gearData.GetQuirkDesc(gear);
+                        if (!string.IsNullOrEmpty(quirkDesc))
+                        {
+                            sb.Append(". " + CleanText(quirkDesc));
+                        }
+                    }
+                }
+                catch { /* Quirk description not available */ }
+            }
+
+            // Indicators
+            if (button.upgradeIndicator != null && button.upgradeIndicator.activeSelf)
+            {
+                sb.Append(", Upgrade available");
+            }
+
+            if (button.sellIndicator != null && button.sellIndicator.activeSelf)
+            {
+                sb.Append(", Sell available");
             }
 
             if (button.isFavorite != null && button.isFavorite.activeSelf)
@@ -1124,6 +1425,74 @@ public static class UIButtonPatch
             Plugin.Log?.LogError($"UIButtonPatch.GetGearViewCompactText error: {ex.Message}");
             return null;
         }
+    }
+
+    private static string GetGearSlotTypeText(EGearSlotType slotType)
+    {
+        // Try localized name from game's LocalizedResources
+        try
+        {
+            var locRes = GetLocalizedResources();
+            if (locRes != null)
+            {
+                LocalizedString locStr = slotType switch
+                {
+                    EGearSlotType.TOOL => locRes.GearTypeTool,
+                    EGearSlotType.ARMOR => locRes.GearTypeArmor,
+                    EGearSlotType.GRINDER => locRes.GearTypeGrinder,
+                    EGearSlotType.WEAPON_MOD => locRes.GearTypeWeaponMod,
+                    EGearSlotType.TANK => locRes.GearTypeTank,
+                    EGearSlotType.COMPANION => locRes.GearTypeCompanion,
+                    _ => null
+                };
+                if (locStr != null)
+                {
+                    string name = locStr.GetLocalizedString();
+                    if (!string.IsNullOrEmpty(name))
+                        return CleanText(name);
+                }
+            }
+        }
+        catch { /* Fall back to English */ }
+
+        // English fallback
+        return slotType switch
+        {
+            EGearSlotType.TOOL => "Tool",
+            EGearSlotType.ARMOR => "Armor",
+            EGearSlotType.GRINDER => "Grinder",
+            EGearSlotType.WEAPON_MOD => "Weapon Mod",
+            EGearSlotType.TANK => "Tank",
+            EGearSlotType.COMPANION => "Companion",
+            _ => slotType.ToString()
+        };
+    }
+
+    private static string GetRarityText(ERarity rarity)
+    {
+        // Try localized name from game's UiRarityData
+        try
+        {
+            var rarityData = GetRarityData();
+            if (rarityData != null)
+            {
+                string name = rarityData.GetRarityName(rarity);
+                if (!string.IsNullOrEmpty(name))
+                    return CleanText(name);
+            }
+        }
+        catch { /* Fall back to English */ }
+
+        // English fallback
+        return rarity switch
+        {
+            ERarity.COMMON => "Common",
+            ERarity.UNCOMMON => "Uncommon",
+            ERarity.RARE => "Rare",
+            ERarity.EPIC => "Epic",
+            ERarity.LEGENDARY => "Legendary",
+            _ => rarity.ToString()
+        };
     }
 
     private static string GetDefaultButtonText(UIButton button)
@@ -1210,10 +1579,14 @@ public static class UIButtonPatch
         if (string.IsNullOrEmpty(text))
             return text;
 
-        // Remove rich text tags
+        // Remove rich text tags (includes TMP sprite tags like <sprite=888>)
         text = System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "");
 
-        // Clean up whitespace
+        // Remove serial number patterns like "nº cm-718-689" or "n° XX-XXX-XXX"
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"[Nn][º°]\s*\S+", "");
+
+        // Clean up multiple spaces and whitespace
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ");
         text = text.Trim();
 
         return text;

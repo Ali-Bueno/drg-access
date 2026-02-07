@@ -56,6 +56,10 @@
       <HintPath>$(BepInExDir)\interop\FundayFactory.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Unity.Localization">
+      <HintPath>$(BepInExDir)\interop\Unity.Localization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <!-- Tolk references -->
