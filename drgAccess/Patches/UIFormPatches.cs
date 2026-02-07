@@ -2,12 +2,15 @@ using HarmonyLib;
 using DRS.UI;
 using TMPro;
 using UnityEngine;
+using System.Text;
+using System.Reflection;
 
 namespace drgAccess.Patches;
 
 /// <summary>
 /// Patches to announce when UI forms become visible.
-/// Only patches classes that have SetVisibility method directly.
+/// Forms that override SetVisibility are patched directly.
+/// Forms that don't override SetVisibility are patched via their Show/Setup methods.
 /// </summary>
 public static class UIFormPatches
 {
@@ -46,6 +49,7 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix(UISettingsForm __instance, bool visible)
         {
+            UISettingsPatch.SettingsOpen = visible;
             if (visible)
             {
                 ScreenReader.Interrupt("Settings");
@@ -161,5 +165,238 @@ public static class UIFormPatches
             string message = $"{title}. {decription}";
             ScreenReader.Interrupt(message);
         }
+    }
+
+    // =========================================================
+    // Forms below do NOT override SetVisibility directly.
+    // They are patched via their Setup/Show methods instead.
+    // =========================================================
+
+    // Level Up Form - patched via Setup (overloaded, uses TargetMethod)
+    [HarmonyPatch]
+    public static class UILevelUpForm_Setup
+    {
+        static MethodBase TargetMethod()
+        {
+            foreach (var m in typeof(UILevelUpForm).GetMethods())
+            {
+                if (m.Name == "Setup" && m.GetParameters().Length == 8)
+                    return m;
+            }
+            return null;
+        }
+
+        [HarmonyPostfix]
+        public static void Postfix(UILevelUpForm __instance)
+        {
+            try
+            {
+                var titleText = __instance.titleText;
+                string title = titleText != null ? titleText.text : null;
+                string message = !string.IsNullOrEmpty(title) ? $"Level Up: {CleanText(title)}" : "Level Up";
+                ScreenReader.Interrupt(message);
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UILevelUpForm announce error: {ex.Message}");
+                ScreenReader.Interrupt("Level Up");
+            }
+        }
+    }
+
+    // Overclock Form - patched via SetupOverclock
+    [HarmonyPatch(typeof(UIOverclockForm), nameof(UIOverclockForm.SetupOverclock))]
+    public static class UIOverclockForm_SetupOverclock
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIOverclockForm __instance)
+        {
+            try
+            {
+                var sb = new StringBuilder("Overclock");
+                var weaponTitle = __instance.weaponTitleText;
+                if (weaponTitle != null && !string.IsNullOrEmpty(weaponTitle.text))
+                {
+                    sb.Append(": " + CleanText(weaponTitle.text));
+                }
+                var weaponLevel = __instance.weaponLevelText;
+                if (weaponLevel != null && !string.IsNullOrEmpty(weaponLevel.text))
+                {
+                    sb.Append(", " + CleanText(weaponLevel.text));
+                }
+                ScreenReader.Interrupt(sb.ToString());
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UIOverclockForm announce error: {ex.Message}");
+                ScreenReader.Interrupt("Overclock");
+            }
+        }
+    }
+
+    // Unlock Form - patched via Show
+    [HarmonyPatch(typeof(UIUnlockForm), nameof(UIUnlockForm.Show))]
+    public static class UIUnlockForm_Show
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIUnlockForm __instance)
+        {
+            try
+            {
+                var sb = new StringBuilder("Unlock");
+                var typeTitle = __instance.unlockTypeTitle;
+                if (typeTitle != null && !string.IsNullOrEmpty(typeTitle.text))
+                {
+                    sb.Append(": " + CleanText(typeTitle.text));
+                }
+                var unlockName = __instance.unlockName;
+                if (unlockName != null && !string.IsNullOrEmpty(unlockName.text))
+                {
+                    sb.Append(". " + CleanText(unlockName.text));
+                }
+                var unlockDesc = __instance.unlockDescription;
+                if (unlockDesc != null && !string.IsNullOrEmpty(unlockDesc.text))
+                {
+                    sb.Append(". " + CleanText(unlockDesc.text));
+                }
+                ScreenReader.Interrupt(sb.ToString());
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UIUnlockForm announce error: {ex.Message}");
+                ScreenReader.Interrupt("Unlock");
+            }
+        }
+    }
+
+    // Progression Summary Form - patched via Show
+    [HarmonyPatch(typeof(UIProgressionSummaryForm), nameof(UIProgressionSummaryForm.Show))]
+    public static class UIProgressionSummaryForm_Show
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIProgressionSummaryForm __instance)
+        {
+            try
+            {
+                var sb = new StringBuilder("Run Summary");
+                var credits = __instance.creditsText;
+                if (credits != null && !string.IsNullOrEmpty(credits.text))
+                    sb.Append($". Credits: {CleanText(credits.text)}");
+
+                var xp = __instance.xpText;
+                if (xp != null && !string.IsNullOrEmpty(xp.text))
+                    sb.Append($". XP: {CleanText(xp.text)}");
+
+                var rank = __instance.rankGainedText;
+                if (rank != null && !string.IsNullOrEmpty(rank.text))
+                    sb.Append($". Rank: {CleanText(rank.text)}");
+
+                ScreenReader.Interrupt(sb.ToString());
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UIProgressionSummaryForm announce error: {ex.Message}");
+                ScreenReader.Interrupt("Run Summary");
+            }
+        }
+    }
+
+    // Generic Popup Form - patched via ShowDualButton
+    [HarmonyPatch(typeof(UIGenericPopupForm), nameof(UIGenericPopupForm.ShowDualButton))]
+    public static class UIGenericPopupForm_ShowDualButton
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIGenericPopupForm __instance)
+        {
+            AnnounceGenericPopup(__instance);
+        }
+    }
+
+    // Generic Popup Form - patched via ShowSingleButton
+    [HarmonyPatch(typeof(UIGenericPopupForm), nameof(UIGenericPopupForm.ShowSingleButton))]
+    public static class UIGenericPopupForm_ShowSingleButton
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIGenericPopupForm __instance)
+        {
+            AnnounceGenericPopup(__instance);
+        }
+    }
+
+    // Mutator Form - patched via Setup
+    [HarmonyPatch(typeof(UIMutatorForm), nameof(UIMutatorForm.Setup))]
+    public static class UIMutatorForm_Setup
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIMutatorForm __instance)
+        {
+            ScreenReader.Interrupt("Mutator Selection");
+        }
+    }
+
+    // Gear Found Form - patched via Show
+    [HarmonyPatch(typeof(UIGearFoundForm), nameof(UIGearFoundForm.Show))]
+    public static class UIGearFoundForm_Show
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIGearFoundForm __instance)
+        {
+            ScreenReader.Interrupt("Gear Found");
+        }
+    }
+
+    // Gear Inspect Form - patched via Show
+    [HarmonyPatch(typeof(UIGearInspectForm), nameof(UIGearInspectForm.Show))]
+    public static class UIGearInspectForm_Show
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIGearInspectForm __instance)
+        {
+            ScreenReader.Interrupt("Gear Details");
+        }
+    }
+
+    // Score Inspect Form - patched via Show (note: class name has typo "Inpect" in game code)
+    [HarmonyPatch(typeof(UIScoreInpectForm), nameof(UIScoreInpectForm.Show))]
+    public static class UIScoreInpectForm_Show
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIScoreInpectForm __instance)
+        {
+            ScreenReader.Interrupt("Score");
+        }
+    }
+
+    private static void AnnounceGenericPopup(UIGenericPopupForm instance)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            var title = instance.title;
+            if (title != null && !string.IsNullOrEmpty(title.text))
+                sb.Append(CleanText(title.text));
+
+            var desc = instance.decription;
+            if (desc != null && !string.IsNullOrEmpty(desc.text))
+            {
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(CleanText(desc.text));
+            }
+
+            if (sb.Length > 0)
+                ScreenReader.Interrupt(sb.ToString());
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIGenericPopupForm announce error: {ex.Message}");
+        }
+    }
+
+    private static string CleanText(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+        text = System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "");
+        return text.Trim();
     }
 }

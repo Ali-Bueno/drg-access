@@ -11,7 +11,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 ## Current Status
 
 ### Implemented Features
-- **Menu Navigation**: Buttons announce their text when selected
+- **Menu Navigation**: Buttons announce their text when selected (all specialized button types supported)
 - **Class Selection**: Reads class name, description, and base stats (HP, Evasion, Crit Chance, Crit Damage)
 - **Subclass Selection**: Reads subclass name, stat bonuses, starter weapon info (name, description, stats, targeting, damage type)
 - **Biome Selection**: Reads biome name and locked status
@@ -20,7 +20,11 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Shop Items**: Reads item name, stats, and description
 - **Toggle Settings**: Announces On/Off state when clicked
 - **Tooltips**: Basic tooltip reading
-- **Form Announcements**: Announces when forms/menus open
+- **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score)
+- **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, and missions
+- **Settings Menu**: Sliders (label + value), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
+- **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables)
+- **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next)
 
 ### Pending Improvements
 - [ ] In-game HUD reading (health, XP, wave, etc.)
@@ -28,7 +32,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - [ ] Combat feedback (damage taken, enemies nearby)
 - [ ] Audio cues for spatial awareness
 - [ ] Death/victory announcements
-- [ ] Settings menu full support
+- [ ] Settings: remaining slider options and tab content accessibility
 
 ---
 
@@ -36,17 +40,20 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 ```
 drgAccess/
-├── Plugin.cs              # Main plugin entry point
-├── ScreenReader.cs        # Tolk wrapper for screen reader output
+├── Plugin.cs                  # Main plugin entry point
+├── ScreenReader.cs            # Tolk wrapper for screen reader output
+├── SettingsFocusTracker.cs    # MonoBehaviour polling EventSystem for settings focus
 ├── Patches/
-│   ├── UIButtonPatch.cs   # All button types (class, subclass, shop, etc.)
-│   ├── UIFormPatches.cs   # Form/menu announcements
-│   ├── UITooltipPatch.cs  # Tooltip reading
-│   └── UISliderTogglePatch.cs  # Toggle state announcements
-└── drgAccess.csproj       # Project file
+│   ├── UIButtonPatch.cs       # All button types (class, subclass, shop, selectors, etc.)
+│   ├── UIFormPatches.cs       # Form/menu announcements
+│   ├── UIPageDescriptionPatches.cs  # Page description panel reading
+│   ├── UISettingsPatch.cs     # Settings sliders, toggles, selectors, tabs
+│   ├── UITooltipPatch.cs      # Tooltip reading
+│   └── UISliderTogglePatch.cs # Toggle state announcements
+└── drgAccess.csproj           # Project file
 
-drg code/                  # Decompiled game code for reference (not included in repo)
-references/tolk/           # Tolk DLL references
+drg code/                      # Decompiled game code for reference (not included in repo)
+references/tolk/               # Tolk DLL references
 ```
 
 ---
@@ -71,10 +78,34 @@ references/tolk/           # Tolk DLL references
 | `UIShopButton` | Shop items |
 | `UIBiomeSelectButton` | Biome selection |
 | `UIHazLevelButton` | Hazard level selection |
-| `UIMutatorView` | Hazard modifiers |
+| `UIMutatorView` / `UIMutatorButton` | Hazard modifiers |
 | `UISliderToggle` | Toggle settings |
 | `UITooltip` | Tooltips |
-| `UIForm` | Menu/form containers |
+| `UISettingsSlider` | Settings sliders (label + value) |
+| `UISettingsPageGameplay` | Gameplay toggle callbacks |
+| `UISettingsPageVideo` | Video selector callbacks |
+| `UISettingsForm` | Settings tabs (PageLeft/PageRight) |
+| `StepSelectorBase` | Left/right selector buttons |
+| Various `UIForm` subclasses | Menu/form announcements |
+| Various page classes | Description panel reading |
+
+---
+
+## IL2CPP / Harmony Critical Rules
+
+**NEVER patch base Unity/IL2CPP class methods** like `Selectable.OnSelect`, `UIFormTabbedPageAlbum.OnPageChanged`, etc. These fire during early IL2CPP initialization before types are ready, causing **fatal AccessViolationException** crashes that cannot be caught in .NET 6. The game will silently fail to open.
+
+**NEVER use `TryCast<T>()` or `GetComponentInChildren<T>()` inside patches on base class methods** — same crash reason. Only use these in patches on specific game classes (e.g., `UISettingsSlider.SetValueText`).
+
+**Harmony postfix parameter names MUST match the original method exactly.** If the game method has `bool value`, your postfix cannot use `bool toggle`. Safest approach: don't capture the parameter at all — read state from the instance instead (e.g., `Toggle.isOn`).
+
+**Forms that don't override `SetVisibility`** cannot be patched with `[HarmonyPatch(typeof(X), nameof(X.SetVisibility))]`. Harmony's DeclaredMethod only finds methods declared on the type, not inherited. Use their actual declared methods (Setup, Show, SetupOverclock, etc.).
+
+**Overloaded methods** need `TargetMethod()` approach to disambiguate. Use `GetMethods()` and filter by parameter count.
+
+**Some native method detours crash the game** even with empty postfixes. Known: `UISettingsPageVideo.OnToggleVsync` — the native detour itself corrupts something. No workaround except avoiding the patch entirely. The Vsync toggle is handled by `SettingsFocusTracker` instead.
+
+**Rule of thumb:** Only patch methods that are **declared directly on the target class**, not inherited from base classes. When in doubt, check the decompiled code.
 
 ---
 
@@ -83,7 +114,6 @@ references/tolk/           # Tolk DLL references
 - All code in **English**
 - All comments in **English**
 - Commits in **English**
-- Use IL2CPP reflection methods (`TryCast<T>()`)
 - Avoid `FindObjectOfType` in frequent calls (performance)
 - Handle exceptions gracefully with logging
 

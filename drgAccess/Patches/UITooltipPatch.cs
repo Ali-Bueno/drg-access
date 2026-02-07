@@ -59,19 +59,21 @@ public static class UITooltipPatch
         if (tooltip == null)
             return;
 
-        // Try to read from description TextMeshProUGUI
+        // Try description TextMeshProUGUI first, then buildString as fallback
+        string text = null;
         var descriptionText = tooltip.description;
-        if (descriptionText != null)
+        if (descriptionText != null && !string.IsNullOrEmpty(descriptionText.text))
+            text = descriptionText.text;
+        else if (!string.IsNullOrEmpty(tooltip.buildString))
+            text = tooltip.buildString;
+
+        if (!string.IsNullOrEmpty(text))
         {
-            string text = descriptionText.text;
-            if (!string.IsNullOrEmpty(text))
+            string cleanText = CleanText(text);
+            if (!string.IsNullOrEmpty(cleanText) && cleanText != _lastTooltipText)
             {
-                string cleanText = CleanText(text);
-                if (!string.IsNullOrEmpty(cleanText) && cleanText != _lastTooltipText)
-                {
-                    _lastTooltipText = cleanText;
-                    ScreenReader.Say(cleanText);
-                }
+                _lastTooltipText = cleanText;
+                ScreenReader.Say(cleanText);
             }
         }
     }

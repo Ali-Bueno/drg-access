@@ -24,6 +24,9 @@ public class Plugin : BasePlugin
         HarmonyInstance = new Harmony(MyPluginInfo.PLUGIN_GUID);
         HarmonyInstance.PatchAll();
 
+        // Register focus tracker component for settings navigation
+        AddComponent<SettingsFocusTracker>();
+
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded successfully!");
         ScreenReader.Say("DRG Survivor Accessibility mod loaded");
     }

@@ -1,5 +1,6 @@
 using HarmonyLib;
 using DRS.UI;
+using Assets.Scripts.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 using UnityEngine;
@@ -14,8 +15,6 @@ namespace drgAccess.Patches;
 [HarmonyPatch(typeof(UIButton))]
 public static class UIButtonPatch
 {
-    private static string _lastAnnouncedText = "";
-
     [HarmonyPatch(nameof(UIButton.OnSelect))]
     [HarmonyPostfix]
     public static void OnSelect_Postfix(UIButton __instance, BaseEventData bed)
@@ -23,9 +22,8 @@ public static class UIButtonPatch
         try
         {
             string buttonText = GetButtonText(__instance);
-            if (!string.IsNullOrEmpty(buttonText) && buttonText != _lastAnnouncedText)
+            if (!string.IsNullOrEmpty(buttonText))
             {
-                _lastAnnouncedText = buttonText;
                 ScreenReader.Interrupt(buttonText);
             }
         }
@@ -39,6 +37,13 @@ public static class UIButtonPatch
     {
         if (button == null)
             return null;
+
+        // StepSelectorBase left/right buttons: announce selector label + value + direction
+        var selector = button.GetComponentInParent<StepSelectorBase>();
+        if (selector != null)
+        {
+            return GetStepSelectorText(selector, button);
+        }
 
         // Check specialized button types in order of specificity
 
@@ -96,6 +101,99 @@ public static class UIButtonPatch
         if (sliderToggle != null)
         {
             return GetSliderToggleText(sliderToggle);
+        }
+
+        // Mission buttons
+        var missionRoadButton = button.TryCast<UIMissionRoadButton>();
+        if (missionRoadButton != null)
+        {
+            return GetMissionRoadButtonText(missionRoadButton);
+        }
+
+        var missionSectorButton = button.TryCast<UIMissionSectorButton>();
+        if (missionSectorButton != null)
+        {
+            return GetMissionSectorButtonText(missionSectorButton);
+        }
+
+        var missionNodeButton = button.TryCast<UIMissionNodeButton>();
+        if (missionNodeButton != null)
+        {
+            return GetMissionNodeButtonText(missionNodeButton);
+        }
+
+        var missionGateButton = button.TryCast<UIMissionGateButton>();
+        if (missionGateButton != null)
+        {
+            return GetMissionGateButtonText(missionGateButton);
+        }
+
+        // Campaign/Challenge buttons
+        var campaignSetButton = button.TryCast<UICampaignSetButton>();
+        if (campaignSetButton != null)
+        {
+            return GetCampaignSetButtonText(campaignSetButton);
+        }
+
+        var challengeButton = button.TryCast<UIChallengeButton>();
+        if (challengeButton != null)
+        {
+            return GetChallengeButtonText(challengeButton);
+        }
+
+        var challengeSetButton = button.TryCast<UIChallengeSetButton>();
+        if (challengeSetButton != null)
+        {
+            return GetChallengeSetButtonText(challengeSetButton);
+        }
+
+        // Fixed run button
+        var fixedRunButton = button.TryCast<UIFixedRunButton>();
+        if (fixedRunButton != null)
+        {
+            return GetFixedRunButtonText(fixedRunButton);
+        }
+
+        // Stat upgrade button
+        var statUpgradeButton = button.TryCast<UIStatUpgradeButton>();
+        if (statUpgradeButton != null)
+        {
+            return GetStatUpgradeButtonText(statUpgradeButton);
+        }
+
+        // Mutator button (not UIMutatorView)
+        var mutatorButton = button.TryCast<UIMutatorButton>();
+        if (mutatorButton != null)
+        {
+            return GetMutatorButtonText(mutatorButton);
+        }
+
+        // Mineral market button
+        var mineralMarketButton = button.TryCast<UIMineralMarketButton>();
+        if (mineralMarketButton != null)
+        {
+            return GetMineralMarketButtonText(mineralMarketButton);
+        }
+
+        // Set progress button
+        var setProgressButton = button.TryCast<UISetProgressButton>();
+        if (setProgressButton != null)
+        {
+            return GetSetProgressButtonText(setProgressButton);
+        }
+
+        // Skin overrides button
+        var skinOverridesButton = button.TryCast<UISkinOverridesButton>();
+        if (skinOverridesButton != null)
+        {
+            return GetSkinOverridesButtonText(skinOverridesButton);
+        }
+
+        // Gear view compact
+        var gearViewCompact = button.TryCast<UIGearViewCompact>();
+        if (gearViewCompact != null)
+        {
+            return GetGearViewCompactText(gearViewCompact);
         }
 
         // Default: try to get text from buttonText field
@@ -613,6 +711,421 @@ public static class UIButtonPatch
         return null;
     }
 
+    private static string GetMissionRoadButtonText(UIMissionRoadButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            var nameText = button.nameText;
+            if (nameText != null && !string.IsNullOrEmpty(nameText.text))
+                sb.Append(CleanText(nameText.text));
+
+            var goalText = button.goalCounterText;
+            if (goalText != null && !string.IsNullOrEmpty(goalText.text))
+            {
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(CleanText(goalText.text));
+            }
+
+            if (!button.isUnlocked)
+            {
+                var unlockText = button.unlockConditionText;
+                if (unlockText != null && !string.IsNullOrEmpty(unlockText.text))
+                {
+                    if (sb.Length > 0) sb.Append(". ");
+                    sb.Append("Locked. " + CleanText(unlockText.text));
+                }
+                else
+                {
+                    if (sb.Length > 0) sb.Append(", ");
+                    sb.Append("Locked");
+                }
+            }
+
+            return sb.Length > 0 ? sb.ToString() : null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetMissionRoadButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetMissionSectorButtonText(UIMissionSectorButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            sb.Append($"Sector {button.sectorNumber}");
+
+            var goalText = button.biomeGoalCountText;
+            if (goalText != null && !string.IsNullOrEmpty(goalText.text))
+            {
+                sb.Append(". " + CleanText(goalText.text));
+            }
+
+            if (button.isLocked)
+            {
+                sb.Append(", Locked");
+            }
+            else if (button.nodeCompleted)
+            {
+                sb.Append(", Completed");
+            }
+
+            return sb.ToString();
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetMissionSectorButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetMissionNodeButtonText(UIMissionNodeButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            sb.Append("Mission Node");
+
+            var reqText = button.biomeGoalRequirementText;
+            if (reqText != null && !string.IsNullOrEmpty(reqText.text))
+            {
+                sb.Append(". " + CleanText(reqText.text));
+            }
+
+            if (button.isLocked)
+            {
+                sb.Append(", Locked");
+            }
+            else if (button.nodeCompleted)
+            {
+                sb.Append(", Completed");
+            }
+
+            return sb.ToString();
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetMissionNodeButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetMissionGateButtonText(UIMissionGateButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            sb.Append($"Gate {button.gateNumber}");
+
+            if (button.isLocked)
+            {
+                sb.Append(", Locked");
+            }
+            else if (button.nodeCompleted)
+            {
+                sb.Append(", Completed");
+            }
+
+            return sb.ToString();
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetMissionGateButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetCampaignSetButtonText(UICampaignSetButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            var nameText = button.nameText;
+            if (nameText != null && !string.IsNullOrEmpty(nameText.text))
+                sb.Append(CleanText(nameText.text));
+
+            var progressText = button.progressText;
+            if (progressText != null && !string.IsNullOrEmpty(progressText.text))
+            {
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(CleanText(progressText.text));
+            }
+
+            return sb.Length > 0 ? sb.ToString() : null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetCampaignSetButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetChallengeButtonText(UIChallengeButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            var challengeData = button.ChallengeData;
+            if (challengeData != null)
+            {
+                string title = challengeData.GetTitle();
+                if (!string.IsNullOrEmpty(title))
+                    sb.Append(CleanText(title));
+
+                string desc = challengeData.GetPreDescription();
+                if (!string.IsNullOrEmpty(desc))
+                {
+                    if (sb.Length > 0) sb.Append(". ");
+                    sb.Append(CleanText(desc));
+                }
+            }
+
+            var progressText = button.progressText;
+            if (progressText != null && !string.IsNullOrEmpty(progressText.text))
+            {
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(CleanText(progressText.text));
+            }
+
+            bool isCompleted = button.completedGroup != null && button.completedGroup.activeSelf;
+            if (isCompleted)
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append("Completed");
+            }
+            else
+            {
+                bool isLocked = button.lockedGroup != null && button.lockedGroup.activeSelf;
+                if (isLocked)
+                {
+                    if (sb.Length > 0) sb.Append(", ");
+                    sb.Append("Locked");
+                }
+            }
+
+            return sb.Length > 0 ? sb.ToString() : null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetChallengeButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetChallengeSetButtonText(UIChallengeSetButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            var nameText = button.nameText;
+            if (nameText != null && !string.IsNullOrEmpty(nameText.text))
+                sb.Append(CleanText(nameText.text));
+
+            var progressText = button.progressText;
+            if (progressText != null && !string.IsNullOrEmpty(progressText.text))
+            {
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(CleanText(progressText.text));
+            }
+
+            return sb.Length > 0 ? sb.ToString() : null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetChallengeSetButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetFixedRunButtonText(UIFixedRunButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            sb.Append("Fixed Run");
+
+            var counterText = button.completedCounter;
+            if (counterText != null && !string.IsNullOrEmpty(counterText.text))
+            {
+                sb.Append(". " + CleanText(counterText.text));
+            }
+
+            if (button.isLocked)
+            {
+                sb.Append(", Locked");
+            }
+
+            return sb.ToString();
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetFixedRunButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetStatUpgradeButtonText(UIStatUpgradeButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            var data = button.data;
+            if (data != null)
+            {
+                string title = data.Title;
+                if (!string.IsNullOrEmpty(title))
+                    sb.Append(CleanText(title));
+            }
+
+            int level = button.currentLevel;
+            sb.Append($", Level {level}");
+
+            if (!button.canAfford)
+            {
+                sb.Append(", Cannot afford");
+            }
+
+            return sb.Length > 0 ? sb.ToString() : null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetStatUpgradeButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetMutatorButtonText(UIMutatorButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            var titleText = button.title;
+            if (titleText != null && !string.IsNullOrEmpty(titleText.text))
+                sb.Append(CleanText(titleText.text));
+
+            var descText = button.description;
+            if (descText != null && !string.IsNullOrEmpty(descText.text))
+            {
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(CleanText(descText.text));
+            }
+
+            var pointsText = button.pointsText;
+            if (pointsText != null && !string.IsNullOrEmpty(pointsText.text))
+            {
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(CleanText(pointsText.text) + " points");
+            }
+
+            if (button.isToggled)
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append("Active");
+            }
+
+            return sb.Length > 0 ? sb.ToString() : null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetMutatorButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetMineralMarketButtonText(UIMineralMarketButton button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            sb.Append(button.material.ToString());
+
+            string action = button.marketAction.ToString();
+            sb.Append($", {action}");
+
+            int price = button.marketAction == UIMineralMarketButton.EMineralMarketAction.BUY ? button.buyPrice : button.sellPrice;
+            sb.Append($", Price: {price}");
+
+            return sb.ToString();
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetMineralMarketButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetSetProgressButtonText(UISetProgressButton button)
+    {
+        try
+        {
+            var progressText = button.progressText;
+            if (progressText != null && !string.IsNullOrEmpty(progressText.text))
+                return CleanText(progressText.text);
+            return null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetSetProgressButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetSkinOverridesButtonText(UISkinOverridesButton button)
+    {
+        try
+        {
+            var titleText = button.title;
+            if (titleText != null && !string.IsNullOrEmpty(titleText.text))
+                return CleanText(titleText.text);
+
+            var streamerTitle = button.streamerTitle;
+            if (streamerTitle != null && !string.IsNullOrEmpty(streamerTitle.text))
+                return CleanText(streamerTitle.text);
+
+            return null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetSkinOverridesButtonText error: {ex.Message}");
+            return null;
+        }
+    }
+
+    private static string GetGearViewCompactText(UIGearViewCompact button)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            sb.Append("Gear");
+
+            var tierText = button.tierText;
+            if (tierText != null && !string.IsNullOrEmpty(tierText.text))
+            {
+                sb.Append(" Tier " + CleanText(tierText.text));
+            }
+
+            if (button.isFavorite != null && button.isFavorite.activeSelf)
+            {
+                sb.Append(", Favorite");
+            }
+
+            if (button.isNew != null && button.isNew.activeSelf)
+            {
+                sb.Append(", New");
+            }
+
+            return sb.ToString();
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetGearViewCompactText error: {ex.Message}");
+            return null;
+        }
+    }
+
     private static string GetDefaultButtonText(UIButton button)
     {
         // Try to get text from buttonText field
@@ -635,6 +1148,61 @@ public static class UIButtonPatch
 
         // Last resort: use GameObject name
         return CleanText(button.gameObject.name);
+    }
+
+    private static string GetStepSelectorText(StepSelectorBase selector, UIButton button)
+    {
+        try
+        {
+            string label = UISettingsPatch.GetControlLabel(selector.transform);
+
+            // Determine direction
+            string direction = "";
+            if (selector.leftButton != null && button.gameObject == selector.leftButton.gameObject)
+                direction = "Previous";
+            else if (selector.rightButton != null && button.gameObject == selector.rightButton.gameObject)
+                direction = "Next";
+
+            // Find value text: look for TMP that's NOT inside leftButton or rightButton
+            string value = null;
+            for (int i = 0; i < selector.transform.childCount; i++)
+            {
+                var child = selector.transform.GetChild(i);
+                // Skip the buttons themselves
+                if (selector.leftButton != null && child.gameObject == selector.leftButton.gameObject)
+                    continue;
+                if (selector.rightButton != null && child.gameObject == selector.rightButton.gameObject)
+                    continue;
+
+                var tmp = child.GetComponent<TextMeshProUGUI>();
+                if (tmp == null)
+                    tmp = child.GetComponentInChildren<TextMeshProUGUI>();
+                if (tmp != null && !string.IsNullOrEmpty(tmp.text))
+                {
+                    value = CleanText(tmp.text);
+                    break;
+                }
+            }
+
+            var sb = new StringBuilder();
+            if (!string.IsNullOrEmpty(label))
+                sb.Append(label);
+            if (!string.IsNullOrEmpty(value))
+            {
+                if (sb.Length > 0) sb.Append(": ");
+                sb.Append(value);
+            }
+            if (!string.IsNullOrEmpty(direction))
+            {
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(direction);
+            }
+            return sb.Length > 0 ? sb.ToString() : "Selector";
+        }
+        catch
+        {
+            return "Selector";
+        }
     }
 
     private static string CleanText(string text)
