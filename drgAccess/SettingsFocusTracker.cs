@@ -15,6 +15,12 @@ public class SettingsFocusTracker : MonoBehaviour
 {
     private GameObject _lastSelected;
 
+    /// <summary>
+    /// Frame number when a slider received focus. Used by SetValueText patch
+    /// to avoid interrupting the focus announcement with just the value.
+    /// </summary>
+    internal static int LastSliderFocusFrame = -1;
+
     void Update()
     {
         if (!Patches.UISettingsPatch.SettingsOpen)
@@ -42,11 +48,16 @@ public class SettingsFocusTracker : MonoBehaviour
             var slider = current.GetComponent<UISettingsSlider>();
             if (slider != null)
             {
-                string label = Patches.UISettingsPatch.GetControlLabel(slider.transform);
-                string value = slider.valueText != null ? slider.valueText.text : null;
+                LastSliderFocusFrame = Time.frameCount;
+
+                string label = Patches.UISettingsPatch.GetSliderLabel(slider);
+                string value = Patches.UISettingsPatch.GetSliderValue(slider);
+
                 string msg = !string.IsNullOrEmpty(label) && !string.IsNullOrEmpty(value)
-                    ? $"{label}: {Patches.UISettingsPatch.CleanText(value)}"
-                    : label ?? "";
+                    ? $"{label}: {value}"
+                    : !string.IsNullOrEmpty(label) ? label
+                    : !string.IsNullOrEmpty(value) ? value
+                    : "";
                 if (!string.IsNullOrEmpty(msg))
                     ScreenReader.Interrupt(msg);
                 return;
@@ -74,4 +85,5 @@ public class SettingsFocusTracker : MonoBehaviour
             Plugin.Log?.LogError($"FocusTracker error: {ex.Message}");
         }
     }
+
 }

@@ -22,8 +22,8 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Tooltips**: Basic tooltip reading
 - **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score)
 - **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, and missions
-- **Settings Menu**: Sliders (label + value), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
-- **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables)
+- **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
+- **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables). Coordinates with SetValueText patch via frame counter to avoid double announcements
 - **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next)
 
 ### Pending Improvements
@@ -32,7 +32,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - [ ] Combat feedback (damage taken, enemies nearby)
 - [ ] Audio cues for spatial awareness
 - [ ] Death/victory announcements
-- [ ] Settings: remaining slider options and tab content accessibility
+- [ ] Settings: tab content accessibility for remaining pages
 
 ---
 
@@ -104,6 +104,10 @@ references/tolk/               # Tolk DLL references
 **Overloaded methods** need `TargetMethod()` approach to disambiguate. Use `GetMethods()` and filter by parameter count.
 
 **Some native method detours crash the game** even with empty postfixes. Known: `UISettingsPageVideo.OnToggleVsync` — the native detour itself corrupts something. No workaround except avoiding the patch entirely. The Vsync toggle is handled by `SettingsFocusTracker` instead.
+
+**Slider labels are grandchildren** of UISettingsSlider: `UISettingsSlider → MasterSlider → NameText (TMP)`. Use `GetComponentsInChildren<TMP>()` skipping `valueText`, not sibling searches.
+
+**Target Framerate slider** has `textMultiplier=100`, making `valueText` show "6000" instead of "60". Corrected by name check (`Target_Framerate_SettingsSlider`) — do NOT apply generic textMultiplier correction as other sliders use it legitimately (e.g. volume 0-1 → 0-100).
 
 **Rule of thumb:** Only patch methods that are **declared directly on the target class**, not inherited from base classes. When in doubt, check the decompiled code.
 

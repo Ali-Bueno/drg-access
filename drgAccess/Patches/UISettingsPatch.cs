@@ -71,15 +71,18 @@ public static class UISettingsPatch
                 if (es == null || es.currentSelectedGameObject != __instance.gameObject)
                     return;
 
-                string value = __instance.valueText != null ? __instance.valueText.text : null;
+                // If focus just changed to this slider, SettingsFocusTracker already
+                // announced "label: value" — skip to avoid interrupting it.
+                if (UnityEngine.Time.frameCount <= SettingsFocusTracker.LastSliderFocusFrame + 1)
+                    return;
+
+                string value = GetSliderValue(__instance);
                 if (string.IsNullOrEmpty(value))
                     return;
 
-                string label = GetControlLabel(__instance.transform);
-                string announcement = !string.IsNullOrEmpty(label)
-                    ? $"{label}: {CleanText(value)}"
-                    : CleanText(value);
-                ScreenReader.Interrupt(announcement);
+                // Only announce the value (left/right changes) — the label was
+                // already announced when the slider received focus.
+                ScreenReader.Interrupt(value);
             }
             catch (System.Exception ex)
             {
@@ -265,6 +268,50 @@ public static class UISettingsPatch
         {
             Plugin.Log?.LogError($"UISettingsPatch.AnnounceSelector error: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Find label for a slider. The hierarchy is:
+    /// UISettingsSlider → MasterSlider → NameText (TMP label), ValueText (TMP value)
+    /// We search all descendant TMP components, skipping the valueText.
+    /// </summary>
+    internal static string GetSliderLabel(UISettingsSlider slider)
+    {
+        try
+        {
+            var tmps = slider.GetComponentsInChildren<TextMeshProUGUI>();
+            foreach (var tmp in tmps)
+            {
+                if (tmp == slider.valueText) continue;
+                if (!string.IsNullOrEmpty(tmp.text))
+                    return CleanText(tmp.text);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"GetSliderLabel error: {ex.Message}");
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Read slider display value. The Target Framerate slider has
+    /// textMultiplier=100, making valueText show "6000" instead of "60".
+    /// We correct only that specific slider.
+    /// </summary>
+    internal static string GetSliderValue(UISettingsSlider slider)
+    {
+        if (slider.valueText == null || string.IsNullOrEmpty(slider.valueText.text))
+            return null;
+
+        string raw = CleanText(slider.valueText.text);
+
+        if (slider.gameObject.name == "Target_Framerate_SettingsSlider"
+            && slider.textMultiplier > 1
+            && int.TryParse(raw, out int numVal))
+            return (numVal / slider.textMultiplier).ToString();
+
+        return raw;
     }
 
     internal static string GetControlLabel(Transform control)
