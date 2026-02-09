@@ -21,7 +21,8 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Toggle Settings**: Announces On/Off state when clicked
 - **Tooltips**: Tooltip reading with rich text and serial number cleanup
 - **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score)
-- **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, missions, and biomes
+- **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, and missions
+- **Biome Selection**: Reads biome name, lore/description, and high score when selecting mission nodes (biomes)
 - **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
 - **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables). Coordinates with SetValueText patch via frame counter to avoid double announcements
 - **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next)
@@ -32,7 +33,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
 
 ### Known Issues
-- [ ] Biome description/lore not reading — `BiomeData.Lore` and `locLore.GetLocalizedString()` both fail silently. Page description TMP shows a score number instead of lore. Needs investigation into why the native Lore getter returns empty/throws.
+- [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
 
 ### Pending Improvements
 - [ ] In-game HUD reading (health, XP, wave, etc.)

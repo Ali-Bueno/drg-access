@@ -7,6 +7,7 @@ using UnityEngine.Localization;
 using TMPro;
 using UnityEngine;
 using System.Text;
+using System.Linq;
 
 namespace drgAccess.Patches;
 
@@ -76,10 +77,19 @@ public static class UIButtonPatch
     {
         try
         {
+            // Log button type
+            string buttonType = __instance.GetType().Name;
+            Plugin.Log?.LogInfo($"UIButton.OnSelect - Button type: {buttonType}, GameObject: {__instance.gameObject.name}");
+
             string buttonText = GetButtonText(__instance);
             if (!string.IsNullOrEmpty(buttonText))
             {
+                Plugin.Log?.LogInfo($"UIButton.OnSelect - Announcing: '{buttonText}'");
                 ScreenReader.Interrupt(buttonText);
+            }
+            else
+            {
+                Plugin.Log?.LogWarning($"UIButton.OnSelect - No text generated for button type: {buttonType}");
             }
         }
         catch (System.Exception ex)
@@ -655,6 +665,21 @@ public static class UIButtonPatch
     {
         try
         {
+            // Check if button has any TMP children that might contain the "99"
+            var allTMPs = biomeButton.GetComponentsInChildren<TextMeshProUGUI>();
+            if (allTMPs != null && allTMPs.Length > 0)
+            {
+                Plugin.Log?.LogInfo($"BiomeButton has {allTMPs.Length} TMP components:");
+                for (int i = 0; i < allTMPs.Length; i++)
+                {
+                    var tmp = allTMPs[i];
+                    if (tmp != null && !string.IsNullOrEmpty(tmp.text))
+                    {
+                        Plugin.Log?.LogInfo($"  TMP[{i}] ({tmp.gameObject.name}): '{tmp.text}'");
+                    }
+                }
+            }
+
             var biomeLevelData = biomeButton.biomeLevelData;
             if (biomeLevelData != null)
             {
@@ -675,6 +700,7 @@ public static class UIButtonPatch
                             result += ", Locked";
                         }
 
+                        Plugin.Log?.LogInfo($"BiomeButton final result: '{result}'");
                         return result;
                     }
                 }
@@ -885,6 +911,14 @@ public static class UIButtonPatch
                     string biomeName = biomeData.DisplayName;
                     if (!string.IsNullOrEmpty(biomeName))
                         sb.Append(CleanText(biomeName));
+
+                    // Try to read biome description/lore
+                    string lore = TryGetBiomeLore(biomeData);
+                    if (!string.IsNullOrEmpty(lore))
+                    {
+                        sb.Append(". ");
+                        sb.Append(lore);
+                    }
                 }
             }
 
@@ -896,7 +930,20 @@ public static class UIButtonPatch
             {
                 string cleanReq = CleanText(reqText.text);
                 if (!string.IsNullOrEmpty(cleanReq))
-                    sb.Append(". " + cleanReq);
+                {
+                    // If it's just a number, it's the high score
+                    if (IsJustNumber(cleanReq))
+                    {
+                        sb.Append(". High score: ");
+                        sb.Append(cleanReq);
+                    }
+                    else
+                    {
+                        // Otherwise it's requirement text
+                        sb.Append(". ");
+                        sb.Append(cleanReq);
+                    }
+                }
             }
 
             if (button.isLocked)
@@ -915,6 +962,36 @@ public static class UIButtonPatch
             Plugin.Log?.LogError($"UIButtonPatch.GetMissionNodeButtonText error: {ex.Message}");
             return null;
         }
+    }
+
+    private static string TryGetBiomeLore(BiomeData biomeData)
+    {
+        if (biomeData == null)
+            return null;
+
+        try
+        {
+            // Try native Lore property
+            string lore = biomeData.Lore;
+            if (!string.IsNullOrEmpty(lore))
+                return CleanText(lore);
+        }
+        catch { /* Native getter failed */ }
+
+        try
+        {
+            // Try localized lore
+            var locLore = biomeData.locLore;
+            if (locLore != null)
+            {
+                string lore = locLore.GetLocalizedString();
+                if (!string.IsNullOrEmpty(lore))
+                    return CleanText(lore);
+            }
+        }
+        catch { /* Localized lore not available */ }
+
+        return null;
     }
 
     private static string GetMissionGateButtonText(UIMissionGateButton button)
@@ -1497,26 +1574,76 @@ public static class UIButtonPatch
 
     private static string GetDefaultButtonText(UIButton button)
     {
+        Plugin.Log?.LogInfo($"GetDefaultButtonText for: {button.gameObject.name}");
+
         // Try to get text from buttonText field
         TextMeshProUGUI textComponent = button.buttonText;
         if (textComponent != null)
         {
             string text = textComponent.text;
+            Plugin.Log?.LogInfo($"  buttonText field: '{text}'");
             if (!string.IsNullOrEmpty(text))
-                return CleanText(text);
+            {
+                string result = CleanText(text);
+                Plugin.Log?.LogInfo($"  Returning from buttonText: '{result}'");
+                return result;
+            }
         }
 
         // Fallback: try to find TextMeshProUGUI in children
-        TextMeshProUGUI childText = button.GetComponentInChildren<TextMeshProUGUI>();
-        if (childText != null)
+        // For mission node buttons (biome selection), we need to filter out numeric-only TMPs
+        var allTMPs = button.GetComponentsInChildren<TextMeshProUGUI>();
+        Plugin.Log?.LogInfo($"  Found {allTMPs?.Length ?? 0} TMP children");
+
+        if (allTMPs != null && allTMPs.Length > 0)
         {
-            string text = childText.text;
-            if (!string.IsNullOrEmpty(text))
-                return CleanText(text);
+            var textParts = new System.Collections.Generic.List<string>();
+
+            foreach (var tmp in allTMPs)
+            {
+                if (tmp == null || string.IsNullOrEmpty(tmp.text))
+                    continue;
+
+                string cleaned = CleanText(tmp.text);
+                Plugin.Log?.LogInfo($"  TMP '{tmp.gameObject.name}': raw='{tmp.text}', cleaned='{cleaned}', IsJustNumber={IsJustNumber(cleaned)}");
+
+                if (string.IsNullOrEmpty(cleaned))
+                    continue;
+
+                // Skip pure numbers (scores/stats) from mission node buttons
+                if (button.gameObject.name.Contains("MissionNode") && IsJustNumber(cleaned))
+                {
+                    Plugin.Log?.LogInfo($"  -> Skipping numeric TMP: '{cleaned}'");
+                    continue;
+                }
+
+                textParts.Add(cleaned);
+            }
+
+            if (textParts.Count > 0)
+            {
+                string result = string.Join(". ", textParts);
+                Plugin.Log?.LogInfo($"  Returning joined result: '{result}'");
+                return result;
+            }
         }
 
         // Last resort: use GameObject name
+        Plugin.Log?.LogInfo($"  Returning GameObject name");
         return CleanText(button.gameObject.name);
+    }
+
+    private static bool IsJustNumber(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
+        // Check if the text is just numbers, spaces, dots, or commas (score format)
+        foreach (char c in text)
+        {
+            if (!char.IsDigit(c) && c != ' ' && c != '.' && c != ',')
+                return false;
+        }
+        return text.Any(char.IsDigit); // Must have at least one digit
     }
 
     private static string GetStepSelectorText(StepSelectorBase selector, UIButton button)

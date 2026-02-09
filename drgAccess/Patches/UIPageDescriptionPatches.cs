@@ -3,6 +3,7 @@ using DRS.UI;
 using TMPro;
 using UnityEngine.Localization;
 using System.Text;
+using System.Linq;
 
 namespace drgAccess.Patches;
 
@@ -108,7 +109,29 @@ public static class UIPageDescriptionPatches
         [HarmonyPostfix]
         public static void Postfix(UIBiomeSelectPage __instance, BiomeLevelData biomeLevelData)
         {
+            Plugin.Log?.LogInfo("BiomePage_OnBiomeSelect called!");
             AnnounceBiomeDescription(__instance, biomeLevelData);
+        }
+    }
+
+    [HarmonyPatch(typeof(UIBiomeSelectPage), nameof(UIBiomeSelectPage.OnBiomeClick))]
+    public static class BiomePage_OnBiomeClick
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIBiomeSelectPage __instance, BiomeLevelData biomeLevelData)
+        {
+            Plugin.Log?.LogInfo("BiomePage_OnBiomeClick called!");
+            AnnounceBiomeDescription(__instance, biomeLevelData);
+        }
+    }
+
+    [HarmonyPatch(typeof(UIBiomeSelectPage), nameof(UIBiomeSelectPage.Setup))]
+    public static class BiomePage_Setup
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIBiomeSelectPage __instance)
+        {
+            Plugin.Log?.LogInfo("BiomePage_Setup called!");
         }
     }
 
@@ -125,33 +148,25 @@ public static class UIPageDescriptionPatches
             if (titleTMP != null && !string.IsNullOrEmpty(titleTMP.text))
                 sb.Append(CleanText(titleTMP.text));
 
-            // Read lore from BiomeData instead of page description TMP (which may show score)
-            if (biomeLevelData != null)
+            // Read description from the TMP (may contain lore or score info)
+            var descTMP = page.description;
+            if (descTMP != null && !string.IsNullOrEmpty(descTMP.text))
             {
-                var biomeData = biomeLevelData.BiomeData;
-                if (biomeData != null)
+                string rawDescText = descTMP.text;
+                string descText = CleanText(rawDescText);
+
+                Plugin.Log?.LogInfo($"BiomePage - Raw description: '{rawDescText}', Cleaned: '{descText}', IsJustNumber: {IsJustNumber(descText)}");
+
+                // Only include if it's not just a number (score)
+                if (!string.IsNullOrEmpty(descText) && !IsJustNumber(descText))
                 {
-                    string lore = null;
-                    try { lore = biomeData.Lore; }
-                    catch { /* Native getter failed */ }
-
-                    if (string.IsNullOrEmpty(lore))
-                    {
-                        try
-                        {
-                            var locLore = biomeData.locLore;
-                            if (locLore != null)
-                                lore = locLore.GetLocalizedString();
-                        }
-                        catch { /* Localized lore not available */ }
-                    }
-
-                    if (!string.IsNullOrEmpty(lore))
-                    {
-                        if (sb.Length > 0) sb.Append(". ");
-                        sb.Append(CleanText(lore));
-                    }
+                    if (sb.Length > 0) sb.Append(". ");
+                    sb.Append(descText);
                 }
+            }
+            else
+            {
+                Plugin.Log?.LogInfo("BiomePage - No description TMP or text is empty");
             }
 
             if (sb.Length > 0)
@@ -161,6 +176,19 @@ public static class UIPageDescriptionPatches
         {
             Plugin.Log?.LogError($"UIPageDescriptionPatches.BiomePage error: {ex.Message}");
         }
+    }
+
+    private static bool IsJustNumber(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
+        // Check if the text is just numbers, spaces, dots, or commas (score format)
+        foreach (char c in text)
+        {
+            if (!char.IsDigit(c) && c != ' ' && c != '.' && c != ',')
+                return false;
+        }
+        return text.Any(char.IsDigit); // Must have at least one digit
     }
 
     private static void AnnounceChallengeSetPageDescription(UIChallengeSetSelectPage page)
