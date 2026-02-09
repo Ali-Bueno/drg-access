@@ -166,13 +166,24 @@ namespace drgAccess.Components
         {
             if (Instance != null && Instance != this)
             {
+                Plugin.Log.LogWarning("[WallNav] Duplicate instance - destroying");
                 Destroy(gameObject);
                 return;
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            Plugin.Log.LogInfo("[WallNav] Wall Navigation Audio initialized");
+            Plugin.Log.LogInfo($"[WallNav] Awake - Initialized (GameObject: {gameObject.name})");
+        }
+
+        void OnEnable()
+        {
+            Plugin.Log.LogInfo("[WallNav] OnEnable called");
+        }
+
+        void OnDisable()
+        {
+            Plugin.Log.LogWarning("[WallNav] OnDisable called - audio will stop!");
         }
 
         void Start()
@@ -184,26 +195,37 @@ namespace drgAccess.Components
         {
             try
             {
-                // Try to get LayerMaskLibrary from the game
+                // Try to get LayerMaskLibrary from EnemySpawner
                 try
                 {
-                    layerMaskLibrary = UnityEngine.Object.FindObjectOfType<LayerMaskLibrary>();
-                    if (layerMaskLibrary != null)
+                    var spawner = UnityEngine.Object.FindObjectOfType<EnemySpawner>();
+                    if (spawner != null)
                     {
-                        // Use the game's obstacle mask for more accurate wall detection
-                        wallLayerMask = layerMaskLibrary.obstacleMask;
-                        Plugin.Log.LogInfo($"[WallNav] Using game's obstacleMask layer");
+                        layerMaskLibrary = spawner.layerMaskLibrary;
+                        if (layerMaskLibrary != null)
+                        {
+                            // Use the game's obstacle mask for more accurate wall detection
+                            wallLayerMask = layerMaskLibrary.obstacleMask;
+                            Plugin.Log.LogInfo($"[WallNav] Using game's obstacleMask from EnemySpawner");
+                        }
+                        else
+                        {
+                            // Fallback: use specific layer by name
+                            wallLayerMask = LayerMask.GetMask("Default", "Terrain", "Wall");
+                            Plugin.Log.LogInfo($"[WallNav] LayerMaskLibrary null, using Default/Terrain/Wall layers");
+                        }
                     }
                     else
                     {
-                        wallLayerMask = -1;
-                        Plugin.Log.LogInfo($"[WallNav] LayerMaskLibrary not found, using all layers");
+                        // Fallback: use specific layer by name
+                        wallLayerMask = LayerMask.GetMask("Default", "Terrain", "Wall");
+                        Plugin.Log.LogInfo($"[WallNav] EnemySpawner not found, using Default/Terrain/Wall layers");
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    wallLayerMask = -1;
-                    Plugin.Log.LogInfo($"[WallNav] Using all layers (fallback)");
+                    wallLayerMask = LayerMask.GetMask("Default", "Terrain", "Wall");
+                    Plugin.Log.LogInfo($"[WallNav] Error getting LayerMask ({e.Message}), using Default/Terrain/Wall layers");
                 }
 
                 // Create audio channels for each direction
@@ -368,18 +390,50 @@ namespace drgAccess.Components
                 var currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
                 if (!string.IsNullOrEmpty(lastSceneName) && currentScene != lastSceneName)
                 {
-                    Plugin.Log.LogInfo($"[WallNav] Scene changed to {currentScene}");
+                    Plugin.Log.LogInfo($"[WallNav] Scene changed to {currentScene} - resetting");
                     sceneLoadTime = Time.time;
+
+                    // Reset player/camera references
+                    playerTransform = null;
+                    cameraTransform = null;
+                    nextPlayerSearchTime = 0f;
+
+                    // Reset game state
+                    gameStateProvider = null;
+                    layerMaskLibrary = null;
                 }
                 lastSceneName = currentScene;
             }
-            catch { }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[WallNav] CheckSceneChange error: {e.Message}");
+            }
         }
 
         private bool IsInActiveGameplay()
         {
             try
             {
+                // Primary check: time scale (catches pause)
+                if (Time.timeScale <= 0.1f)
+                {
+                    return false;
+                }
+
+                // Validate gameStateProvider is still valid (not destroyed)
+                if (gameStateProvider != null)
+                {
+                    try
+                    {
+                        var _ = gameStateProvider.State; // Test if destroyed
+                    }
+                    catch
+                    {
+                        Plugin.Log.LogInfo("[WallNav] GameStateProvider destroyed, will search for new one");
+                        gameStateProvider = null;
+                    }
+                }
+
                 // Find game state provider if not cached
                 if (gameStateProvider == null)
                 {
@@ -387,6 +441,7 @@ namespace drgAccess.Components
                     if (gameController != null)
                     {
                         gameStateProvider = gameController.Cast<IGameStateProvider>();
+                        Plugin.Log.LogInfo("[WallNav] Found new GameController");
                     }
                 }
 
@@ -403,8 +458,8 @@ namespace drgAccess.Components
                 Plugin.Log.LogDebug($"[WallNav] IsInActiveGameplay error: {e.Message}");
             }
 
-            // Fallback: check time scale
-            return Time.timeScale > 0.1f;
+            // Fallback: already checked time scale above
+            return false;
         }
 
         private void UpdateWallDetection()
@@ -532,6 +587,8 @@ namespace drgAccess.Components
 
         void OnDestroy()
         {
+            Plugin.Log.LogWarning($"[WallNav] OnDestroy called! Stack trace: {UnityEngine.StackTraceUtility.ExtractStackTrace()}");
+
             lock (channelLock)
             {
                 foreach (var channel in channels.Values)

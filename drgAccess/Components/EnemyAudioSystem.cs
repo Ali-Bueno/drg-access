@@ -54,17 +54,17 @@ namespace drgAccess.Components
             vibratoPhase = 0;
             phase = 0;
 
-            // Duration based on type
+            // Duration based on type (more distinctive)
             switch (type)
             {
                 case EnemyAudioType.Boss:
-                    totalSamples = (int)(sampleRate * 0.25); // 250ms - long and threatening
+                    totalSamples = (int)(sampleRate * 0.35); // 350ms - very long and menacing
                     break;
                 case EnemyAudioType.Elite:
-                    totalSamples = (int)(sampleRate * 0.12); // 120ms - medium
+                    totalSamples = (int)(sampleRate * 0.18); // 180ms - noticeably longer than normal
                     break;
                 default:
-                    totalSamples = (int)(sampleRate * 0.06); // 60ms - short
+                    totalSamples = (int)(sampleRate * 0.05); // 50ms - very short and sharp
                     break;
             }
             samplesRemaining = totalSamples;
@@ -100,36 +100,36 @@ namespace drgAccess.Components
             switch (enemyType)
             {
                 case EnemyAudioType.Boss:
-                    // Boss: deep wave with pitch descent, very powerful
-                    frequency = baseFrequency * (1.0 - progress * 0.3); // Descend 30%
-                    envelope = (float)(Math.Exp(-progress * 2.5) * (1.0 - progress * 0.3));
+                    // Boss: VERY deep rumbling with dramatic pitch descent
+                    frequency = baseFrequency * (1.0 - progress * 0.5); // Descend 50% (more dramatic)
+                    envelope = (float)(Math.Exp(-progress * 2.0) * (1.0 - progress * 0.2));
 
-                    // Square wave with sub-bass
+                    // Heavy square wave with strong sub-bass (menacing)
                     double square = phase < 0.5 ? 1.0 : -1.0;
                     double subBass = Math.Sin(2.0 * Math.PI * phase * 0.5);
-                    waveform = square * 0.6 + subBass * 0.4;
+                    double deepSine = Math.Sin(2.0 * Math.PI * phase * 0.25); // Extra low component
+                    waveform = square * 0.5 + subBass * 0.3 + deepSine * 0.2;
                     break;
 
                 case EnemyAudioType.Elite:
-                    // Elite: distinctive vibrato
-                    vibratoPhase += 12.0 / sampleRate; // 12 Hz vibrato
-                    double vibrato = Math.Sin(2.0 * Math.PI * vibratoPhase) * 0.15;
+                    // Elite: Strong distinctive vibrato (more pronounced)
+                    vibratoPhase += 15.0 / sampleRate; // 15 Hz vibrato (faster, more noticeable)
+                    double vibrato = Math.Sin(2.0 * Math.PI * vibratoPhase) * 0.25; // Increased depth
                     frequency = baseFrequency * (1.0 + vibrato);
-                    envelope = (float)Math.Exp(-progress * 3.5);
+                    envelope = (float)Math.Exp(-progress * 3.0);
 
-                    // Triangle with some square
+                    // Triangle dominant with sharp harmonics
                     double triangle = 2.0 * Math.Abs(2.0 * phase - 1.0) - 1.0;
-                    double squareWave = phase < 0.5 ? 1.0 : -1.0;
-                    waveform = triangle * 0.7 + squareWave * 0.3;
+                    double harmonic = Math.Sin(2.0 * Math.PI * phase * 2.0); // 2nd harmonic
+                    waveform = triangle * 0.6 + harmonic * 0.4;
                     break;
 
                 default: // Normal
-                    envelope = (float)Math.Exp(-progress * 5);
+                    envelope = (float)Math.Exp(-progress * 8); // Very sharp attack/decay
 
-                    // Simple short beep
-                    double tri = 2.0 * Math.Abs(2.0 * phase - 1.0) - 1.0;
-                    double sq = phase < 0.5 ? 1.0 : -1.0;
-                    waveform = tri * 0.5 + sq * 0.5;
+                    // Clean pure beep (distinct from others)
+                    double cleanSine = Math.Sin(2.0 * Math.PI * phase);
+                    waveform = cleanSine; // Pure sine wave - clear and simple
                     break;
             }
 
@@ -220,12 +220,19 @@ namespace drgAccess.Components
 
         // Configuration
         private float maxDistance = 50f;
-        private float normalBaseInterval = 0.5f;
-        private float normalMinInterval = 0.1f;
-        private float eliteBaseInterval = 0.8f;
-        private float eliteMinInterval = 0.2f;
-        private float bossBaseInterval = 1.2f;
-        private float bossMinInterval = 0.4f;
+        private float criticalProximityDistance = 3.5f; // Very close - imminent danger!
+        // Normal: Fast frequent beeps
+        private float normalBaseInterval = 0.4f;
+        private float normalMinInterval = 0.08f;
+        private float normalCriticalInterval = 0.04f; // VERY fast when critical
+        // Elite: Medium distinctive beeps
+        private float eliteBaseInterval = 0.6f;
+        private float eliteMinInterval = 0.15f;
+        private float eliteCriticalInterval = 0.08f;
+        // Boss: Slow powerful pulses
+        private float bossBaseInterval = 1.0f;
+        private float bossMinInterval = 0.3f;
+        private float bossCriticalInterval = 0.15f;
 
         // 8 directions for better precision
         private const int NUM_DIRECTIONS = 8;
@@ -249,7 +256,6 @@ namespace drgAccess.Components
 
         // Game state tracking
         private IGameStateProvider gameStateProvider;
-        private AI_Manager aiManager;
 
         static EnemyAudioSystem()
         {
@@ -260,6 +266,7 @@ namespace drgAccess.Components
         {
             if (Instance != null && Instance != this)
             {
+                Plugin.Log.LogWarning("[EnemyAudio] Duplicate instance - destroying");
                 Destroy(gameObject);
                 return;
             }
@@ -271,7 +278,17 @@ namespace drgAccess.Components
                 directionGroups[i] = new DirectionalEnemyGroup();
             }
 
-            Plugin.Log.LogInfo("[EnemyAudio] Initialized with 8 directions and enemy type differentiation");
+            Plugin.Log.LogInfo($"[EnemyAudio] Awake - Initialized (GameObject: {gameObject.name})");
+        }
+
+        void OnEnable()
+        {
+            Plugin.Log.LogInfo("[EnemyAudio] OnEnable called");
+        }
+
+        void OnDisable()
+        {
+            Plugin.Log.LogWarning("[EnemyAudio] OnDisable called - audio will stop!");
         }
 
         void Start()
@@ -332,10 +349,20 @@ namespace drgAccess.Components
             {
                 CheckSceneChange();
 
-                if (!isInitialized) return;
+                if (!isInitialized)
+                {
+                    if (Time.frameCount % 300 == 0)
+                        Plugin.Log.LogDebug("[EnemyAudio] Not initialized");
+                    return;
+                }
 
                 // Only play during active gameplay (CORE state)
-                if (!IsInActiveGameplay()) return;
+                if (!IsInActiveGameplay())
+                {
+                    if (Time.frameCount % 300 == 0)
+                        Plugin.Log.LogDebug("[EnemyAudio] Not in active gameplay");
+                    return;
+                }
 
                 if (Time.time >= nextPlayerSearchTime)
                 {
@@ -343,7 +370,15 @@ namespace drgAccess.Components
                     nextPlayerSearchTime = Time.time + 2f;
                 }
 
-                if (playerTransform == null || cameraTransform == null) return;
+                if (playerTransform == null || cameraTransform == null)
+                {
+                    if (Time.frameCount % 300 == 0)
+                        Plugin.Log.LogDebug($"[EnemyAudio] Player/camera missing: player={playerTransform != null}, camera={cameraTransform != null}");
+                    return;
+                }
+
+                if (Time.frameCount % 300 == 0)
+                    Plugin.Log.LogDebug($"[EnemyAudio] Ready to update (player+camera OK, in gameplay)");
 
                 if (Time.time >= nextUpdateTime)
                 {
@@ -355,63 +390,76 @@ namespace drgAccess.Components
             }
             catch (Exception e)
             {
-                Plugin.Log.LogDebug($"[EnemyAudio] Update error: {e.Message}");
+                Plugin.Log.LogError($"[EnemyAudio] Update error: {e.Message}");
             }
         }
 
         private void UpdateEnemyGroups()
         {
-            // Reset groups
-            for (int i = 0; i < NUM_DIRECTIONS; i++)
+            try
             {
-                directionGroups[i].Reset();
-            }
+                if (Time.frameCount % 60 == 0)
+                    Plugin.Log.LogInfo("[EnemyAudio] UpdateEnemyGroups() called");
 
-            Vector3 playerPos = playerTransform.position;
-            Vector3 forward = cameraTransform.forward;
-            forward.y = 0;
-            forward.Normalize();
-
-            Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
-
-            // Get AI_Manager instance if not cached
-            if (aiManager == null)
-            {
-                aiManager = AI_Manager._instance;
-                if (aiManager == null) return;
-            }
-
-            // Access AI units directly from AI_Manager (static field)
-            var aiUnits = AI_Manager._units;
-            if (aiUnits == null) return;
-
-            foreach (var aiUnit in aiUnits)
-            {
-                try
+                // Reset groups
+                for (int i = 0; i < NUM_DIRECTIONS; i++)
                 {
-                    if (aiUnit == null) continue;
+                    directionGroups[i].Reset();
+                }
 
-                    // Get Enemy component from AI_Unit
-                    var enemy = aiUnit.GetComponent<Enemy>();
-                    if (enemy == null) continue;
+                if (Time.frameCount % 60 == 0)
+                    Plugin.Log.LogInfo("[EnemyAudio] Groups reset, getting player position");
 
-                    // Check if enemy is dead
+                Vector3 playerPos = playerTransform.position;
+                Vector3 forward = cameraTransform.forward;
+                forward.y = 0;
+                forward.Normalize();
+
+                // Correct cross product order for right vector
+                Vector3 right = new Vector3(forward.z, 0, -forward.x); // Perpendicular to forward on XZ plane
+
+                if (Time.frameCount % 60 == 0)
+                    Plugin.Log.LogInfo($"[EnemyAudio] Player at {playerPos}, checking EnemyTracker");
+
+                // Get enemies from EnemyTracker (which is maintained by patches)
+                var tracker = EnemyTracker.Instance;
+                if (tracker == null)
+                {
+                    if (Time.frameCount % 300 == 0)
+                        Plugin.Log.LogWarning("[EnemyAudio] EnemyTracker.Instance is null");
+                    return;
+                }
+
+                var enemies = tracker.GetActiveEnemies();
+                if (enemies == null)
+                {
+                    if (Time.frameCount % 300 == 0)
+                        Plugin.Log.LogWarning("[EnemyAudio] GetActiveEnemies() returned null");
+                    return;
+                }
+
+                int processedCount = 0;
+                int validEnemyCount = 0;
+
+                    foreach (var enemy in enemies)
+                {
                     try
                     {
-                        if (enemy.IsDead) continue;
-                    }
-                    catch
-                    {
-                        continue;
-                    }
+                        processedCount++;
+                        if (enemy == null) continue;
+
+                        // Check if enemy is alive using proper property
+                        if (!enemy.isAlive) continue;
 
                     // Filter out non-combat entities
                     var enemyType = enemy.type;
                     if (enemyType == EEnemyType.COCOON || enemyType == EEnemyType.BIG_COCOON)
                         continue;
 
-                    // Use AI_Unit's current position for better accuracy
-                    Vector3 enemyPos = aiUnit._currentPosition;
+                    validEnemyCount++;
+
+                    // Use Enemy's position property
+                    Vector3 enemyPos = enemy.position;
                     float distance = Vector3.Distance(playerPos, enemyPos);
 
                     if (distance > maxDistance) continue;
@@ -465,8 +513,22 @@ namespace drgAccess.Components
                             group.ClosestNormalHeight = height;
                         }
                     }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Time.frameCount % 300 == 0)
+                            Plugin.Log.LogDebug($"[EnemyAudio] Error processing enemy: {ex.Message}");
+                    }
                 }
-                catch { }
+
+                if (Time.frameCount % 60 == 0)
+                {
+                    Plugin.Log.LogInfo($"[EnemyAudio] UpdateEnemyGroups: processed={processedCount}, valid={validEnemyCount}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"[EnemyAudio] UpdateEnemyGroups error: {ex.Message}\nStack: {ex.StackTrace}");
             }
         }
 
@@ -545,13 +607,24 @@ namespace drgAccess.Components
                     break;
             }
 
-            // Calculate interval
+            // Check if in critical proximity (IMMINENT DANGER!)
+            bool isCritical = distance < criticalProximityDistance;
+
+            // Calculate interval based on proximity
             float proximityFactor = 1f - (distance / maxDistance);
             proximityFactor = Mathf.Clamp01(proximityFactor);
             proximityFactor = proximityFactor * proximityFactor;
 
             float countFactor = Mathf.Clamp01(count / 5f);
-            float interval = Mathf.Lerp(baseInterval, minInterval, Mathf.Max(proximityFactor, countFactor));
+
+            // Critical proximity: use MUCH faster interval for urgent warning
+            float targetInterval = isCritical ?
+                (type == EnemyAudioType.Boss ? bossCriticalInterval :
+                 type == EnemyAudioType.Elite ? eliteCriticalInterval :
+                 normalCriticalInterval) :
+                minInterval;
+
+            float interval = Mathf.Lerp(baseInterval, targetInterval, Mathf.Max(proximityFactor, countFactor));
 
             if (currentTime < nextPlayTime) return;
 
@@ -571,28 +644,38 @@ namespace drgAccess.Components
                 switch (type)
                 {
                     case EnemyAudioType.Boss:
-                        // Boss: very deep (60-120 Hz), reduced volume
-                        frequency = 60 + (proximityFactor * 60);
+                        // Boss: VERY deep (40-100 Hz) - unmistakable rumble
+                        frequency = 40 + (proximityFactor * 60);
                         frequency *= (1.0 + heightAdjustment);
-                        volume = 0.25f + proximityFactor * 0.15f;  // Reduced from 0.6/0.3
+                        volume = 0.3f + proximityFactor * 0.2f;
+                        // CRITICAL PROXIMITY: boost volume significantly
+                        if (isCritical) volume *= 1.5f;
                         break;
                     case EnemyAudioType.Elite:
-                        // Elite: deep-medium (150-300 Hz), reduced volume
-                        frequency = 150 + (proximityFactor * 150);
+                        // Elite: Medium-low (200-400 Hz) - clear separation from normal
+                        frequency = 200 + (proximityFactor * 200);
                         frequency *= (1.0 + heightAdjustment);
-                        volume = 0.2f + proximityFactor * 0.12f;  // Reduced from 0.5/0.25
+                        volume = 0.25f + proximityFactor * 0.15f;
+                        // CRITICAL PROXIMITY: boost volume
+                        if (isCritical) volume *= 1.4f;
                         break;
                     default:
-                        // Normal: high (500-1000 Hz), reduced volume
-                        frequency = 500 + (proximityFactor * 500);
+                        // Normal: High (700-1400 Hz) - bright and distinct
+                        frequency = 700 + (proximityFactor * 700);
                         frequency *= (1.0 + heightAdjustment);
-                        volume = 0.15f + proximityFactor * 0.1f;  // Reduced from 0.4/0.2
-                        // Boost by count (reduced)
-                        volume += Mathf.Clamp01(count / 8f) * 0.08f;  // Reduced from 0.15
+                        volume = 0.2f + proximityFactor * 0.12f;
+                        // Boost by count
+                        volume += Mathf.Clamp01(count / 8f) * 0.08f;
+                        // CRITICAL PROXIMITY: boost volume and add urgency
+                        if (isCritical)
+                        {
+                            volume *= 1.3f;
+                            frequency *= 1.2; // Slightly higher pitch for urgency
+                        }
                         break;
                 }
 
-                volume = Mathf.Clamp(volume, 0.1f, 0.4f);  // Reduced max from 0.85 to 0.4
+                volume = Mathf.Clamp(volume, 0.15f, 0.7f);  // Allow louder for critical warnings
 
                 channel.PanProvider.Pan = pan;
                 channel.VolumeProvider.Volume = volume;
@@ -613,7 +696,10 @@ namespace drgAccess.Components
                 var currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
                 if (!string.IsNullOrEmpty(lastSceneName) && currentScene != lastSceneName)
                 {
+                    Plugin.Log.LogInfo($"[EnemyAudio] Scene changed to {currentScene} - resetting");
                     sceneLoadTime = Time.time;
+
+                    // Reset all direction groups
                     for (int i = 0; i < NUM_DIRECTIONS; i++)
                     {
                         directionGroups[i].Reset();
@@ -621,16 +707,49 @@ namespace drgAccess.Components
                         directionGroups[i].NextElitePlayTime = 0;
                         directionGroups[i].NextBossPlayTime = 0;
                     }
+
+                    // Reset player/camera references (will be found again)
+                    playerTransform = null;
+                    cameraTransform = null;
+                    nextPlayerSearchTime = 0f;
+
+                    // Reset game state provider
+                    gameStateProvider = null;
                 }
                 lastSceneName = currentScene;
             }
-            catch { }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[EnemyAudio] CheckSceneChange error: {e.Message}");
+            }
         }
 
         private bool IsInActiveGameplay()
         {
             try
             {
+                // Primary check: time scale (catches pause)
+                if (Time.timeScale <= 0.1f)
+                {
+                    if (Time.frameCount % 300 == 0)
+                        Plugin.Log.LogDebug($"[EnemyAudio] timeScale too low: {Time.timeScale}");
+                    return false;
+                }
+
+                // Validate gameStateProvider is still valid (not destroyed)
+                if (gameStateProvider != null)
+                {
+                    try
+                    {
+                        var _ = gameStateProvider.State; // Test if destroyed
+                    }
+                    catch
+                    {
+                        Plugin.Log.LogInfo("[EnemyAudio] GameStateProvider destroyed, will search for new one");
+                        gameStateProvider = null;
+                    }
+                }
+
                 // Find game state provider if not cached
                 if (gameStateProvider == null)
                 {
@@ -638,23 +757,39 @@ namespace drgAccess.Components
                     if (gameController != null)
                     {
                         gameStateProvider = gameController.Cast<IGameStateProvider>();
+                        Plugin.Log.LogInfo("[EnemyAudio] Found new GameController");
+                    }
+                    else
+                    {
+                        if (Time.frameCount % 300 == 0)
+                            Plugin.Log.LogDebug("[EnemyAudio] GameController not found");
                     }
                 }
 
                 if (gameStateProvider != null)
                 {
                     var state = gameStateProvider.State;
+                    bool isCore = state == GameController.EGameState.CORE;
+
+                    if (Time.frameCount % 300 == 0)
+                        Plugin.Log.LogDebug($"[EnemyAudio] GameState: {state}, CORE={isCore}");
+
                     // Only play audio during CORE gameplay state
-                    return state == GameController.EGameState.CORE;
+                    return isCore;
+                }
+                else
+                {
+                    if (Time.frameCount % 300 == 0)
+                        Plugin.Log.LogDebug("[EnemyAudio] gameStateProvider is null");
                 }
             }
             catch (Exception e)
             {
-                Plugin.Log.LogDebug($"[EnemyAudio] IsInActiveGameplay error: {e.Message}");
+                Plugin.Log.LogError($"[EnemyAudio] IsInActiveGameplay error: {e.Message}");
             }
 
-            // Fallback: check time scale
-            return Time.timeScale > 0.1f;
+            // Fallback: already checked time scale above
+            return false;
         }
 
         private void FindPlayer()
@@ -685,6 +820,8 @@ namespace drgAccess.Components
 
         void OnDestroy()
         {
+            Plugin.Log.LogWarning($"[EnemyAudio] OnDestroy called! Stack trace: {UnityEngine.StackTraceUtility.ExtractStackTrace()}");
+
             foreach (var channel in audioChannels.Values)
             {
                 channel?.Dispose();

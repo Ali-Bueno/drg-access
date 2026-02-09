@@ -33,6 +33,21 @@ namespace drgAccess.Components
             Plugin.Log.LogInfo("[EnemyTracker] Initialized");
         }
 
+        void OnEnable()
+        {
+            // Clear enemies when re-enabled (scene change/retry)
+            if (activeEnemies != null)
+            {
+                lock (lockObj)
+                {
+                    int count = activeEnemies.Count;
+                    activeEnemies.Clear();
+                    if (count > 0)
+                        Plugin.Log.LogInfo($"[EnemyTracker] Cleared {count} enemies on re-enable");
+                }
+            }
+        }
+
         public void RegisterEnemy(Enemy enemy)
         {
             if (enemy == null) return;
