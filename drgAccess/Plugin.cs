@@ -32,6 +32,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.WallNavigationAudio>();
         AddComponent<Components.EnemyAudioSystem>();
         AddComponent<Components.DropPodAudio>();
+        AddComponent<Components.ActivationZoneAudio>();
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded successfully!");
         ScreenReader.Say("DRG Survivor Accessibility mod loaded");

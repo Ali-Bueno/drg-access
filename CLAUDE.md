@@ -37,25 +37,30 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Left/Right: 300 Hz (medium-low tone) with stereo panning
   - Volume increases as walls get closer
 - **Gameplay Audio - Enemy Detection**: 3D positional beeps for enemies with type differentiation
-  - Normal enemies: Pure sine wave, 700-1400 Hz, 50ms duration
-  - Elite enemies: Triangle wave + 2nd harmonic, 200-400 Hz, 180ms, 15Hz vibrato
+  - Normal enemies (including MINI_ELITE): Pure sine wave, 700-1400 Hz, 50ms duration
+  - Elite enemies (ELITE only): Triangle wave + 2nd harmonic, 200-400 Hz, 180ms, 15Hz vibrato
   - Boss enemies: Square wave + sub-bass, 40-100 Hz, 350ms, dramatic pitch descent
   - Critical proximity warning (< 3.5m): Faster beeps, boosted volume, higher pitch for urgency
   - 8-directional detection with stereo panning
-- **Gameplay Audio - Drop Pod Beacon** (WIP): Audio beacon for extraction pod
-  - Extraction beacon: Calm homing signal (0.8s interval) audible from 150m
-  - 3D positional audio with distance-based volume and frequency
+  - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
+- **Gameplay Audio - Drop Pod Beacon**: Enemy-style beeps for extraction pod location
+  - Short beeps (60ms) that accelerate when approaching (0.6s → 0.08s interval)
+  - 3D positional audio with distance-based volume (0.2-0.35) and frequency (500-900 Hz)
+  - Distinguishable from enemies by lower frequency range
+  - Stops when player enters pod
+  - Landing warning: Pulsing alarm tone (900-1400 Hz) when pod is descending (5 seconds)
+  - Only activates for extraction pod (not initial drop pod)
+- **Gameplay Audio - Supply Pod Beacon**: Enemy-style beeps for ActivationZone (supply pod zones)
+  - Short beeps (60ms) that accelerate when approaching (0.5s → 0.1s interval)
+  - 3D positional audio with distance-based volume (0.18-0.3) and frequency (350-650 Hz)
+  - Lowest frequency range to distinguish from enemies and drop pod
+  - Stops when player is inside zone or zone is activating
+  - Detects nearest active zone within 100m
 
 ### Known Issues
-- [ ] **CRITICAL: Audio stops after game retry** - When clicking "Retry" after game end, all audio systems (walls, enemies, drop pod) stop working. Scene name doesn't change on retry, so gameStateProvider validation not detecting destroyed GameController. Need alternative detection method.
-- [ ] **Drop pod beacon not audible** - Beacon activates but no sound plays. Needs investigation (possibly activating on initial pod instead of extraction pod, or UpdateBeacon() not being called).
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
 
 ### Pending Improvements
-- [ ] Fix audio retry bug (sounds stop after clicking Retry)
-- [ ] Fix drop pod beacon (not audible, needs debugging)
-- [ ] Differentiate initial drop pod from extraction pod (only extraction should have beacon)
-- [ ] Add landing warning for extraction pod (danger zone when descending)
 - [ ] In-game HUD reading (health, XP, wave, etc.)
 - [ ] Level-up skill selection improvements
 - [ ] Death/victory announcements
@@ -67,27 +72,28 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 ```
 drgAccess/
-├── Plugin.cs                  # Main plugin entry point
-├── ScreenReader.cs            # Tolk wrapper for screen reader output
-├── SettingsFocusTracker.cs    # MonoBehaviour polling EventSystem for settings focus
+├── Plugin.cs                      # Main plugin entry point
+├── ScreenReader.cs                # Tolk wrapper for screen reader output
+├── SettingsFocusTracker.cs        # MonoBehaviour polling EventSystem for settings focus
 ├── Components/
-│   ├── WallNavigationAudio.cs # Wall detection with continuous tones
-│   ├── EnemyAudioSystem.cs    # 3D positional audio for enemies
-│   ├── EnemyTracker.cs        # Tracks active enemies in scene
-│   └── DropPodAudio.cs        # Drop pod extraction beacon (WIP)
+│   ├── WallNavigationAudio.cs     # Wall detection with continuous tones
+│   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies
+│   ├── EnemyTracker.cs            # Tracks active enemies in scene
+│   ├── DropPodAudio.cs            # Drop pod extraction beacon (enemy-style beeps)
+│   └── ActivationZoneAudio.cs     # Supply pod zone beacon (enemy-style beeps)
 ├── Patches/
-│   ├── UIButtonPatch.cs       # All button types (class, subclass, shop, selectors, etc.)
-│   ├── UIFormPatches.cs       # Form/menu announcements
+│   ├── UIButtonPatch.cs           # All button types (class, subclass, shop, selectors, etc.)
+│   ├── UIFormPatches.cs           # Form/menu announcements
 │   ├── UIPageDescriptionPatches.cs  # Page description panel reading
-│   ├── UISettingsPatch.cs     # Settings sliders, toggles, selectors, tabs
-│   ├── UITooltipPatch.cs      # Tooltip reading
-│   ├── UISliderTogglePatch.cs # Toggle state announcements
-│   ├── EnemyPatches.cs        # Enemy registration for audio system
-│   └── DropPodPatches.cs      # Drop pod event detection (WIP)
-└── drgAccess.csproj           # Project file
+│   ├── UISettingsPatch.cs         # Settings sliders, toggles, selectors, tabs
+│   ├── UITooltipPatch.cs          # Tooltip reading
+│   ├── UISliderTogglePatch.cs     # Toggle state announcements
+│   ├── EnemyPatches.cs            # Enemy registration for audio system
+│   └── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
+└── drgAccess.csproj               # Project file
 
-drg code/                      # Decompiled game code for reference (not included in repo)
-references/tolk/               # Tolk DLL references
+drg code/                          # Decompiled game code for reference (not included in repo)
+references/tolk/                   # Tolk DLL references
 ```
 
 ---

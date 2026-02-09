@@ -420,21 +420,20 @@ namespace drgAccess.Components
                     return false;
                 }
 
-                // Validate gameStateProvider is still valid (not destroyed)
+                // Validate gameStateProvider using Unity's null check (IL2CPP-safe)
                 if (gameStateProvider != null)
                 {
-                    try
+                    // Try to cast back to GameController to test if destroyed
+                    var gc = gameStateProvider.TryCast<GameController>();
+                    if (gc == null) // Unity's overloaded null check detects destroyed objects
                     {
-                        var _ = gameStateProvider.State; // Test if destroyed
-                    }
-                    catch
-                    {
-                        Plugin.Log.LogInfo("[WallNav] GameStateProvider destroyed, will search for new one");
+                        if (Time.frameCount % 300 == 0)
+                            Plugin.Log.LogInfo("[WallNav] GameController was destroyed, searching for new one");
                         gameStateProvider = null;
                     }
                 }
 
-                // Find game state provider if not cached
+                // Find game state provider if not cached (search every frame until found!)
                 if (gameStateProvider == null)
                 {
                     var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
@@ -442,6 +441,11 @@ namespace drgAccess.Components
                     {
                         gameStateProvider = gameController.Cast<IGameStateProvider>();
                         Plugin.Log.LogInfo("[WallNav] Found new GameController");
+                    }
+                    else
+                    {
+                        // Not found yet, keep searching next frame
+                        return false;
                     }
                 }
 

@@ -478,8 +478,12 @@ namespace drgAccess.Components
                     pan = Mathf.Clamp(pan, -1f, 1f);
 
                     // Determine enemy type
+                    // MINI_ELITE: Treat as normal (common enemies, not worth elite sound)
+                    // ELITE: True elites with distinctive vibrato
+                    // BOSS: Big threatening bosses
                     bool isBoss = enemyType == EEnemyType.BOSS;
-                    bool isElite = !isBoss && (enemyType == EEnemyType.ELITE || enemyType == EEnemyType.MINI_ELITE);
+                    bool isElite = !isBoss && enemyType == EEnemyType.ELITE; // Only true ELITE, not MINI_ELITE
+                    // MINI_ELITE treated as normal (but could have slightly different pitch if needed)
 
                     var group = directionGroups[dirIndex];
 
@@ -736,21 +740,20 @@ namespace drgAccess.Components
                     return false;
                 }
 
-                // Validate gameStateProvider is still valid (not destroyed)
+                // Validate gameStateProvider using Unity's null check (IL2CPP-safe)
                 if (gameStateProvider != null)
                 {
-                    try
+                    // Try to cast back to GameController to test if destroyed
+                    var gc = gameStateProvider.TryCast<GameController>();
+                    if (gc == null) // Unity's overloaded null check detects destroyed objects
                     {
-                        var _ = gameStateProvider.State; // Test if destroyed
-                    }
-                    catch
-                    {
-                        Plugin.Log.LogInfo("[EnemyAudio] GameStateProvider destroyed, will search for new one");
+                        if (Time.frameCount % 300 == 0)
+                            Plugin.Log.LogInfo("[EnemyAudio] GameController was destroyed, searching for new one");
                         gameStateProvider = null;
                     }
                 }
 
-                // Find game state provider if not cached
+                // Find game state provider if not cached (search every frame until found!)
                 if (gameStateProvider == null)
                 {
                     var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
@@ -761,8 +764,10 @@ namespace drgAccess.Components
                     }
                     else
                     {
+                        // Not found yet, keep searching next frame
                         if (Time.frameCount % 300 == 0)
-                            Plugin.Log.LogDebug("[EnemyAudio] GameController not found");
+                            Plugin.Log.LogDebug("[EnemyAudio] GameController not found, will retry next frame");
+                        return false;
                     }
                 }
 
@@ -780,7 +785,7 @@ namespace drgAccess.Components
                 else
                 {
                     if (Time.frameCount % 300 == 0)
-                        Plugin.Log.LogDebug("[EnemyAudio] gameStateProvider is null");
+                        Plugin.Log.LogDebug("[EnemyAudio] gameStateProvider is null after search");
                 }
             }
             catch (Exception e)

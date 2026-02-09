@@ -18,13 +18,30 @@ namespace drgAccess.Patches
         {
             try
             {
-                Plugin.Log.LogInfo($"[DropPodPatch] Pod landed");
+                // Check pod state - only activate beacon for extraction pod
+                // Initial pod: state is ANIMATING_IN or transitions quickly
+                // Extraction pod: state transitions to WAITING_FOR_PLAYER
+                var podState = __instance.state;
 
-                var audioSystem = DropPodAudio.Instance;
-                if (audioSystem != null)
+                Plugin.Log.LogInfo($"[DropPodPatch] Pod landed, state: {podState}");
+
+                // Only activate beacon if this is the extraction pod
+                // WAITING_FOR_PLAYER means it's waiting for player to enter (extraction)
+                // We check this with a small delay to let the state settle
+                if (podState == DropPod.EState.WAITING_FOR_PLAYER ||
+                    podState == DropPod.EState.ARRIVING_COUNTDOWN)
                 {
-                    // Start playing extraction beacon
-                    audioSystem.OnPodLanded(__instance);
+                    var audioSystem = DropPodAudio.Instance;
+                    if (audioSystem != null)
+                    {
+                        // Start playing extraction beacon
+                        audioSystem.OnPodLanded(__instance);
+                        Plugin.Log.LogInfo($"[DropPodPatch] Extraction pod detected - beacon activated");
+                    }
+                }
+                else
+                {
+                    Plugin.Log.LogInfo($"[DropPodPatch] Initial pod detected (state: {podState}) - beacon NOT activated");
                 }
             }
             catch (System.Exception e)
@@ -54,6 +71,30 @@ namespace drgAccess.Patches
             catch (System.Exception e)
             {
                 Plugin.Log.LogError($"[DropPodPatch] AnimateOutWithPlayer error: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Called when extraction pod starts descending - warning for danger zone.
+        /// </summary>
+        [HarmonyPatch(typeof(DropPod), nameof(DropPod.AnimateIn), new System.Type[] { typeof(float) })]
+        [HarmonyPostfix]
+        public static void AnimateIn_Postfix(DropPod __instance, float distance)
+        {
+            try
+            {
+                Plugin.Log.LogInfo($"[DropPodPatch] Pod descending from {distance}m - landing warning!");
+
+                var audioSystem = DropPodAudio.Instance;
+                if (audioSystem != null)
+                {
+                    // Start landing warning (fast urgent beeps)
+                    audioSystem.OnPodDescending(__instance);
+                }
+            }
+            catch (System.Exception e)
+            {
+                Plugin.Log.LogError($"[DropPodPatch] AnimateIn error: {e.Message}");
             }
         }
     }

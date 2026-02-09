@@ -15,15 +15,16 @@ namespace drgAccess.Components
     {
         public static DropPodAudio Instance { get; private set; }
 
-        // Audio channel
+        // Audio channel - using continuous tone like wall navigation
         private WaveOutEvent outputDevice;
-        private EnemyAlertSoundGenerator soundGenerator;
+        private SineWaveGenerator sineGenerator;
         private PanningSampleProvider panProvider;
         private VolumeSampleProvider volumeProvider;
 
         // Drop pod reference
         private DropPod activePod;
         private bool isBeaconActive = false;
+        private bool isLandingWarning = false;
 
         // Player references
         private Transform playerTransform;
@@ -33,11 +34,16 @@ namespace drgAccess.Components
         // State tracking
         private bool isInitialized = false;
 
-        // Audio parameters - continuous beacon audible from far away
+        // Audio parameters - beacon (enemy-style)
         private float maxDistance = 150f; // Very far to be audible across map
-        private float minVolume = 0.15f; // Always audible even at max distance
-        private float beepInterval = 0.8f; // Slow calm beeps
+        private float beaconIntervalBase = 0.6f; // Base interval when far
+        private float beaconIntervalMin = 0.08f; // Fast when close (like enemies)
         private float nextBeepTime = 0f;
+        private float beepDuration = 0.06f; // Very short beep like enemies (60ms)
+
+        // Landing warning parameters
+        private float landingWarningDuration = 5f; // Warning lasts 5 seconds
+        private float landingWarningEndTime = 0f;
 
         // Game state
         private IGameStateProvider gameStateProvider;
@@ -80,11 +86,11 @@ namespace drgAccess.Components
         {
             try
             {
-                // Create sound generator (using enemy system's generator)
-                soundGenerator = new EnemyAlertSoundGenerator();
+                // Create sine wave generator for continuous beacon tone
+                sineGenerator = new SineWaveGenerator(800, 0f); // Start at 800Hz, silenced
 
                 // Add panning for 3D effect
-                panProvider = new PanningSampleProvider(soundGenerator)
+                panProvider = new PanningSampleProvider(sineGenerator)
                 {
                     Pan = 0f
                 };
@@ -92,7 +98,7 @@ namespace drgAccess.Components
                 // Add volume control
                 volumeProvider = new VolumeSampleProvider(panProvider)
                 {
-                    Volume = 0.3f // Moderate volume
+                    Volume = 1.0f // Full volume, control via sine generator
                 };
 
                 // Create output device
@@ -101,7 +107,7 @@ namespace drgAccess.Components
                 outputDevice.Play();
 
                 isInitialized = true;
-                Plugin.Log.LogInfo("[DropPodAudio] Audio channel created");
+                Plugin.Log.LogInfo("[DropPodAudio] Audio channel created (continuous tone)");
             }
             catch (Exception e)
             {
@@ -120,8 +126,10 @@ namespace drgAccess.Components
                 // Only during active gameplay
                 if (!IsInActiveGameplay())
                 {
-                    if (Time.frameCount % 300 == 0 && isBeaconActive)
-                        Plugin.Log.LogDebug($"[DropPodAudio] Beacon active but not in gameplay (waiting for CORE state)");
+                    if (sineGenerator != null)
+                        sineGenerator.Volume = 0f; // Silence when not in gameplay
+                    if (Time.frameCount % 300 == 0 && (isBeaconActive || isLandingWarning))
+                        Plugin.Log.LogDebug($"[DropPodAudio] Audio active but not in gameplay (waiting for CORE state)");
                     return;
                 }
 
@@ -134,13 +142,26 @@ namespace drgAccess.Components
 
                 if (playerTransform == null)
                 {
-                    if (Time.frameCount % 300 == 0 && isBeaconActive)
-                        Plugin.Log.LogDebug("[DropPodAudio] Beacon active but player not found");
+                    if (Time.frameCount % 300 == 0 && (isBeaconActive || isLandingWarning))
+                        Plugin.Log.LogDebug("[DropPodAudio] Audio active but player not found");
                     return;
                 }
 
+                // Landing warning (higher priority - danger zone!)
+                if (isLandingWarning && activePod != null)
+                {
+                    if (Time.time < landingWarningEndTime)
+                    {
+                        UpdateLandingWarning();
+                    }
+                    else
+                    {
+                        isLandingWarning = false;
+                        Plugin.Log.LogInfo("[DropPodAudio] Landing warning ended");
+                    }
+                }
                 // If beacon is active and we have a pod, play beacon
-                if (isBeaconActive && activePod != null)
+                else if (isBeaconActive && activePod != null)
                 {
                     if (Time.frameCount % 60 == 0)
                         Plugin.Log.LogInfo("[DropPodAudio] Calling UpdateBeacon()");
@@ -148,7 +169,7 @@ namespace drgAccess.Components
                 }
                 else if (Time.frameCount % 300 == 0)
                 {
-                    Plugin.Log.LogDebug($"[DropPodAudio] Beacon state: active={isBeaconActive}, pod={activePod != null}");
+                    Plugin.Log.LogDebug($"[DropPodAudio] State: beacon={isBeaconActive}, warning={isLandingWarning}, pod={activePod != null}");
                 }
             }
             catch (Exception e)
@@ -171,8 +192,10 @@ namespace drgAccess.Components
 
                     // Reset beacon state
                     isBeaconActive = false;
+                    isLandingWarning = false;
                     activePod = null;
                     nextBeepTime = 0f;
+                    landingWarningEndTime = 0f;
 
                     // Reset player references
                     playerTransform = null;
@@ -191,11 +214,24 @@ namespace drgAccess.Components
         }
 
         /// <summary>
+        /// Called by patch when pod starts descending - start landing warning.
+        /// </summary>
+        public void OnPodDescending(DropPod pod)
+        {
+            activePod = pod;
+            isLandingWarning = true;
+            landingWarningEndTime = Time.time + landingWarningDuration;
+            nextBeepTime = 0f; // Play immediately
+            Plugin.Log.LogInfo("[DropPodAudio] Landing warning activated - pod descending (DANGER ZONE!)");
+        }
+
+        /// <summary>
         /// Called by patch when pod lands - start beacon.
         /// </summary>
         public void OnPodLanded(DropPod pod)
         {
             activePod = pod;
+            isLandingWarning = false; // Stop warning
             isBeaconActive = true;
             nextBeepTime = 0f; // Play immediately
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
@@ -207,10 +243,13 @@ namespace drgAccess.Components
         public void OnPlayerEntered()
         {
             isBeaconActive = false;
-            Plugin.Log.LogInfo("[DropPodAudio] Beacon deactivated - player entered pod");
+            isLandingWarning = false;
+            if (sineGenerator != null)
+                sineGenerator.Volume = 0f; // Silence immediately
+            Plugin.Log.LogInfo("[DropPodAudio] Audio deactivated - player entered pod");
         }
 
-        private void UpdateBeacon()
+        private void UpdateLandingWarning()
         {
             try
             {
@@ -218,7 +257,9 @@ namespace drgAccess.Components
                 var podTransform = activePod.podTransform;
                 if (podTransform == null)
                 {
-                    Plugin.Log.LogWarning("[DropPodAudio] Pod transform is null");
+                    sineGenerator.Volume = 0f; // Silence if no pod
+                    if (Time.frameCount % 60 == 0)
+                        Plugin.Log.LogWarning("[DropPodAudio] Pod transform is null (landing warning)");
                     return;
                 }
 
@@ -241,22 +282,102 @@ namespace drgAccess.Components
 
                 panProvider.Pan = pan;
 
-                // Play beacon beep if it's time
+                // URGENT WARNING: Pulsing alarm sound
+                float proximityFactor = 1f - Mathf.Clamp01(distance / 50f);
+
+                // Pulsing effect: volume oscillates for urgency
+                float pulseSpeed = 8f; // Fast pulsing
+                float pulse = (Mathf.Sin(Time.time * pulseSpeed) + 1f) * 0.5f; // 0-1
+                float baseVolume = 0.6f + proximityFactor * 0.3f; // 0.6 to 0.9
+                float volume = baseVolume * (0.5f + pulse * 0.5f); // Pulsing between 50-100% of base
+
+                // High urgent frequency
+                double frequency = 900 + proximityFactor * 500; // 900-1400 Hz
+
+                sineGenerator.Frequency = frequency;
+                sineGenerator.Volume = volume;
+
+                if (Time.frameCount % 60 == 0)
+                {
+                    Plugin.Log.LogInfo($"[DropPodAudio] LANDING WARNING at {distance:F1}m, vol={volume:F2}, freq={frequency:F0}Hz");
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[DropPodAudio] UpdateLandingWarning error: {e.Message}");
+            }
+        }
+
+        private void UpdateBeacon()
+        {
+            try
+            {
+                // Get pod position
+                var podTransform = activePod.podTransform;
+                if (podTransform == null)
+                {
+                    sineGenerator.Volume = 0f; // Silence if no pod
+                    if (Time.frameCount % 60 == 0)
+                        Plugin.Log.LogWarning("[DropPodAudio] Pod transform is null");
+                    return;
+                }
+
+                Vector3 podPos = podTransform.position;
+                Vector3 playerPos = playerTransform.position;
+                float distance = Vector3.Distance(playerPos, podPos);
+
+                // Calculate direction and pan for 3D audio
+                Vector3 toPod = podPos - playerPos;
+                toPod.y = 0;
+                toPod.Normalize();
+
+                Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+                forward.y = 0;
+                forward.Normalize();
+
+                Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
+                float pan = Vector3.Dot(toPod, right);
+                pan = Mathf.Clamp(pan, -1f, 1f);
+
+                panProvider.Pan = pan;
+
+                // Calculate proximity factor (0 = far, 1 = close)
+                float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
+                proximityFactor = proximityFactor * proximityFactor; // Square for more dramatic change
+
+                // Calculate interval (like enemies - faster when closer)
+                float currentInterval = Mathf.Lerp(beaconIntervalBase, beaconIntervalMin, proximityFactor);
+
+                // Check if it's time for a new beep
                 if (Time.time >= nextBeepTime)
                 {
-                    // Volume: audible even from far away, louder when close
-                    float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
-                    float volume = minVolume + proximityFactor * 0.35f; // 0.15 to 0.5
+                    // Play short beep (enemy-style)
+                    // Volume increases with proximity (like enemies)
+                    float volume = 0.2f + proximityFactor * 0.15f; // 0.2-0.35
 
-                    // Frequency: low calm beacon (200-350 Hz)
-                    double frequency = 200 + proximityFactor * 150;
+                    // Frequency increases with proximity (like enemies)
+                    double frequency = 500 + proximityFactor * 400; // 500-900 Hz (lower than enemies)
 
-                    soundGenerator.Play(frequency, volume, EnemyAudioType.Elite);
-                    nextBeepTime = Time.time + beepInterval;
+                    sineGenerator.Frequency = frequency;
+                    sineGenerator.Volume = volume;
 
-                    if (Time.frameCount % 120 == 0)
+                    nextBeepTime = Time.time + currentInterval;
+
+                    if (Time.frameCount % 60 == 0)
                     {
-                        Plugin.Log.LogInfo($"[DropPodAudio] Beacon at {distance:F1}m, vol={volume:F2}, freq={frequency:F0}Hz, pan={pan:F2}");
+                        Plugin.Log.LogInfo($"[DropPodAudio] BEACON! dist={distance:F1}m, interval={currentInterval:F2}s, vol={volume:F2}, freq={frequency:F0}Hz");
+                    }
+
+                    // Schedule silence after beep duration
+                    // (In next frame, will check if beep is over)
+                }
+                else
+                {
+                    // Check if beep duration has passed
+                    float timeSinceBeep = Time.time - (nextBeepTime - currentInterval);
+                    if (timeSinceBeep > beepDuration)
+                    {
+                        sineGenerator.Volume = 0f; // Silence between beeps
                     }
                 }
             }
@@ -307,21 +428,20 @@ namespace drgAccess.Components
                     return false;
                 }
 
-                // Validate gameStateProvider is still valid (not destroyed)
+                // Validate gameStateProvider using Unity's null check (IL2CPP-safe)
                 if (gameStateProvider != null)
                 {
-                    try
+                    // Try to cast back to GameController to test if destroyed
+                    var gc = gameStateProvider.TryCast<GameController>();
+                    if (gc == null) // Unity's overloaded null check detects destroyed objects
                     {
-                        var _ = gameStateProvider.State; // Test if destroyed
-                    }
-                    catch
-                    {
-                        Plugin.Log.LogInfo("[DropPodAudio] GameStateProvider destroyed, will search for new one");
+                        if (Time.frameCount % 300 == 0)
+                            Plugin.Log.LogInfo("[DropPodAudio] GameController was destroyed, searching for new one");
                         gameStateProvider = null;
                     }
                 }
 
-                // Find game state provider if not cached
+                // Find game state provider if not cached (search every frame until found!)
                 if (gameStateProvider == null)
                 {
                     var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
@@ -330,12 +450,21 @@ namespace drgAccess.Components
                         gameStateProvider = gameController.Cast<IGameStateProvider>();
                         Plugin.Log.LogInfo("[DropPodAudio] Found new GameController");
                     }
+                    else
+                    {
+                        // Not found yet, keep searching next frame
+                        return false;
+                    }
                 }
 
                 if (gameStateProvider != null)
                 {
                     var state = gameStateProvider.State;
-                    return state == GameController.EGameState.CORE;
+                    // Drop pod beacon needs to work during:
+                    // - CORE: normal gameplay
+                    // - CORE_OUTRO: extraction phase (countdown to enter pod) - CRITICAL!
+                    return state == GameController.EGameState.CORE ||
+                           state == GameController.EGameState.CORE_OUTRO;
                 }
             }
             catch { }
