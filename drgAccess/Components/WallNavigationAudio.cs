@@ -141,10 +141,14 @@ namespace drgAccess.Components
 
         // Layer mask for collisions
         private int wallLayerMask = -1;
+        private LayerMaskLibrary layerMaskLibrary;
 
         // State
         private bool isInitialized = false;
         private bool isEnabled = true;
+
+        // Game state tracking
+        private IGameStateProvider gameStateProvider;
 
         // Scene tracking
         private string lastSceneName = "";
@@ -180,8 +184,27 @@ namespace drgAccess.Components
         {
             try
             {
-                // Configure layer mask (all layers)
-                wallLayerMask = -1;
+                // Try to get LayerMaskLibrary from the game
+                try
+                {
+                    layerMaskLibrary = UnityEngine.Object.FindObjectOfType<LayerMaskLibrary>();
+                    if (layerMaskLibrary != null)
+                    {
+                        // Use the game's obstacle mask for more accurate wall detection
+                        wallLayerMask = layerMaskLibrary.obstacleMask;
+                        Plugin.Log.LogInfo($"[WallNav] Using game's obstacleMask layer");
+                    }
+                    else
+                    {
+                        wallLayerMask = -1;
+                        Plugin.Log.LogInfo($"[WallNav] LayerMaskLibrary not found, using all layers");
+                    }
+                }
+                catch
+                {
+                    wallLayerMask = -1;
+                    Plugin.Log.LogInfo($"[WallNav] Using all layers (fallback)");
+                }
 
                 // Create audio channels for each direction
                 CreateAudioChannels();
@@ -279,22 +302,11 @@ namespace drgAccess.Components
                     return;
                 }
 
-                // Check if in gameplay scene
-                CheckSceneChange();
-                bool isGameplay = IsGameplayScene();
-                if (!isGameplay)
+                // Check game state - only play during active gameplay (CORE state)
+                if (!IsInActiveGameplay())
                 {
                     if (debugCounter % 300 == 0)
-                        Plugin.Log.LogDebug($"[WallNav] Not gameplay scene: {lastSceneName}");
-                    SilenceAllChannels();
-                    return;
-                }
-
-                // Check for paused/menu state
-                if (IsGamePaused())
-                {
-                    if (debugCounter % 300 == 0)
-                        Plugin.Log.LogDebug("[WallNav] Game paused or menu open");
+                        Plugin.Log.LogDebug("[WallNav] Not in active gameplay");
                     SilenceAllChannels();
                     return;
                 }
@@ -364,42 +376,35 @@ namespace drgAccess.Components
             catch { }
         }
 
-        private bool IsGameplayScene()
-        {
-            return !string.IsNullOrEmpty(lastSceneName) &&
-                   lastSceneName != "MainMenu" &&
-                   lastSceneName != "BootScene" &&
-                   lastSceneName != "LoadingScreen" &&
-                   !lastSceneName.Contains("Menu");
-        }
-
-        private bool IsGamePaused()
+        private bool IsInActiveGameplay()
         {
             try
             {
-                // Check time scale (pause menu)
-                if (Time.timeScale < 0.1f)
-                    return true;
-
-                // Check for common UI objects that indicate pause/menu state
-                string[] uiObjectNames = {
-                    "UIFormPause", "UILevelUpForm", "UIShopForm", "UIUpgradeForm",
-                    "PauseMenu", "LevelUpMenu", "ShopMenu", "UpgradeMenu",
-                    "Canvas_UI", "Canvas_Menu", "Canvas_Overlay"
-                };
-
-                foreach (var objName in uiObjectNames)
+                // Find game state provider if not cached
+                if (gameStateProvider == null)
                 {
-                    var obj = GameObject.Find(objName);
-                    if (obj != null && obj.activeInHierarchy)
+                    var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
+                    if (gameController != null)
                     {
-                        return true;
+                        gameStateProvider = gameController.Cast<IGameStateProvider>();
                     }
                 }
-            }
-            catch { }
 
-            return false;
+                if (gameStateProvider != null)
+                {
+                    var state = gameStateProvider.State;
+                    // Only play audio during CORE gameplay state
+                    // Don't play during: MENU, SPLASH, SHOP, LOADING, CORE_INTRO, CORE_OUTRO, etc.
+                    return state == GameController.EGameState.CORE;
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[WallNav] IsInActiveGameplay error: {e.Message}");
+            }
+
+            // Fallback: check time scale
+            return Time.timeScale > 0.1f;
         }
 
         private void UpdateWallDetection()

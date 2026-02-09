@@ -244,9 +244,12 @@ namespace drgAccess.Components
         // Scene tracking
         private string lastSceneName = "";
         private float sceneLoadTime = 0f;
-        private float sceneStartDelay = 2f;
 
         private bool isInitialized = false;
+
+        // Game state tracking
+        private IGameStateProvider gameStateProvider;
+        private AI_Manager aiManager;
 
         static EnemyAudioSystem()
         {
@@ -330,9 +333,9 @@ namespace drgAccess.Components
                 CheckSceneChange();
 
                 if (!isInitialized) return;
-                if (IsMenuScene()) return;
-                if (IsGamePaused()) return;  // Stop audio when game is paused or menu is open
-                if (Time.time - sceneLoadTime < sceneStartDelay) return;
+
+                // Only play during active gameplay (CORE state)
+                if (!IsInActiveGameplay()) return;
 
                 if (Time.time >= nextPlayerSearchTime)
                 {
@@ -371,27 +374,44 @@ namespace drgAccess.Components
 
             Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
 
-            var tracker = EnemyTracker.Instance;
-            if (tracker == null) return;
+            // Get AI_Manager instance if not cached
+            if (aiManager == null)
+            {
+                aiManager = AI_Manager._instance;
+                if (aiManager == null) return;
+            }
 
-            foreach (var enemy in tracker.GetActiveEnemies())
+            // Access AI units directly from AI_Manager (static field)
+            var aiUnits = AI_Manager._units;
+            if (aiUnits == null) return;
+
+            foreach (var aiUnit in aiUnits)
             {
                 try
                 {
+                    if (aiUnit == null) continue;
+
+                    // Get Enemy component from AI_Unit
+                    var enemy = aiUnit.GetComponent<Enemy>();
                     if (enemy == null) continue;
 
-                    // Check if enemy is dead using IsDead property
+                    // Check if enemy is dead
                     try
                     {
                         if (enemy.IsDead) continue;
                     }
                     catch
                     {
-                        // If IsDead doesn't exist or throws, skip this enemy
                         continue;
                     }
 
-                    Vector3 enemyPos = enemy.transform.position;
+                    // Filter out non-combat entities
+                    var enemyType = enemy.type;
+                    if (enemyType == EEnemyType.COCOON || enemyType == EEnemyType.BIG_COCOON)
+                        continue;
+
+                    // Use AI_Unit's current position for better accuracy
+                    Vector3 enemyPos = aiUnit._currentPosition;
                     float distance = Vector3.Distance(playerPos, enemyPos);
 
                     if (distance > maxDistance) continue;
@@ -410,8 +430,8 @@ namespace drgAccess.Components
                     pan = Mathf.Clamp(pan, -1f, 1f);
 
                     // Determine enemy type
-                    bool isBoss = enemy.type == EEnemyType.BOSS;
-                    bool isElite = !isBoss && (enemy.type == EEnemyType.ELITE || enemy.type == EEnemyType.MINI_ELITE);
+                    bool isBoss = enemyType == EEnemyType.BOSS;
+                    bool isElite = !isBoss && (enemyType == EEnemyType.ELITE || enemyType == EEnemyType.MINI_ELITE);
 
                     var group = directionGroups[dirIndex];
 
@@ -607,42 +627,34 @@ namespace drgAccess.Components
             catch { }
         }
 
-        private bool IsMenuScene()
-        {
-            return lastSceneName == "MainMenu" ||
-                   lastSceneName == "BootScene" ||
-                   lastSceneName == "LoadingScreen" ||
-                   lastSceneName.Contains("Menu") ||
-                   string.IsNullOrEmpty(lastSceneName);
-        }
-
-        private bool IsGamePaused()
+        private bool IsInActiveGameplay()
         {
             try
             {
-                // Check time scale (pause menu)
-                if (Time.timeScale < 0.1f)
-                    return true;
-
-                // Check for common UI objects that indicate pause/menu state
-                string[] uiObjectNames = {
-                    "UIFormPause", "UILevelUpForm", "UIShopForm", "UIUpgradeForm",
-                    "PauseMenu", "LevelUpMenu", "ShopMenu", "UpgradeMenu",
-                    "Canvas_UI", "Canvas_Menu", "Canvas_Overlay"
-                };
-
-                foreach (var objName in uiObjectNames)
+                // Find game state provider if not cached
+                if (gameStateProvider == null)
                 {
-                    var obj = GameObject.Find(objName);
-                    if (obj != null && obj.activeInHierarchy)
+                    var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
+                    if (gameController != null)
                     {
-                        return true;
+                        gameStateProvider = gameController.Cast<IGameStateProvider>();
                     }
                 }
-            }
-            catch { }
 
-            return false;
+                if (gameStateProvider != null)
+                {
+                    var state = gameStateProvider.State;
+                    // Only play audio during CORE gameplay state
+                    return state == GameController.EGameState.CORE;
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[EnemyAudio] IsInActiveGameplay error: {e.Message}");
+            }
+
+            // Fallback: check time scale
+            return Time.timeScale > 0.1f;
         }
 
         private void FindPlayer()
