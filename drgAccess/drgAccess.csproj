@@ -24,7 +24,7 @@
   <ItemGroup>
     <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.*" IncludeAssets="compile" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
-    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NAudio" Version="2.2.1" PrivateAssets="none" />
   </ItemGroup>
 
   <!-- Game interop references -->
@@ -75,12 +75,15 @@
     </Reference>
   </ItemGroup>
 
-  <!-- Copy plugin DLL to plugins folder after build -->
+  <!-- Copy plugin DLL and dependencies to plugins folder after build -->
   <!-- Note: Tolk.dll and nvdaControllerClient64.dll go in game's main folder (copy once manually) -->
   <!-- TolkDotNet.dll goes in plugins folder (copy once manually) -->
   <Target Name="CopyToPlugins" AfterTargets="Build">
-    <Copy SourceFiles="$(TargetDir)$(TargetFileName)" DestinationFolder="$(BepInExDir)\plugins\drgAccess" />
-    <Message Text="Copied plugin to $(BepInExDir)\plugins\drgAccess" Importance="high" />
+    <ItemGroup>
+      <FilesToCopy Include="$(TargetDir)*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(BepInExDir)\plugins\drgAccess" />
+    <Message Text="Copied plugin and dependencies to $(BepInExDir)\plugins\drgAccess" Importance="high" />
   </Target>
 
 </Project>

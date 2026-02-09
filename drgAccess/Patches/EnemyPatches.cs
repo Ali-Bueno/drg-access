@@ -10,11 +10,11 @@ namespace drgAccess.Patches
     public class EnemyPatches
     {
         /// <summary>
-        /// Register enemy when it spawns/activates.
+        /// Register enemy when it spawns.
         /// </summary>
-        [HarmonyPatch(typeof(Enemy), "OnEnable")]
+        [HarmonyPatch(typeof(Enemy), "OnSpawn")]
         [HarmonyPostfix]
-        public static void OnEnable_Postfix(Enemy __instance)
+        public static void OnSpawn_Postfix(Enemy __instance)
         {
             try
             {
@@ -26,16 +26,16 @@ namespace drgAccess.Patches
             }
             catch (System.Exception e)
             {
-                Plugin.Log.LogDebug($"[EnemyPatch] OnEnable error: {e.Message}");
+                Plugin.Log.LogDebug($"[EnemyPatch] OnSpawn error: {e.Message}");
             }
         }
 
         /// <summary>
-        /// Unregister enemy when it deactivates.
+        /// Unregister enemy when it despawns.
         /// </summary>
-        [HarmonyPatch(typeof(Enemy), "OnDisable")]
+        [HarmonyPatch(typeof(Enemy), "DeSpawn")]
         [HarmonyPostfix]
-        public static void OnDisable_Postfix(Enemy __instance)
+        public static void DeSpawn_Postfix(Enemy __instance)
         {
             try
             {
@@ -47,13 +47,12 @@ namespace drgAccess.Patches
             }
             catch (System.Exception e)
             {
-                Plugin.Log.LogDebug($"[EnemyPatch] OnDisable error: {e.Message}");
+                Plugin.Log.LogDebug($"[EnemyPatch] DeSpawn error: {e.Message}");
             }
         }
 
         /// <summary>
-        /// Unregister enemy when it dies (alternative to OnDisable).
-        /// Try to patch Die() or OnDeath() method if it exists.
+        /// Unregister enemy when it dies.
         /// </summary>
         [HarmonyPatch(typeof(Enemy), "Die")]
         [HarmonyPostfix]
