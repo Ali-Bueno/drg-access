@@ -37,21 +37,29 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Left/Right: 300 Hz (medium-low tone) with stereo panning
   - Volume increases as walls get closer
 - **Gameplay Audio - Enemy Detection**: 3D positional beeps for enemies with type differentiation
-  - Normal enemies: short high beeps (500-1000 Hz)
-  - Elite enemies: medium beeps with vibrato (150-300 Hz)
-  - Boss enemies: long deep tones (60-120 Hz)
-  - Pitch adjusts with distance (closer = higher) and height (above = higher, below = lower)
+  - Normal enemies: Pure sine wave, 700-1400 Hz, 50ms duration
+  - Elite enemies: Triangle wave + 2nd harmonic, 200-400 Hz, 180ms, 15Hz vibrato
+  - Boss enemies: Square wave + sub-bass, 40-100 Hz, 350ms, dramatic pitch descent
+  - Critical proximity warning (< 3.5m): Faster beeps, boosted volume, higher pitch for urgency
   - 8-directional detection with stereo panning
+- **Gameplay Audio - Drop Pod Beacon** (WIP): Audio beacon for extraction pod
+  - Extraction beacon: Calm homing signal (0.8s interval) audible from 150m
+  - 3D positional audio with distance-based volume and frequency
 
 ### Known Issues
+- [ ] **CRITICAL: Audio stops after game retry** - When clicking "Retry" after game end, all audio systems (walls, enemies, drop pod) stop working. Scene name doesn't change on retry, so gameStateProvider validation not detecting destroyed GameController. Need alternative detection method.
+- [ ] **Drop pod beacon not audible** - Beacon activates but no sound plays. Needs investigation (possibly activating on initial pod instead of extraction pod, or UpdateBeacon() not being called).
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
 
 ### Pending Improvements
+- [ ] Fix audio retry bug (sounds stop after clicking Retry)
+- [ ] Fix drop pod beacon (not audible, needs debugging)
+- [ ] Differentiate initial drop pod from extraction pod (only extraction should have beacon)
+- [ ] Add landing warning for extraction pod (danger zone when descending)
 - [ ] In-game HUD reading (health, XP, wave, etc.)
 - [ ] Level-up skill selection improvements
 - [ ] Death/victory announcements
 - [ ] Settings: tab content accessibility for remaining pages
-- [ ] Gameplay audio fine-tuning based on testing
 
 ---
 
@@ -65,7 +73,8 @@ drgAccess/
 ├── Components/
 │   ├── WallNavigationAudio.cs # Wall detection with continuous tones
 │   ├── EnemyAudioSystem.cs    # 3D positional audio for enemies
-│   └── EnemyTracker.cs        # Tracks active enemies in scene
+│   ├── EnemyTracker.cs        # Tracks active enemies in scene
+│   └── DropPodAudio.cs        # Drop pod extraction beacon (WIP)
 ├── Patches/
 │   ├── UIButtonPatch.cs       # All button types (class, subclass, shop, selectors, etc.)
 │   ├── UIFormPatches.cs       # Form/menu announcements
@@ -73,7 +82,8 @@ drgAccess/
 │   ├── UISettingsPatch.cs     # Settings sliders, toggles, selectors, tabs
 │   ├── UITooltipPatch.cs      # Tooltip reading
 │   ├── UISliderTogglePatch.cs # Toggle state announcements
-│   └── EnemyPatches.cs        # Enemy registration for audio system
+│   ├── EnemyPatches.cs        # Enemy registration for audio system
+│   └── DropPodPatches.cs      # Drop pod event detection (WIP)
 └── drgAccess.csproj           # Project file
 
 drg code/                      # Decompiled game code for reference (not included in repo)
