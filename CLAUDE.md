@@ -43,19 +43,27 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Critical proximity warning (< 3.5m): Faster beeps, boosted volume, higher pitch for urgency
   - 8-directional detection with stereo panning
   - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
-- **Gameplay Audio - Drop Pod Beacon**: Enemy-style beeps for extraction pod location
-  - Short beeps (60ms) that accelerate when approaching (0.6s → 0.08s interval)
-  - 3D positional audio with distance-based volume (0.2-0.35) and frequency (500-900 Hz)
+- **Gameplay Audio - Drop Pod Beacon**: Sharp short beeps for extraction pod location
+  - Uses EnemyAlertSoundGenerator for crisp, distinct beeps (50ms)
+  - Accelerating interval: 250ms (far) → 30ms (very close)
+  - 3D positional audio with distance-based volume (0.2-0.4) and frequency (500-900 Hz)
   - Distinguishable from enemies by lower frequency range
   - Stops when player enters pod
-  - Landing warning: Pulsing alarm tone (900-1400 Hz) when pod is descending (5 seconds)
+  - Landing warning: Rapid urgent beeps (1000-1400 Hz, 80ms interval) when pod is descending (5 seconds)
   - Only activates for extraction pod (not initial drop pod)
-- **Gameplay Audio - Supply Pod Beacon**: Enemy-style beeps for ActivationZone (supply pod zones)
-  - Short beeps (60ms) that accelerate when approaching (0.5s → 0.1s interval)
-  - 3D positional audio with distance-based volume (0.18-0.3) and frequency (350-650 Hz)
+- **Gameplay Audio - Supply Pod Beacon**: Sharp short beeps for ActivationZone (supply pod zones)
+  - Uses EnemyAlertSoundGenerator for crisp, distinct beeps (50ms)
+  - Accelerating interval: 250ms (far) → 30ms (very close)
+  - 3D positional audio with distance-based volume (0.18-0.33) and frequency (350-650 Hz)
   - Lowest frequency range to distinguish from enemies and drop pod
   - Stops when player is inside zone or zone is activating
   - Detects nearest active zone within 100m
+- **Gameplay Audio - Hazard Warning**: Siren alarm for nearby dangers
+  - Exploders (horde enemies): Detected by name, alarm at 900-1400 Hz within 8m range
+  - Ground Spikes (Dreadnought boss): Registered via patch on GroundSpike.OnSpawn, alarm at 600-1000 Hz
+  - Alarm uses oscillating frequency (siren effect) clearly distinct from enemy beeps
+  - Alarm rate increases with proximity (5-25 Hz oscillation)
+  - Stereo panning toward the hazard direction
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
@@ -79,8 +87,9 @@ drgAccess/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies
 │   ├── EnemyTracker.cs            # Tracks active enemies in scene
-│   ├── DropPodAudio.cs            # Drop pod extraction beacon (enemy-style beeps)
-│   └── ActivationZoneAudio.cs     # Supply pod zone beacon (enemy-style beeps)
+│   ├── DropPodAudio.cs            # Drop pod extraction beacon (sharp beeps)
+│   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (sharp beeps)
+│   └── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
 ├── Patches/
 │   ├── UIButtonPatch.cs           # All button types (class, subclass, shop, selectors, etc.)
 │   ├── UIFormPatches.cs           # Form/menu announcements
@@ -89,7 +98,8 @@ drgAccess/
 │   ├── UITooltipPatch.cs          # Tooltip reading
 │   ├── UISliderTogglePatch.cs     # Toggle state announcements
 │   ├── EnemyPatches.cs            # Enemy registration for audio system
-│   └── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
+│   ├── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
+│   └── HazardPatches.cs           # Ground spike detection for hazard warnings
 └── drgAccess.csproj               # Project file
 
 drg code/                          # Decompiled game code for reference (not included in repo)
@@ -132,6 +142,7 @@ references/tolk/                   # Tolk DLL references
 | `StepSelectorBase` | Left/right selector buttons |
 | Various `UIForm` subclasses | Menu/form announcements |
 | Various page classes | Description panel reading |
+| `GroundSpike` | Ground spike hazard detection (Dreadnought boss attack) |
 
 ---
 

@@ -7,16 +7,16 @@ using Il2CppInterop.Runtime.Injection;
 namespace drgAccess.Components
 {
     /// <summary>
-    /// Audio beacon system for ActivationZone (supply pod zones).
-    /// Helps player locate and stay inside the capture zone.
+    /// Audio beacon for ActivationZone (supply pod zones).
+    /// Sharp short beeps that accelerate as the player approaches.
     /// </summary>
     public class ActivationZoneAudio : MonoBehaviour
     {
         public static ActivationZoneAudio Instance { get; private set; }
 
-        // Audio channel
+        // Audio channel - sharp beeps like enemy audio
         private WaveOutEvent outputDevice;
-        private SineWaveGenerator sineGenerator;
+        private EnemyAlertSoundGenerator beepGenerator;
         private PanningSampleProvider panProvider;
         private VolumeSampleProvider volumeProvider;
 
@@ -29,24 +29,21 @@ namespace drgAccess.Components
         private Transform cameraTransform;
         private float nextPlayerSearchTime = 0f;
 
-        // State tracking
+        // State
         private bool isInitialized = false;
 
         // Audio parameters
-        private float maxDistance = 100f; // Audible from 100m
-        private float checkInterval = 0.1f; // Check zone status every 0.1s
+        private float maxDistance = 100f;
+        private float checkInterval = 0.1f;
         private float nextCheckTime = 0f;
 
-        // Beeping control (enemy-style)
+        // Beeping control
         private float nextBeepTime = 0f;
-        private float beaconIntervalBase = 0.5f; // Base interval
-        private float beaconIntervalMin = 0.1f; // Fast when close
-        private float beepDuration = 0.06f; // Short beep like enemies (60ms)
+        private float beaconIntervalBase = 0.25f; // 250ms when far
+        private float beaconIntervalMin = 0.03f; // 30ms when very close
 
         // Game state
         private IGameStateProvider gameStateProvider;
-
-        // Scene tracking
         private string lastSceneName = "";
 
         static ActivationZoneAudio()
@@ -58,24 +55,12 @@ namespace drgAccess.Components
         {
             if (Instance != null && Instance != this)
             {
-                Plugin.Log.LogWarning("[ActivationZoneAudio] Duplicate instance - destroying");
                 Destroy(gameObject);
                 return;
             }
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            Plugin.Log.LogInfo($"[ActivationZoneAudio] Awake - Initialized (GameObject: {gameObject.name})");
-        }
-
-        void OnEnable()
-        {
-            Plugin.Log.LogInfo("[ActivationZoneAudio] OnEnable called");
-        }
-
-        void OnDisable()
-        {
-            Plugin.Log.LogWarning("[ActivationZoneAudio] OnDisable called - audio will stop!");
+            Plugin.Log.LogInfo("[ActivationZoneAudio] Initialized");
         }
 
         void Start()
@@ -87,28 +72,16 @@ namespace drgAccess.Components
         {
             try
             {
-                // Create sine wave generator
-                sineGenerator = new SineWaveGenerator(600, 0f); // Start at 600Hz, silenced
+                beepGenerator = new EnemyAlertSoundGenerator();
+                panProvider = new PanningSampleProvider(beepGenerator) { Pan = 0f };
+                volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 0.25f };
 
-                // Add panning for 3D effect
-                panProvider = new PanningSampleProvider(sineGenerator)
-                {
-                    Pan = 0f
-                };
-
-                // Add volume control
-                volumeProvider = new VolumeSampleProvider(panProvider)
-                {
-                    Volume = 1.0f
-                };
-
-                // Create output device
                 outputDevice = new WaveOutEvent();
                 outputDevice.Init(volumeProvider);
                 outputDevice.Play();
 
                 isInitialized = true;
-                Plugin.Log.LogInfo("[ActivationZoneAudio] Audio channel created");
+                Plugin.Log.LogInfo("[ActivationZoneAudio] Audio channel created (sharp beeps)");
             }
             catch (Exception e)
             {
@@ -124,42 +97,25 @@ namespace drgAccess.Components
             {
                 CheckSceneChange();
 
-                // Only during active gameplay
                 if (!IsInActiveGameplay())
-                {
-                    if (sineGenerator != null)
-                        sineGenerator.Volume = 0f;
                     return;
-                }
 
-                // Search for player periodically
                 if (Time.time >= nextPlayerSearchTime)
                 {
                     FindPlayer();
                     nextPlayerSearchTime = Time.time + 2f;
                 }
 
-                if (playerTransform == null)
-                    return;
+                if (playerTransform == null) return;
 
-                // Check for active zone periodically
                 if (Time.time >= nextCheckTime)
                 {
                     CheckForActiveZone();
                     nextCheckTime = Time.time + checkInterval;
                 }
 
-                // Update beacon if zone is active
                 if (isZoneActive && activeZone != null)
-                {
                     UpdateZoneBeacon();
-                }
-                else
-                {
-                    // No active zone - silence
-                    if (sineGenerator != null)
-                        sineGenerator.Volume = 0f;
-                }
             }
             catch (Exception e)
             {
@@ -171,25 +127,16 @@ namespace drgAccess.Components
         {
             try
             {
-                // Find all ActivationZones in scene
                 var zones = UnityEngine.Object.FindObjectsOfType<ActivationZone>();
-
                 ActivationZone nearestActiveZone = null;
                 float nearestDistance = float.MaxValue;
 
                 foreach (var zone in zones)
                 {
                     if (zone == null) continue;
+                    if (zone.state == ActivationZone.EState.DONE) continue;
 
-                    // Only consider INACTIVE or ACTIVATING zones (not DONE)
-                    var state = zone.state;
-                    if (state == ActivationZone.EState.DONE)
-                        continue;
-
-                    // Check distance to player
                     float distance = Vector3.Distance(playerTransform.position, zone.transform.position);
-
-                    // If within detection range and closer than current nearest
                     if (distance < maxDistance && distance < nearestDistance)
                     {
                         nearestActiveZone = zone;
@@ -197,18 +144,8 @@ namespace drgAccess.Components
                     }
                 }
 
-                // Update active zone
-                if (nearestActiveZone != activeZone)
-                {
-                    if (nearestActiveZone != null)
-                    {
-                        Plugin.Log.LogInfo($"[ActivationZoneAudio] Found active zone at {nearestDistance:F1}m, state: {nearestActiveZone.state}");
-                    }
-                    else if (activeZone != null)
-                    {
-                        Plugin.Log.LogInfo("[ActivationZoneAudio] No active zone nearby");
-                    }
-                }
+                if (nearestActiveZone != activeZone && nearestActiveZone != null)
+                    Plugin.Log.LogInfo($"[ActivationZoneAudio] Found zone at {nearestDistance:F1}m");
 
                 activeZone = nearestActiveZone;
                 isZoneActive = activeZone != null;
@@ -228,10 +165,16 @@ namespace drgAccess.Components
                 float distance = Vector3.Distance(playerPos, zonePos);
                 float radius = activeZone.radius;
 
-                // Check if player is inside zone
                 bool isInside = distance <= radius;
+                var state = activeZone.state;
 
-                // Calculate direction and pan for 3D audio
+                // Silent when inside or activating
+                if (isInside || state == ActivationZone.EState.ACTIVATING)
+                    return;
+
+                if (Time.time < nextBeepTime) return;
+
+                // Direction and pan
                 Vector3 toZone = zonePos - playerPos;
                 toZone.y = 0;
                 toZone.Normalize();
@@ -239,64 +182,24 @@ namespace drgAccess.Components
                 Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
                 forward.y = 0;
                 forward.Normalize();
+                Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
-                Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
-                float pan = Vector3.Dot(toZone, right);
-                pan = Mathf.Clamp(pan, -1f, 1f);
-
+                float pan = Mathf.Clamp(Vector3.Dot(toZone, right), -1f, 1f);
                 panProvider.Pan = pan;
 
-                // Different audio based on state
-                var state = activeZone.state;
-
-                // INSIDE or ACTIVATING: Stop beeping (you're there!)
-                if (isInside || state == ActivationZone.EState.ACTIVATING)
-                {
-                    sineGenerator.Volume = 0f; // Silent when inside or activating
-                    return;
-                }
-
-                // OUTSIDE: Enemy-style beeps (short, fast when close)
+                // Proximity factor
                 float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
-                proximityFactor = proximityFactor * proximityFactor; // Square for more dramatic change
+                proximityFactor = proximityFactor * proximityFactor;
 
-                // Calculate interval (like enemies)
+                // Interval: 250ms far → 30ms close
                 float currentInterval = Mathf.Lerp(beaconIntervalBase, beaconIntervalMin, proximityFactor);
 
-                // Check if it's time for a new beep
-                if (Time.time >= nextBeepTime)
-                {
-                    // Play short beep (enemy-style)
-                    // Volume increases with proximity
-                    float volume = 0.18f + proximityFactor * 0.12f; // 0.18-0.3 (lower than drop pod)
+                // Volume and frequency
+                float volume = 0.18f + proximityFactor * 0.15f; // 0.18-0.33
+                double frequency = 350 + proximityFactor * 300; // 350-650 Hz
 
-                    // Frequency increases with proximity
-                    double frequency = 350 + proximityFactor * 300; // 350-650 Hz (lower than drop pod)
-
-                    sineGenerator.Frequency = frequency;
-                    sineGenerator.Volume = volume;
-
-                    nextBeepTime = Time.time + currentInterval;
-
-                    if (Time.frameCount % 120 == 0)
-                    {
-                        Plugin.Log.LogInfo($"[ActivationZoneAudio] Zone beacon: dist={distance:F1}m, interval={currentInterval:F2}s, vol={volume:F2}, freq={frequency:F0}Hz");
-                    }
-                }
-                else
-                {
-                    // Check if beep duration has passed
-                    float timeSinceBeep = Time.time - (nextBeepTime - currentInterval);
-                    if (timeSinceBeep > beepDuration)
-                    {
-                        sineGenerator.Volume = 0f; // Silence between beeps
-                    }
-                }
-
-                if (Time.frameCount % 120 == 0)
-                {
-                    Plugin.Log.LogInfo($"[ActivationZoneAudio] Zone beacon: dist={distance:F1}m, radius={radius:F1}m, inside={isInside}, state={state}");
-                }
+                beepGenerator.Play(frequency, volume, EnemyAudioType.Normal);
+                nextBeepTime = Time.time + currentInterval;
             }
             catch (Exception e)
             {
@@ -312,17 +215,11 @@ namespace drgAccess.Components
                 if (!string.IsNullOrEmpty(lastSceneName) && currentScene != lastSceneName)
                 {
                     Plugin.Log.LogInfo($"[ActivationZoneAudio] Scene changed to {currentScene} - resetting");
-
-                    // Reset state
                     isZoneActive = false;
                     activeZone = null;
-
-                    // Reset player references
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;
-
-                    // Reset game state
                     gameStateProvider = null;
                 }
                 lastSceneName = currentScene;
@@ -354,10 +251,7 @@ namespace drgAccess.Components
                 if (cameraTransform == null)
                 {
                     var cam = Camera.main;
-                    if (cam != null)
-                    {
-                        cameraTransform = cam.transform;
-                    }
+                    if (cam != null) cameraTransform = cam.transform;
                 }
             }
             catch { }
@@ -367,55 +261,38 @@ namespace drgAccess.Components
         {
             try
             {
-                if (Time.timeScale <= 0.1f)
-                    return false;
+                if (Time.timeScale <= 0.1f) return false;
 
-                // Validate gameStateProvider
                 if (gameStateProvider != null)
                 {
                     var gc = gameStateProvider.TryCast<GameController>();
-                    if (gc == null)
-                    {
-                        gameStateProvider = null;
-                    }
+                    if (gc == null) gameStateProvider = null;
                 }
 
-                // Find game state provider if not cached
                 if (gameStateProvider == null)
                 {
                     var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
                     if (gameController != null)
-                    {
                         gameStateProvider = gameController.Cast<IGameStateProvider>();
-                    }
                     else
-                    {
                         return false;
-                    }
                 }
 
                 if (gameStateProvider != null)
-                {
-                    var state = gameStateProvider.State;
-                    return state == GameController.EGameState.CORE;
-                }
+                    return gameStateProvider.State == GameController.EGameState.CORE;
             }
             catch { }
-
             return false;
         }
 
         void OnDestroy()
         {
-            Plugin.Log.LogWarning($"[ActivationZoneAudio] OnDestroy called!");
-
             try
             {
                 outputDevice?.Stop();
                 outputDevice?.Dispose();
             }
             catch { }
-
             Instance = null;
             Plugin.Log.LogInfo("[ActivationZoneAudio] Destroyed");
         }
