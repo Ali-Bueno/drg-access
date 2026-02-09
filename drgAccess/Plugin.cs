@@ -27,6 +27,11 @@ public class Plugin : BasePlugin
         // Register focus tracker component for settings navigation
         AddComponent<SettingsFocusTracker>();
 
+        // Register gameplay audio components
+        AddComponent<Components.EnemyTracker>();
+        AddComponent<Components.WallNavigationAudio>();
+        AddComponent<Components.EnemyAudioSystem>();
+
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded successfully!");
         ScreenReader.Say("DRG Survivor Accessibility mod loaded");
     }

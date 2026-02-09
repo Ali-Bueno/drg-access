@@ -31,6 +31,17 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Mineral Market**: Reads localized button text instead of raw enum names
 - **Localized Game Data**: Stat names, rarity names, and gear slot types use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
 - **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
+- **Gameplay Audio - Wall Navigation**: Continuous tones for wall detection in 4 directions (forward, back, left, right) with volume based on proximity
+  - Forward: 500 Hz (medium tone)
+  - Back: 180 Hz (low tone)
+  - Left/Right: 300 Hz (medium-low tone) with stereo panning
+  - Volume increases as walls get closer
+- **Gameplay Audio - Enemy Detection**: 3D positional beeps for enemies with type differentiation
+  - Normal enemies: short high beeps (500-1000 Hz)
+  - Elite enemies: medium beeps with vibrato (150-300 Hz)
+  - Boss enemies: long deep tones (60-120 Hz)
+  - Pitch adjusts with distance (closer = higher) and height (above = higher, below = lower)
+  - 8-directional detection with stereo panning
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
@@ -38,10 +49,9 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 ### Pending Improvements
 - [ ] In-game HUD reading (health, XP, wave, etc.)
 - [ ] Level-up skill selection improvements
-- [ ] Combat feedback (damage taken, enemies nearby)
-- [ ] Audio cues for spatial awareness
 - [ ] Death/victory announcements
 - [ ] Settings: tab content accessibility for remaining pages
+- [ ] Gameplay audio fine-tuning based on testing
 
 ---
 
@@ -52,13 +62,18 @@ drgAccess/
 ├── Plugin.cs                  # Main plugin entry point
 ├── ScreenReader.cs            # Tolk wrapper for screen reader output
 ├── SettingsFocusTracker.cs    # MonoBehaviour polling EventSystem for settings focus
+├── Components/
+│   ├── WallNavigationAudio.cs # Wall detection with continuous tones
+│   ├── EnemyAudioSystem.cs    # 3D positional audio for enemies
+│   └── EnemyTracker.cs        # Tracks active enemies in scene
 ├── Patches/
 │   ├── UIButtonPatch.cs       # All button types (class, subclass, shop, selectors, etc.)
 │   ├── UIFormPatches.cs       # Form/menu announcements
 │   ├── UIPageDescriptionPatches.cs  # Page description panel reading
 │   ├── UISettingsPatch.cs     # Settings sliders, toggles, selectors, tabs
 │   ├── UITooltipPatch.cs      # Tooltip reading
-│   └── UISliderTogglePatch.cs # Toggle state announcements
+│   ├── UISliderTogglePatch.cs # Toggle state announcements
+│   └── EnemyPatches.cs        # Enemy registration for audio system
 └── drgAccess.csproj           # Project file
 
 drg code/                      # Decompiled game code for reference (not included in repo)
@@ -70,6 +85,7 @@ references/tolk/               # Tolk DLL references
 ## Dependencies
 
 - **BepInEx 6.x** (IL2CPP version)
+- **NAudio 2.2.1** for procedural audio generation (walls and enemy detection)
 - **Tolk** screen reader library
   - `TolkDotNet.dll` in plugins folder
   - `Tolk.dll` and `nvdaControllerClient64.dll` in game root folder
