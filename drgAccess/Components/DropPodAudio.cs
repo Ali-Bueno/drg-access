@@ -22,10 +22,12 @@ namespace drgAccess.Components
         private volatile float targetVolume = 0f;
         private volatile int targetIntervalSamples;
         private volatile bool active = false;
+        private volatile bool doubleBeep = false;
 
         // Internal state (audio thread only)
         private int sampleCounter = 0;
         private int beepDurationSamples;
+        private int gapSamples;
         private int intervalSamples;
         private float currentFrequency = 600f;
         private float currentVolume = 0f;
@@ -55,11 +57,20 @@ namespace drgAccess.Components
             set => active = value;
         }
 
+        /// <summary>
+        /// When true, plays two quick beeps per cycle instead of one (dit-dit pattern).
+        /// </summary>
+        public bool DoubleBeep
+        {
+            set => doubleBeep = value;
+        }
+
         public BeaconBeepGenerator(int sampleRate = 44100)
         {
             this.sampleRate = sampleRate;
             waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
             beepDurationSamples = (int)(sampleRate * 0.05); // 50ms beep
+            gapSamples = (int)(sampleRate * 0.03); // 30ms gap between double beeps
             intervalSamples = (int)(sampleRate * 0.25); // 250ms default
             targetIntervalSamples = intervalSamples;
         }
@@ -70,6 +81,11 @@ namespace drgAccess.Components
             currentFrequency = targetFrequency;
             currentVolume = targetVolume;
             intervalSamples = targetIntervalSamples;
+            bool isDouble = doubleBeep;
+
+            // Double beep layout: [beep1][gap][beep2][silence...]
+            int secondBeepStart = beepDurationSamples + gapSamples;
+            int secondBeepEnd = secondBeepStart + beepDurationSamples;
 
             for (int i = 0; i < count; i++)
             {
@@ -79,11 +95,17 @@ namespace drgAccess.Components
                     continue;
                 }
 
-                bool isInBeep = sampleCounter < beepDurationSamples;
+                // Determine if we're in a beep region
+                bool isInFirstBeep = sampleCounter < beepDurationSamples;
+                bool isInSecondBeep = isDouble &&
+                    sampleCounter >= secondBeepStart &&
+                    sampleCounter < secondBeepEnd;
 
-                if (isInBeep)
+                if (isInFirstBeep || isInSecondBeep)
                 {
-                    float progress = (float)sampleCounter / beepDurationSamples;
+                    // Progress within the current beep (0-1)
+                    int beepOffset = isInFirstBeep ? sampleCounter : (sampleCounter - secondBeepStart);
+                    float progress = (float)beepOffset / beepDurationSamples;
 
                     // Sharp attack (5%), exponential decay
                     float envelope;
@@ -93,7 +115,9 @@ namespace drgAccess.Components
                         envelope = (float)Math.Exp(-(progress - 0.05) * 5.0);
 
                     // Chirp: frequency descends 25% during beep (distinct from enemy flat beeps)
-                    double chirpFreq = (double)currentFrequency * (1.0 - progress * 0.25);
+                    // Second beep starts slightly higher for a "dit-DIT" effect
+                    double freqBase = isInSecondBeep ? currentFrequency * 1.15 : currentFrequency;
+                    double chirpFreq = freqBase * (1.0 - progress * 0.25);
 
                     // Pure sine wave
                     double sample = Math.Sin(2.0 * Math.PI * phase);
@@ -144,6 +168,8 @@ namespace drgAccess.Components
         // State
         private bool isInitialized = false;
         private float maxDistance = 150f;
+        private const float CRITICAL_DISTANCE = 8f;
+        private bool announcedCriticalProximity = false;
 
         // Landing warning
         private float landingWarningDuration = 5f;
@@ -261,6 +287,7 @@ namespace drgAccess.Components
             activePod = pod;
             isLandingWarning = false;
             isBeaconActive = true;
+            announcedCriticalProximity = false;
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
         }
 
@@ -325,17 +352,39 @@ namespace drgAccess.Components
 
                 panProvider.Pan = pan;
 
-                // Proximity (0 = far, 1 = close)
-                float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
-                proximityFactor = proximityFactor * proximityFactor;
+                bool isCritical = distance < CRITICAL_DISTANCE;
 
-                // Interval: 250ms far → 30ms very close
-                float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
+                if (isCritical)
+                {
+                    // Critical proximity: double-beep pattern, higher pitch, louder
+                    float criticalFactor = 1f - Mathf.Clamp01(distance / CRITICAL_DISTANCE);
 
-                beepGenerator.Frequency = 500 + proximityFactor * 400; // 500-900 Hz
-                beepGenerator.Volume = 0.25f + proximityFactor * 0.2f; // 0.25-0.45
-                beepGenerator.Interval = interval;
-                beepGenerator.Active = true;
+                    beepGenerator.Frequency = 900 + criticalFactor * 300; // 900-1200 Hz
+                    beepGenerator.Volume = 0.4f + criticalFactor * 0.15f; // 0.4-0.55
+                    beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
+                    beepGenerator.DoubleBeep = true;
+                    beepGenerator.Active = true;
+
+                    if (!announcedCriticalProximity)
+                    {
+                        announcedCriticalProximity = true;
+                        ScreenReader.Interrupt("Drop pod very close");
+                    }
+                }
+                else
+                {
+                    // Normal beacon
+                    float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
+                    proximityFactor = proximityFactor * proximityFactor;
+
+                    float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
+
+                    beepGenerator.Frequency = 500 + proximityFactor * 400; // 500-900 Hz
+                    beepGenerator.Volume = 0.25f + proximityFactor * 0.2f; // 0.25-0.45
+                    beepGenerator.Interval = interval;
+                    beepGenerator.DoubleBeep = false;
+                    beepGenerator.Active = true;
+                }
             }
             catch (Exception e)
             {
@@ -355,6 +404,7 @@ namespace drgAccess.Components
                     isLandingWarning = false;
                     activePod = null;
                     landingWarningEndTime = 0f;
+                    announcedCriticalProximity = false;
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;

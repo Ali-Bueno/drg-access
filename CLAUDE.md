@@ -43,18 +43,18 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Critical proximity warning (< 3.5m): Faster beeps, boosted volume, higher pitch for urgency
   - 8-directional detection with stereo panning
   - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
-- **Gameplay Audio - Drop Pod Beacon**: Sharp short beeps for extraction pod location
-  - Uses EnemyAlertSoundGenerator for crisp, distinct beeps (50ms)
+- **Gameplay Audio - Drop Pod Beacon**: Chirp beeps for extraction pod location
+  - Uses BeaconBeepGenerator with descending-frequency chirp (distinct from enemy flat beeps)
   - Accelerating interval: 250ms (far) → 30ms (very close)
-  - 3D positional audio with distance-based volume (0.2-0.4) and frequency (500-900 Hz)
-  - Distinguishable from enemies by lower frequency range
+  - 3D positional audio with distance-based volume (0.25-0.45) and frequency (500-900 Hz)
+  - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (900-1200 Hz), louder, screen reader announces "Drop pod very close"
   - Stops when player enters pod
-  - Landing warning: Rapid urgent beeps (1000-1400 Hz, 80ms interval) when pod is descending (5 seconds)
+  - Landing warning: Rapid urgent chirps (1000-1400 Hz, 80ms interval) when pod is descending (5 seconds)
   - Only activates for extraction pod (not initial drop pod)
-- **Gameplay Audio - Supply Pod Beacon**: Sharp short beeps for ActivationZone (supply pod zones)
-  - Uses EnemyAlertSoundGenerator for crisp, distinct beeps (50ms)
+- **Gameplay Audio - Supply Pod Beacon**: Chirp beeps for ActivationZone (supply pod zones)
+  - Uses BeaconBeepGenerator with descending-frequency chirp (same as drop pod)
   - Accelerating interval: 250ms (far) → 30ms (very close)
-  - 3D positional audio with distance-based volume (0.18-0.33) and frequency (350-650 Hz)
+  - 3D positional audio with distance-based volume (0.2-0.38) and frequency (350-650 Hz)
   - Lowest frequency range to distinguish from enemies and drop pod
   - Stops when player is inside zone or zone is activating
   - Detects nearest active zone within 100m
@@ -87,8 +87,8 @@ drgAccess/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies
 │   ├── EnemyTracker.cs            # Tracks active enemies in scene
-│   ├── DropPodAudio.cs            # Drop pod extraction beacon (sharp beeps)
-│   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (sharp beeps)
+│   ├── DropPodAudio.cs            # Drop pod beacon + BeaconBeepGenerator (chirp beeps)
+│   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (chirp beeps)
 │   └── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
 ├── Patches/
 │   ├── UIButtonPatch.cs           # All button types (class, subclass, shop, selectors, etc.)
