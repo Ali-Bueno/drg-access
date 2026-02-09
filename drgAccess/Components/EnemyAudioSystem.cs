@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
+using UnityEngine.UI;
 using Il2CppInterop.Runtime.Injection;
 
 namespace drgAccess.Components
@@ -42,7 +43,7 @@ namespace drgAccess.Components
             this.sampleRate = sampleRate;
             waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
             samplesRemaining = 0;
-            volume = 0.3f;
+            volume = 0.15f;  // Reduced from 0.3 to 0.15
         }
 
         public void Play(double freq, float vol, EnemyAudioType type)
@@ -301,7 +302,7 @@ namespace drgAccess.Components
             {
                 var generator = new EnemyAlertSoundGenerator();
                 var panProvider = new PanningSampleProvider(generator);
-                var volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 0.3f };
+                var volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 0.15f };  // Reduced from 0.3 to 0.15
 
                 var outputDevice = new WaveOutEvent();
                 outputDevice.Init(volumeProvider);
@@ -330,6 +331,7 @@ namespace drgAccess.Components
 
                 if (!isInitialized) return;
                 if (IsMenuScene()) return;
+                if (IsGamePaused()) return;  // Stop audio when game is paused or menu is open
                 if (Time.time - sceneLoadTime < sceneStartDelay) return;
 
                 if (Time.time >= nextPlayerSearchTime)
@@ -549,28 +551,28 @@ namespace drgAccess.Components
                 switch (type)
                 {
                     case EnemyAudioType.Boss:
-                        // Boss: very deep (60-120 Hz), very strong
+                        // Boss: very deep (60-120 Hz), reduced volume
                         frequency = 60 + (proximityFactor * 60);
                         frequency *= (1.0 + heightAdjustment);
-                        volume = 0.6f + proximityFactor * 0.3f;
+                        volume = 0.25f + proximityFactor * 0.15f;  // Reduced from 0.6/0.3
                         break;
                     case EnemyAudioType.Elite:
-                        // Elite: deep-medium (150-300 Hz)
+                        // Elite: deep-medium (150-300 Hz), reduced volume
                         frequency = 150 + (proximityFactor * 150);
                         frequency *= (1.0 + heightAdjustment);
-                        volume = 0.5f + proximityFactor * 0.25f;
+                        volume = 0.2f + proximityFactor * 0.12f;  // Reduced from 0.5/0.25
                         break;
                     default:
-                        // Normal: high (500-1000 Hz)
+                        // Normal: high (500-1000 Hz), reduced volume
                         frequency = 500 + (proximityFactor * 500);
                         frequency *= (1.0 + heightAdjustment);
-                        volume = 0.4f + proximityFactor * 0.2f;
-                        // Boost by count
-                        volume += Mathf.Clamp01(count / 8f) * 0.15f;
+                        volume = 0.15f + proximityFactor * 0.1f;  // Reduced from 0.4/0.2
+                        // Boost by count (reduced)
+                        volume += Mathf.Clamp01(count / 8f) * 0.08f;  // Reduced from 0.15
                         break;
                 }
 
-                volume = Mathf.Clamp(volume, 0.35f, 0.85f);
+                volume = Mathf.Clamp(volume, 0.1f, 0.4f);  // Reduced max from 0.85 to 0.4
 
                 channel.PanProvider.Pan = pan;
                 channel.VolumeProvider.Volume = volume;
@@ -612,6 +614,35 @@ namespace drgAccess.Components
                    lastSceneName == "LoadingScreen" ||
                    lastSceneName.Contains("Menu") ||
                    string.IsNullOrEmpty(lastSceneName);
+        }
+
+        private bool IsGamePaused()
+        {
+            try
+            {
+                // Check time scale (pause menu)
+                if (Time.timeScale < 0.1f)
+                    return true;
+
+                // Check for common UI objects that indicate pause/menu state
+                string[] uiObjectNames = {
+                    "UIFormPause", "UILevelUpForm", "UIShopForm", "UIUpgradeForm",
+                    "PauseMenu", "LevelUpMenu", "ShopMenu", "UpgradeMenu",
+                    "Canvas_UI", "Canvas_Menu", "Canvas_Overlay"
+                };
+
+                foreach (var objName in uiObjectNames)
+                {
+                    var obj = GameObject.Find(objName);
+                    if (obj != null && obj.activeInHierarchy)
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch { }
+
+            return false;
         }
 
         private void FindPlayer()

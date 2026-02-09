@@ -11,6 +11,7 @@ namespace drgAccess.Patches
     {
         /// <summary>
         /// Register enemy when it spawns.
+        /// Only register actual enemies, not cocoons or destructibles.
         /// </summary>
         [HarmonyPatch(typeof(Enemy), "OnSpawn")]
         [HarmonyPostfix]
@@ -18,6 +19,13 @@ namespace drgAccess.Patches
         {
             try
             {
+                // Filter out cocoons and non-combat entities
+                var enemyType = __instance.type;
+                if (enemyType == EEnemyType.COCOON || enemyType == EEnemyType.BIG_COCOON)
+                {
+                    return; // Don't track cocoons/destructibles
+                }
+
                 var tracker = EnemyTracker.Instance;
                 if (tracker != null)
                 {

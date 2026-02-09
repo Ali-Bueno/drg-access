@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
+using UnityEngine.UI;
 using Il2CppInterop.Runtime.Injection;
 
 namespace drgAccess.Components
@@ -127,7 +128,7 @@ namespace drgAccess.Components
         // Detection configuration
         private float maxWallDistance = 12f;
         private float minVolumeDistance = 0.5f;
-        private float baseVolume = 0.15f;
+        private float baseVolume = 0.05f;  // Reduced from 0.15 to 0.05 (much quieter)
 
         // Audio channels (one per direction)
         private Dictionary<WallDirection, WallAudioChannel> channels = new Dictionary<WallDirection, WallAudioChannel>();
@@ -289,6 +290,15 @@ namespace drgAccess.Components
                     return;
                 }
 
+                // Check for paused/menu state
+                if (IsGamePaused())
+                {
+                    if (debugCounter % 300 == 0)
+                        Plugin.Log.LogDebug("[WallNav] Game paused or menu open");
+                    SilenceAllChannels();
+                    return;
+                }
+
                 // Check scene delay
                 bool shouldPause = Time.time - sceneLoadTime < sceneStartDelay;
                 if (shouldPause)
@@ -361,6 +371,35 @@ namespace drgAccess.Components
                    lastSceneName != "BootScene" &&
                    lastSceneName != "LoadingScreen" &&
                    !lastSceneName.Contains("Menu");
+        }
+
+        private bool IsGamePaused()
+        {
+            try
+            {
+                // Check time scale (pause menu)
+                if (Time.timeScale < 0.1f)
+                    return true;
+
+                // Check for common UI objects that indicate pause/menu state
+                string[] uiObjectNames = {
+                    "UIFormPause", "UILevelUpForm", "UIShopForm", "UIUpgradeForm",
+                    "PauseMenu", "LevelUpMenu", "ShopMenu", "UpgradeMenu",
+                    "Canvas_UI", "Canvas_Menu", "Canvas_Overlay"
+                };
+
+                foreach (var objName in uiObjectNames)
+                {
+                    var obj = GameObject.Find(objName);
+                    if (obj != null && obj.activeInHierarchy)
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch { }
+
+            return false;
         }
 
         private void UpdateWallDetection()
