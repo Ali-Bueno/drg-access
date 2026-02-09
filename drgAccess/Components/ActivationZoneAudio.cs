@@ -8,15 +8,16 @@ namespace drgAccess.Components
 {
     /// <summary>
     /// Audio beacon for ActivationZone (supply pod zones).
-    /// Sharp short beeps that accelerate as the player approaches.
+    /// Short chirp beeps that accelerate as the player approaches.
+    /// Uses BeaconBeepGenerator for reliable audio-thread timing.
     /// </summary>
     public class ActivationZoneAudio : MonoBehaviour
     {
         public static ActivationZoneAudio Instance { get; private set; }
 
-        // Audio channel - sharp beeps like enemy audio
+        // Audio
         private WaveOutEvent outputDevice;
-        private EnemyAlertSoundGenerator beepGenerator;
+        private BeaconBeepGenerator beepGenerator;
         private PanningSampleProvider panProvider;
         private VolumeSampleProvider volumeProvider;
 
@@ -36,11 +37,6 @@ namespace drgAccess.Components
         private float maxDistance = 100f;
         private float checkInterval = 0.1f;
         private float nextCheckTime = 0f;
-
-        // Beeping control
-        private float nextBeepTime = 0f;
-        private float beaconIntervalBase = 0.25f; // 250ms when far
-        private float beaconIntervalMin = 0.03f; // 30ms when very close
 
         // Game state
         private IGameStateProvider gameStateProvider;
@@ -72,16 +68,16 @@ namespace drgAccess.Components
         {
             try
             {
-                beepGenerator = new EnemyAlertSoundGenerator();
+                beepGenerator = new BeaconBeepGenerator();
                 panProvider = new PanningSampleProvider(beepGenerator) { Pan = 0f };
-                volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 0.25f };
+                volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 1.0f };
 
                 outputDevice = new WaveOutEvent();
                 outputDevice.Init(volumeProvider);
                 outputDevice.Play();
 
                 isInitialized = true;
-                Plugin.Log.LogInfo("[ActivationZoneAudio] Audio channel created (sharp beeps)");
+                Plugin.Log.LogInfo("[ActivationZoneAudio] Audio channel created (beacon chirp beeps)");
             }
             catch (Exception e)
             {
@@ -98,7 +94,10 @@ namespace drgAccess.Components
                 CheckSceneChange();
 
                 if (!IsInActiveGameplay())
+                {
+                    beepGenerator.Active = false;
                     return;
+                }
 
                 if (Time.time >= nextPlayerSearchTime)
                 {
@@ -106,7 +105,11 @@ namespace drgAccess.Components
                     nextPlayerSearchTime = Time.time + 2f;
                 }
 
-                if (playerTransform == null) return;
+                if (playerTransform == null)
+                {
+                    beepGenerator.Active = false;
+                    return;
+                }
 
                 if (Time.time >= nextCheckTime)
                 {
@@ -116,6 +119,8 @@ namespace drgAccess.Components
 
                 if (isZoneActive && activeZone != null)
                     UpdateZoneBeacon();
+                else
+                    beepGenerator.Active = false;
             }
             catch (Exception e)
             {
@@ -170,9 +175,10 @@ namespace drgAccess.Components
 
                 // Silent when inside or activating
                 if (isInside || state == ActivationZone.EState.ACTIVATING)
+                {
+                    beepGenerator.Active = false;
                     return;
-
-                if (Time.time < nextBeepTime) return;
+                }
 
                 // Direction and pan
                 Vector3 toZone = zonePos - playerPos;
@@ -187,19 +193,17 @@ namespace drgAccess.Components
                 float pan = Mathf.Clamp(Vector3.Dot(toZone, right), -1f, 1f);
                 panProvider.Pan = pan;
 
-                // Proximity factor
+                // Proximity factor (0 = far, 1 = close)
                 float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
                 proximityFactor = proximityFactor * proximityFactor;
 
                 // Interval: 250ms far → 30ms close
-                float currentInterval = Mathf.Lerp(beaconIntervalBase, beaconIntervalMin, proximityFactor);
+                float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
 
-                // Volume and frequency
-                float volume = 0.18f + proximityFactor * 0.15f; // 0.18-0.33
-                double frequency = 350 + proximityFactor * 300; // 350-650 Hz
-
-                beepGenerator.Play(frequency, volume, EnemyAudioType.Normal);
-                nextBeepTime = Time.time + currentInterval;
+                beepGenerator.Frequency = 350 + proximityFactor * 300; // 350-650 Hz
+                beepGenerator.Volume = 0.2f + proximityFactor * 0.18f; // 0.2-0.38
+                beepGenerator.Interval = interval;
+                beepGenerator.Active = true;
             }
             catch (Exception e)
             {

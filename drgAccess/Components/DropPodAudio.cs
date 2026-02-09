@@ -7,17 +7,127 @@ using Il2CppInterop.Runtime.Injection;
 namespace drgAccess.Components
 {
     /// <summary>
-    /// Audio beacon system for the Drop Pod using sharp beeps (like enemy audio).
-    /// - Landing warning: Rapid urgent beeps when pod is descending
-    /// - Extraction beacon: Short beeps that accelerate as player approaches
+    /// Beep generator that handles timing internally in the audio thread.
+    /// Produces short chirp beeps (descending frequency) distinct from enemy sine beeps.
+    /// Set Frequency, Volume, and Interval from Update(); audio thread does the rest.
+    /// </summary>
+    public class BeaconBeepGenerator : ISampleProvider
+    {
+        private readonly WaveFormat waveFormat;
+        private readonly int sampleRate;
+        private double phase;
+
+        // Beep parameters (set from main thread)
+        private volatile float targetFrequency = 600f;
+        private volatile float targetVolume = 0f;
+        private volatile int targetIntervalSamples;
+        private volatile bool active = false;
+
+        // Internal state (audio thread only)
+        private int sampleCounter = 0;
+        private int beepDurationSamples;
+        private int intervalSamples;
+        private float currentFrequency = 600f;
+        private float currentVolume = 0f;
+
+        public WaveFormat WaveFormat => waveFormat;
+
+        public float Frequency
+        {
+            set => targetFrequency = Math.Max(100f, Math.Min(5000f, value));
+        }
+
+        public float Volume
+        {
+            set => targetVolume = Math.Max(0, Math.Min(1, value));
+        }
+
+        /// <summary>
+        /// Set beep interval in seconds. Beeps repeat at this rate.
+        /// </summary>
+        public float Interval
+        {
+            set => targetIntervalSamples = (int)(sampleRate * Math.Max(0.02f, Math.Min(2f, value)));
+        }
+
+        public bool Active
+        {
+            set => active = value;
+        }
+
+        public BeaconBeepGenerator(int sampleRate = 44100)
+        {
+            this.sampleRate = sampleRate;
+            waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
+            beepDurationSamples = (int)(sampleRate * 0.05); // 50ms beep
+            intervalSamples = (int)(sampleRate * 0.25); // 250ms default
+            targetIntervalSamples = intervalSamples;
+        }
+
+        public int Read(float[] buffer, int offset, int count)
+        {
+            // Sync parameters from main thread
+            currentFrequency = targetFrequency;
+            currentVolume = targetVolume;
+            intervalSamples = targetIntervalSamples;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (!active || currentVolume < 0.001f)
+                {
+                    buffer[offset + i] = 0;
+                    continue;
+                }
+
+                bool isInBeep = sampleCounter < beepDurationSamples;
+
+                if (isInBeep)
+                {
+                    float progress = (float)sampleCounter / beepDurationSamples;
+
+                    // Sharp attack (5%), exponential decay
+                    float envelope;
+                    if (progress < 0.05f)
+                        envelope = progress / 0.05f;
+                    else
+                        envelope = (float)Math.Exp(-(progress - 0.05) * 5.0);
+
+                    // Chirp: frequency descends 25% during beep (distinct from enemy flat beeps)
+                    double chirpFreq = (double)currentFrequency * (1.0 - progress * 0.25);
+
+                    // Pure sine wave
+                    double sample = Math.Sin(2.0 * Math.PI * phase);
+
+                    buffer[offset + i] = (float)(currentVolume * envelope * sample);
+
+                    phase += chirpFreq / sampleRate;
+                    if (phase >= 1.0) phase -= 1.0;
+                }
+                else
+                {
+                    buffer[offset + i] = 0;
+                    phase = 0; // Reset phase for clean attack on next beep
+                }
+
+                sampleCounter++;
+                if (sampleCounter >= intervalSamples)
+                    sampleCounter = 0;
+            }
+            return count;
+        }
+    }
+
+    /// <summary>
+    /// Audio beacon for the Drop Pod using short chirp beeps.
+    /// Beeps accelerate as the player approaches the pod.
     /// </summary>
     public class DropPodAudio : MonoBehaviour
     {
         public static DropPodAudio Instance { get; private set; }
 
-        // Audio channel - sharp beeps like enemy audio
+        // Audio
         private WaveOutEvent outputDevice;
-        private EnemyAlertSoundGenerator beepGenerator;
+        private BeaconBeepGenerator beepGenerator;
         private PanningSampleProvider panProvider;
         private VolumeSampleProvider volumeProvider;
 
@@ -31,19 +141,13 @@ namespace drgAccess.Components
         private Transform cameraTransform;
         private float nextPlayerSearchTime = 0f;
 
-        // State tracking
+        // State
         private bool isInitialized = false;
-
-        // Beacon intervals
         private float maxDistance = 150f;
-        private float beaconIntervalBase = 0.25f; // 250ms when far
-        private float beaconIntervalMin = 0.03f; // 30ms when very close
-        private float nextBeepTime = 0f;
 
         // Landing warning
         private float landingWarningDuration = 5f;
         private float landingWarningEndTime = 0f;
-        private float landingBeepInterval = 0.08f; // Fast beeps during landing
 
         // Game state
         private IGameStateProvider gameStateProvider;
@@ -75,17 +179,16 @@ namespace drgAccess.Components
         {
             try
             {
-                // Use EnemyAlertSoundGenerator for sharp, distinct beeps
-                beepGenerator = new EnemyAlertSoundGenerator();
+                beepGenerator = new BeaconBeepGenerator();
                 panProvider = new PanningSampleProvider(beepGenerator) { Pan = 0f };
-                volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 0.3f };
+                volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 1.0f };
 
                 outputDevice = new WaveOutEvent();
                 outputDevice.Init(volumeProvider);
                 outputDevice.Play();
 
                 isInitialized = true;
-                Plugin.Log.LogInfo("[DropPodAudio] Audio channel created (sharp beeps)");
+                Plugin.Log.LogInfo("[DropPodAudio] Audio channel created (beacon chirp beeps)");
             }
             catch (Exception e)
             {
@@ -102,7 +205,10 @@ namespace drgAccess.Components
                 CheckSceneChange();
 
                 if (!IsInActiveGameplay())
+                {
+                    beepGenerator.Active = false;
                     return;
+                }
 
                 if (Time.time >= nextPlayerSearchTime)
                 {
@@ -111,7 +217,10 @@ namespace drgAccess.Components
                 }
 
                 if (playerTransform == null)
+                {
+                    beepGenerator.Active = false;
                     return;
+                }
 
                 if (isLandingWarning && activePod != null)
                 {
@@ -120,12 +229,17 @@ namespace drgAccess.Components
                     else
                     {
                         isLandingWarning = false;
+                        beepGenerator.Active = false;
                         Plugin.Log.LogInfo("[DropPodAudio] Landing warning ended");
                     }
                 }
                 else if (isBeaconActive && activePod != null)
                 {
                     UpdateBeacon();
+                }
+                else
+                {
+                    beepGenerator.Active = false;
                 }
             }
             catch (Exception e)
@@ -139,7 +253,6 @@ namespace drgAccess.Components
             activePod = pod;
             isLandingWarning = true;
             landingWarningEndTime = Time.time + landingWarningDuration;
-            nextBeepTime = 0f;
             Plugin.Log.LogInfo("[DropPodAudio] Landing warning activated");
         }
 
@@ -148,7 +261,6 @@ namespace drgAccess.Components
             activePod = pod;
             isLandingWarning = false;
             isBeaconActive = true;
-            nextBeepTime = 0f;
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
         }
 
@@ -156,6 +268,7 @@ namespace drgAccess.Components
         {
             isBeaconActive = false;
             isLandingWarning = false;
+            beepGenerator.Active = false;
             Plugin.Log.LogInfo("[DropPodAudio] Audio deactivated - player entered pod");
         }
 
@@ -186,21 +299,16 @@ namespace drgAccess.Components
             try
             {
                 var (distance, pan) = GetPodDirectionInfo();
-                if (distance < 0) return;
+                if (distance < 0) { beepGenerator.Active = false; return; }
 
                 panProvider.Pan = pan;
 
-                if (Time.time >= nextBeepTime)
-                {
-                    float proximityFactor = 1f - Mathf.Clamp01(distance / 50f);
+                float proximityFactor = 1f - Mathf.Clamp01(distance / 50f);
 
-                    // Urgent high-pitched beeps
-                    double frequency = 1000 + proximityFactor * 400; // 1000-1400 Hz
-                    float volume = 0.4f + proximityFactor * 0.2f;
-
-                    beepGenerator.Play(frequency, volume, EnemyAudioType.Normal);
-                    nextBeepTime = Time.time + landingBeepInterval;
-                }
+                beepGenerator.Frequency = 1000 + proximityFactor * 400; // 1000-1400 Hz
+                beepGenerator.Volume = 0.35f + proximityFactor * 0.2f; // 0.35-0.55
+                beepGenerator.Interval = 0.08f; // Fast urgent beeps
+                beepGenerator.Active = true;
             }
             catch (Exception e)
             {
@@ -213,27 +321,21 @@ namespace drgAccess.Components
             try
             {
                 var (distance, pan) = GetPodDirectionInfo();
-                if (distance < 0) return;
+                if (distance < 0) { beepGenerator.Active = false; return; }
 
                 panProvider.Pan = pan;
 
-                if (Time.time < nextBeepTime) return;
-
-                // Proximity factor (0 = far, 1 = close)
+                // Proximity (0 = far, 1 = close)
                 float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
                 proximityFactor = proximityFactor * proximityFactor;
 
-                // Interval: 250ms far → 30ms close
-                float currentInterval = Mathf.Lerp(beaconIntervalBase, beaconIntervalMin, proximityFactor);
+                // Interval: 250ms far → 30ms very close
+                float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
 
-                // Volume: louder when closer
-                float volume = 0.2f + proximityFactor * 0.2f; // 0.2-0.4
-
-                // Frequency: higher when closer
-                double frequency = 500 + proximityFactor * 400; // 500-900 Hz
-
-                beepGenerator.Play(frequency, volume, EnemyAudioType.Normal);
-                nextBeepTime = Time.time + currentInterval;
+                beepGenerator.Frequency = 500 + proximityFactor * 400; // 500-900 Hz
+                beepGenerator.Volume = 0.25f + proximityFactor * 0.2f; // 0.25-0.45
+                beepGenerator.Interval = interval;
+                beepGenerator.Active = true;
             }
             catch (Exception e)
             {
@@ -252,12 +354,12 @@ namespace drgAccess.Components
                     isBeaconActive = false;
                     isLandingWarning = false;
                     activePod = null;
-                    nextBeepTime = 0f;
                     landingWarningEndTime = 0f;
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;
                     gameStateProvider = null;
+                    beepGenerator.Active = false;
                 }
                 lastSceneName = currentScene;
             }
@@ -284,7 +386,6 @@ namespace drgAccess.Components
                         }
                     }
                 }
-
                 if (cameraTransform == null)
                 {
                     var cam = Camera.main;
