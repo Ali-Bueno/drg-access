@@ -8,6 +8,16 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 ---
 
+## GitHub & Releases
+
+- **Repository**: https://github.com/Ali-Bueno/drg-access
+- **Latest release (permanent link)**: https://github.com/Ali-Bueno/drg-access/releases/latest
+- **Current version**: v0.1.0
+- **Release folder**: `DRGAccess release full/` — contains everything the user needs (BepInEx, NAudio, Tolk, the mod DLL). User just copies all files into the game directory.
+- **Release process**: Create a zip from `DRGAccess release full/`, then `gh release create vX.Y.Z file.zip --title "..." --notes "..."`. The `/releases/latest` link always points to the newest release automatically.
+
+---
+
 ## Current Status
 
 ### Implemented Features
@@ -272,4 +282,4 @@ The build automatically copies the DLL to:
 
 ## Goal
 
-Enable a blind player to navigate menus, select classes/loadouts, and eventually play Deep Rock Galactic Survivor with full screen reader support.
+Enable a blind player to fully play Deep Rock Galactic Survivor — menus, loadout setup, gameplay, and post-run screens — with screen reader support and spatial audio cues.
