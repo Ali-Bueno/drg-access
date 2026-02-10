@@ -148,14 +148,14 @@ namespace drgAccess.Components
                 },
                 new AudioCueItem
                 {
-                    Name = "Enemy: Loot",
-                    Description = "Loot enemy nearby. Bright ascending chime. Kill it for rewards.",
+                    Name = "Rare Loot Enemy",
+                    Description = "Golden Lootbug or Huuli Hoarder nearby. Bright ascending chime. Kill for big rewards.",
                     PlayPreview = () => PreviewEnemyBeep(EnemyAudioType.Loot, 1800, 3)
                 },
                 new AudioCueItem
                 {
                     Name = "Drop Pod Beacon",
-                    Description = "Guides you to the extraction pod. High-pitched chirp, faster as you approach.",
+                    Description = "Guides you to the extraction pod. Higher pitch when facing it, lower when facing away. Press F for compass direction.",
                     PlayPreview = () => PreviewBeacon(1100, 0.15f)
                 },
                 new AudioCueItem

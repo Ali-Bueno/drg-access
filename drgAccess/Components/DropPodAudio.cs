@@ -2,6 +2,7 @@ using System;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Il2CppInterop.Runtime.Injection;
 
 namespace drgAccess.Components
@@ -144,16 +145,25 @@ namespace drgAccess.Components
     /// <summary>
     /// Audio beacon for the Drop Pod using short chirp beeps.
     /// Beeps accelerate as the player approaches the pod.
+    /// At very close range (< 3m), switches to a distinct continuous pulsing tone
+    /// on the ramp position so the player knows exactly where to walk.
     /// </summary>
     public class DropPodAudio : MonoBehaviour
     {
         public static DropPodAudio Instance { get; private set; }
 
-        // Audio
+        // Shared audio output
         private WaveOutEvent outputDevice;
+        private MixingSampleProvider mixer;
+
+        // Beacon chirp (normal + critical distance)
         private BeaconBeepGenerator beepGenerator;
-        private PanningSampleProvider panProvider;
-        private VolumeSampleProvider volumeProvider;
+        private PanningSampleProvider beepPanProvider;
+
+        // Ramp proximity tone (< 3m, continuous pulsing)
+        private SineWaveGenerator rampToneGenerator;
+        private PanningSampleProvider rampTonePanProvider;
+        private VolumeSampleProvider rampToneVolumeProvider;
 
         // Drop pod reference
         private DropPod activePod;
@@ -168,7 +178,9 @@ namespace drgAccess.Components
         private bool isInitialized = false;
         private float maxDistance = 150f;
         private const float CRITICAL_DISTANCE = 8f;
+        private const float RAMP_DISTANCE = 3f;
         private bool announcedCriticalProximity = false;
+        private bool announcedOnRamp = false;
 
         // Game state
         private IGameStateProvider gameStateProvider;
@@ -200,16 +212,27 @@ namespace drgAccess.Components
         {
             try
             {
+                var format = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
+                mixer = new MixingSampleProvider(format) { ReadFully = true };
+
+                // Beacon chirp beeps (normal navigation)
                 beepGenerator = new BeaconBeepGenerator();
-                panProvider = new PanningSampleProvider(beepGenerator) { Pan = 0f };
-                volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 1.0f };
+                beepPanProvider = new PanningSampleProvider(beepGenerator) { Pan = 0f };
+                var beepVolumeProvider = new VolumeSampleProvider(beepPanProvider) { Volume = 1.0f };
+                mixer.AddMixerInput(beepVolumeProvider);
+
+                // Ramp proximity tone (continuous pulsing, distinct from chirps)
+                rampToneGenerator = new SineWaveGenerator(1600, 0f);
+                rampTonePanProvider = new PanningSampleProvider(rampToneGenerator) { Pan = 0f };
+                rampToneVolumeProvider = new VolumeSampleProvider(rampTonePanProvider) { Volume = 0f };
+                mixer.AddMixerInput(rampToneVolumeProvider);
 
                 outputDevice = new WaveOutEvent();
-                outputDevice.Init(volumeProvider);
+                outputDevice.Init(mixer);
                 outputDevice.Play();
 
                 isInitialized = true;
-                Plugin.Log.LogInfo("[DropPodAudio] Audio channel created (beacon chirp beeps)");
+                Plugin.Log.LogInfo("[DropPodAudio] Audio initialized (beacon + ramp proximity tone)");
             }
             catch (Exception e)
             {
@@ -228,6 +251,7 @@ namespace drgAccess.Components
                 if (!IsInActiveGameplay())
                 {
                     beepGenerator.Active = false;
+                    rampToneGenerator.Volume = 0f;
                     return;
                 }
 
@@ -240,16 +264,19 @@ namespace drgAccess.Components
                 if (playerTransform == null)
                 {
                     beepGenerator.Active = false;
+                    rampToneGenerator.Volume = 0f;
                     return;
                 }
 
                 if (isBeaconActive && activePod != null)
                 {
                     UpdateBeacon();
+                    HandleCompassKey();
                 }
                 else
                 {
                     beepGenerator.Active = false;
+                    rampToneGenerator.Volume = 0f;
                 }
             }
             catch (Exception e)
@@ -263,6 +290,7 @@ namespace drgAccess.Components
             activePod = pod;
             isBeaconActive = true;
             announcedCriticalProximity = false;
+            announcedOnRamp = false;
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
         }
 
@@ -270,77 +298,209 @@ namespace drgAccess.Components
         {
             isBeaconActive = false;
             beepGenerator.Active = false;
+            rampToneGenerator.Volume = 0f;
             Plugin.Log.LogInfo("[DropPodAudio] Audio deactivated - player entered pod");
         }
 
-        private (float distance, float pan) GetPodDirectionInfo()
+        /// <summary>
+        /// Gets the target position for beacon guidance.
+        /// Prefers the ramp (entry side) over the pod center, since the player
+        /// needs to walk onto the ramp to enter the pod.
+        /// </summary>
+        private Vector3 GetBeaconTargetPosition()
         {
+            try
+            {
+                // Prefer ramp detector position - that's where the player enters
+                var ramp = activePod.rampDetector;
+                if (ramp != null)
+                    return ramp.position;
+            }
+            catch { }
+
+            // Fall back to pod transform
             var podTransform = activePod.podTransform;
-            if (podTransform == null) return (-1f, 0f);
+            return podTransform != null ? podTransform.position : Vector3.zero;
+        }
 
-            Vector3 podPos = podTransform.position;
+        private (float distance, float pan, float facingDot) GetPodDirectionInfo()
+        {
+            Vector3 targetPos = GetBeaconTargetPosition();
+            if (targetPos == Vector3.zero) return (-1f, 0f, 0f);
+
             Vector3 playerPos = playerTransform.position;
-            float distance = Vector3.Distance(playerPos, podPos);
+            float distance = Vector3.Distance(playerPos, targetPos);
 
-            Vector3 toPod = podPos - playerPos;
-            toPod.y = 0;
-            toPod.Normalize();
+            Vector3 toTarget = targetPos - playerPos;
+            toTarget.y = 0;
+            toTarget.Normalize();
 
             Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
             forward.y = 0;
             forward.Normalize();
             Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
-            float pan = Mathf.Clamp(Vector3.Dot(toPod, right), -1f, 1f);
-            return (distance, pan);
+            float pan = Mathf.Clamp(Vector3.Dot(toTarget, right), -1f, 1f);
+            float facingDot = Vector3.Dot(forward, toTarget); // 1=facing target, -1=facing away
+            return (distance, pan, facingDot);
+        }
+
+        /// <summary>
+        /// Get screen-relative direction from player to pod ramp.
+        /// Top-down game: camera is fixed, so "up" = W key direction, "right" = D key direction, etc.
+        /// </summary>
+        private string GetScreenDirection()
+        {
+            try
+            {
+                Vector3 targetPos = GetBeaconTargetPosition();
+                if (targetPos == Vector3.zero) return "unknown";
+
+                Vector3 toTarget = targetPos - playerTransform.position;
+                toTarget.y = 0;
+                toTarget.Normalize();
+
+                // Camera forward projected to XZ = "up on screen" (W key direction)
+                Vector3 screenUp = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+                screenUp.y = 0;
+                screenUp.Normalize();
+                Vector3 screenRight = new Vector3(screenUp.z, 0, -screenUp.x);
+
+                float upDot = Vector3.Dot(toTarget, screenUp);     // >0 = up on screen
+                float rightDot = Vector3.Dot(toTarget, screenRight); // >0 = right on screen
+
+                // Determine direction using thresholds
+                bool isUp = upDot > 0.38f;
+                bool isDown = upDot < -0.38f;
+                bool isRight = rightDot > 0.38f;
+                bool isLeft = rightDot < -0.38f;
+
+                if (isUp && isRight) return "up-right";
+                if (isUp && isLeft) return "up-left";
+                if (isDown && isRight) return "down-right";
+                if (isDown && isLeft) return "down-left";
+                if (isUp) return "up";
+                if (isDown) return "down";
+                if (isRight) return "right";
+                if (isLeft) return "left";
+                return "here";
+            }
+            catch { return "unknown"; }
         }
 
         private void UpdateBeacon()
         {
             try
             {
-                var (distance, pan) = GetPodDirectionInfo();
-                if (distance < 0) { beepGenerator.Active = false; return; }
+                var (distance, pan, facingDot) = GetPodDirectionInfo();
+                if (distance < 0)
+                {
+                    beepGenerator.Active = false;
+                    rampToneGenerator.Volume = 0f;
+                    return;
+                }
 
-                panProvider.Pan = pan;
+                // Top-down game: facingDot tells us if pod is "up" or "down" on screen
+                // +1 = pod is toward top of screen (W direction), -1 = toward bottom (S direction)
+                // Higher pitch = pod is above, lower pitch = pod is below
+                // Combined with stereo panning (left/right), gives full 2D direction
+                float verticalFactor = (facingDot + 1f) / 2f; // 0 = bottom, 1 = top
+                float pitchMultiplier = 0.6f + verticalFactor * 0.4f;
+                float facingVolumeMultiplier = 0.8f + verticalFactor * 0.2f;
 
+                bool isOnRamp = distance < RAMP_DISTANCE;
                 bool isCritical = distance < CRITICAL_DISTANCE;
 
-                if (isCritical)
+                if (isOnRamp)
                 {
-                    // Critical proximity: double-beep pattern, very high pitch, louder
-                    float criticalFactor = 1f - Mathf.Clamp01(distance / CRITICAL_DISTANCE);
+                    // ON THE RAMP: continuous pulsing tone, completely different from chirp beeps
+                    // Stop the beacon chirps
+                    beepGenerator.Active = false;
 
-                    beepGenerator.Frequency = 1200 + criticalFactor * 400; // 1200-1600 Hz
-                    beepGenerator.Volume = 0.4f + criticalFactor * 0.15f; // 0.4-0.55
-                    beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
-                    beepGenerator.DoubleBeep = true;
-                    beepGenerator.Active = true;
+                    // Pulsing frequency oscillates for a distinctive "you're here" signal
+                    float pulse = Mathf.Sin(Time.time * 8f); // 8 Hz pulse
+                    float rampFreq = 1400f + pulse * 200f; // 1200-1600 Hz pulsing
 
-                    if (!announcedCriticalProximity)
+                    rampToneGenerator.Frequency = rampFreq;
+                    rampToneGenerator.Volume = 0.35f;
+                    rampToneVolumeProvider.Volume = 1.0f;
+                    rampTonePanProvider.Pan = pan;
+
+                    if (!announcedOnRamp)
                     {
-                        announcedCriticalProximity = true;
-                        ScreenReader.Interrupt("Drop pod very close");
+                        announcedOnRamp = true;
+                        ScreenReader.Interrupt("On the ramp");
                     }
                 }
                 else
                 {
-                    // Normal beacon - high frequency range, clearly distinct from supply pod (350-650 Hz)
-                    float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
-                    proximityFactor = proximityFactor * proximityFactor;
+                    // Not on ramp: silence the proximity tone
+                    rampToneGenerator.Volume = 0f;
+                    announcedOnRamp = false;
 
-                    float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
+                    // Set panning for beacon chirps
+                    beepPanProvider.Pan = pan;
 
-                    beepGenerator.Frequency = 800 + proximityFactor * 600; // 800-1400 Hz
-                    beepGenerator.Volume = 0.25f + proximityFactor * 0.2f; // 0.25-0.45
-                    beepGenerator.Interval = interval;
-                    beepGenerator.DoubleBeep = false;
-                    beepGenerator.Active = true;
+                    if (isCritical)
+                    {
+                        // Critical proximity: double-beep pattern, high pitch, louder
+                        float criticalFactor = 1f - Mathf.Clamp01(distance / CRITICAL_DISTANCE);
+
+                        beepGenerator.Frequency = (1200 + criticalFactor * 400) * pitchMultiplier;
+                        beepGenerator.Volume = (0.4f + criticalFactor * 0.15f) * facingVolumeMultiplier;
+                        beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
+                        beepGenerator.DoubleBeep = true;
+                        beepGenerator.Active = true;
+
+                        if (!announcedCriticalProximity)
+                        {
+                            announcedCriticalProximity = true;
+                            ScreenReader.Interrupt("Drop pod very close");
+                        }
+                    }
+                    else
+                    {
+                        // Normal beacon chirps
+                        float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
+                        proximityFactor = proximityFactor * proximityFactor;
+
+                        float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
+
+                        beepGenerator.Frequency = (800 + proximityFactor * 600) * pitchMultiplier;
+                        beepGenerator.Volume = (0.25f + proximityFactor * 0.2f) * facingVolumeMultiplier;
+                        beepGenerator.Interval = interval;
+                        beepGenerator.DoubleBeep = false;
+                        beepGenerator.Active = true;
+                    }
                 }
             }
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[DropPodAudio] UpdateBeacon error: {e.Message}");
+            }
+        }
+
+        private void HandleCompassKey()
+        {
+            try
+            {
+                var kb = Keyboard.current;
+                if (kb == null) return;
+                if (!kb[Key.F].wasPressedThisFrame) return;
+                if (playerTransform == null) return;
+
+                Vector3 targetPos = GetBeaconTargetPosition();
+                if (targetPos == Vector3.zero) return;
+
+                float distance = Vector3.Distance(playerTransform.position, targetPos);
+                string direction = GetScreenDirection();
+                int meters = Mathf.RoundToInt(distance);
+
+                ScreenReader.Interrupt($"Drop pod: {direction}, {meters} meters");
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[DropPodAudio] HandleCompassKey error: {e.Message}");
             }
         }
 
@@ -355,11 +515,13 @@ namespace drgAccess.Components
                     isBeaconActive = false;
                     activePod = null;
                     announcedCriticalProximity = false;
+                    announcedOnRamp = false;
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;
                     gameStateProvider = null;
                     beepGenerator.Active = false;
+                    rampToneGenerator.Volume = 0f;
                 }
                 lastSceneName = currentScene;
             }

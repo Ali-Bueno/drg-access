@@ -509,6 +509,11 @@ namespace drgAccess.Components
                     if (enemyType == EEnemyType.COCOON || enemyType == EEnemyType.BIG_COCOON)
                         continue;
 
+                    // Skip common lootbugs (too many, causes audio spam)
+                    // Golden Lootbugs and Huuli Hoarders are rare and valuable - keep them
+                    if (enemy.id == EEnemy.LOOTBUG)
+                        continue;
+
                     validEnemyCount++;
 
                     // Track enemy type for name announcements

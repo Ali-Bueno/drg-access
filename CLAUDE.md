@@ -54,16 +54,21 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Normal enemies (including MINI_ELITE): Pure sine wave, 700-1400 Hz, 50ms duration
   - Elite enemies (ELITE only): Triangle wave + 2nd harmonic, 200-400 Hz, 180ms, 15Hz vibrato
   - Boss enemies: Square wave + sub-bass, 40-100 Hz, 350ms, dramatic pitch descent
-  - Loot enemies (Lootbug, Golden Lootbug, Huuli Hoarder): Bright ascending chime, 1500-2200 Hz, 120ms
+  - Rare loot enemies (Golden Lootbug, Huuli Hoarder only): Bright ascending chime, 1500-2200 Hz, 120ms
+  - Common lootbugs (LOOTBUG) are filtered out to avoid audio spam — they are too numerous
   - Critical proximity warning (< 3.5m): Faster beeps, boosted volume, higher pitch for urgency
   - 8-directional detection with stereo panning
   - Enemy name announcements via screen reader: new enemy types announced when first detected, cooldown of 3 seconds between announcements
   - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
-- **Gameplay Audio - Drop Pod Beacon**: Chirp beeps for extraction pod location
-  - Uses BeaconBeepGenerator with descending-frequency chirp (distinct from enemy flat beeps)
+- **Gameplay Audio - Drop Pod Beacon**: Chirp beeps guiding to extraction pod ramp
+  - Targets the pod's **ramp position** (`rampDetector` Transform) — the specific entry side, not pod center
+  - Uses MixingSampleProvider with BeaconBeepGenerator (chirps) + SineWaveGenerator (ramp proximity tone)
   - Accelerating interval: 250ms (far) → 30ms (very close)
   - 3D positional audio with distance-based volume (0.25-0.45) and frequency (800-1400 Hz)
+  - **Top-down pitch modulation**: Higher pitch when pod is above on screen (W direction), lower when below (S direction)
   - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (1200-1600 Hz), louder, screen reader announces "Drop pod very close"
+  - **Ramp proximity (< 3m)**: Chirps stop, continuous pulsing tone (1200-1600 Hz, 8 Hz oscillation) indicates ramp location. Screen reader announces "On the ramp"
+  - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
   - Stops when player enters pod
   - Only activates for extraction pod (not initial drop pod)
 - **Gameplay Audio - Supply Pod Beacon**: Chirp beeps for ActivationZone (supply pod zones)
@@ -82,7 +87,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Audio Cue Preview Menu**: Standalone menu to preview all audio cues outside gameplay
   - Opens with Backspace (only when NOT in active gameplay), closes with Backspace/Escape
   - Navigate with W/S or Up/Down arrows, preview with Enter
-  - 10 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss/Loot, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning
+  - 10 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Deactivates EventSystem while open to block game UI input, toggles InputSystemUIInputModule on close to restore navigation
   - Uses shared WaveOutEvent + MixingSampleProvider, created on menu open, disposed on close
