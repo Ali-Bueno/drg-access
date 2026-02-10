@@ -77,13 +77,20 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Deactivates EventSystem while open to block game UI input, toggles InputSystemUIInputModule on close to restore navigation
   - Uses shared WaveOutEvent + MixingSampleProvider, created on menu open, disposed on close
+- **Pause Menu**: Reads weapon name/level on weapon select, artifact name on artifact select, all player stats (name + value) when pause form opens
+- **End Screen (Death/Victory Stats)**: Arrow-key navigable reader for post-run statistics
+  - Activates when end screen opens, collects all visible text into ordered list
+  - Navigate with Up/Down arrows, Enter to activate buttons
+  - Sections: title/result, class progression + XP, score/high score, credits, resources collected, weapon report (per weapon: name, level, stacks, damage, DPS), damage breakdown (per type), player stats, exploration stats
+  - Action buttons at end: Retry (OnRetryButton), Continue (OnMenuButton), Go Endless (OnEndlessButton, endless mode only)
+  - Blocks EventSystem while active, restores on button activation
+  - The "Continue" button has no field on UIEndScreen (connected via Inspector), calls OnMenuButton() directly
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
 
 ### Pending Improvements
 - [ ] In-game HUD reading (health, XP, wave, etc.)
-- [ ] Death/victory announcements
 - [ ] Settings: tab content accessibility for remaining pages
 
 ---
@@ -106,7 +113,8 @@ drgAccess/
 │   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (chirp beeps)
 │   ├── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
 │   ├── AudioCueMenu.cs            # Audio cue preview menu (Backspace to open/close)
-│   └── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
+│   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
+│   └── EndScreenReaderComponent.cs # Arrow-key navigable end screen stats reader
 ├── Patches/
 │   ├── UIButtonPatch.cs           # Core button dispatch + simple handlers (partial class)
 │   ├── UIButtonPatch.ClassSelection.cs  # Class/subclass button text (partial)
@@ -117,6 +125,8 @@ drgAccess/
 │   ├── UISettingsPatch.cs         # Settings sliders, toggles, selectors, tabs
 │   ├── UITooltipPatch.cs          # Tooltip reading
 │   ├── UISliderTogglePatch.cs     # Toggle state announcements
+│   ├── UIButtonPatch.Pause.cs     # Pause menu weapon/artifact button text (partial)
+│   ├── UICorePausePatch.cs        # Pause menu detail panels (weapon stats, artifact desc, player stats)
 │   ├── UIActionFeedbackPatch.cs   # Action results (buy/sell, upgrade, equip/unequip, wallet reader)
 │   ├── EnemyPatches.cs            # Enemy registration for audio system
 │   ├── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
@@ -162,6 +172,9 @@ references/tolk/                   # Tolk DLL references
 | `UISettingsPageVideo` | Video selector callbacks |
 | `UISettingsForm` | Settings tabs (PageLeft/PageRight) |
 | `StepSelectorBase` | Left/right selector buttons |
+| `UICorePauseForm` | Pause menu (weapon/artifact select, player stats) |
+| `UIPauseWeapon` / `UIPauseArtifact` | Pause menu weapon/artifact buttons |
+| `UIEndScreen` | End screen stats reader (arrow-key navigable) |
 | Various `UIForm` subclasses | Menu/form announcements |
 | Various page classes | Description panel reading |
 | `GroundSpike` | Ground spike hazard detection (Dreadnought boss attack) |
