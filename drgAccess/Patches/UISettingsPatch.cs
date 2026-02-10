@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using drgAccess.Helpers;
 
 namespace drgAccess.Patches;
 
@@ -49,7 +50,7 @@ public static class UISettingsPatch
             if (index < 0 || index >= tabs.Count) return;
             var tab = tabs[index];
             if (tab?.text != null && !string.IsNullOrEmpty(tab.text.text))
-                ScreenReader.Interrupt(CleanText(tab.text.text));
+                ScreenReader.Interrupt(TextHelper.CleanText(tab.text.text));
         }
         catch (System.Exception ex)
         {
@@ -243,7 +244,7 @@ public static class UISettingsPatch
     {
         try
         {
-            string value = displayText != null ? CleanText(displayText.text) : null;
+            string value = displayText != null ? TextHelper.CleanText(displayText.text) : null;
             if (string.IsNullOrEmpty(value) && selectorTransform != null)
             {
                 var texts = selectorTransform.GetComponentsInChildren<TextMeshProUGUI>();
@@ -251,7 +252,7 @@ public static class UISettingsPatch
                 {
                     if (!string.IsNullOrEmpty(t.text))
                     {
-                        value = CleanText(t.text);
+                        value = TextHelper.CleanText(t.text);
                         break;
                     }
                 }
@@ -284,7 +285,7 @@ public static class UISettingsPatch
             {
                 if (tmp == slider.valueText) continue;
                 if (!string.IsNullOrEmpty(tmp.text))
-                    return CleanText(tmp.text);
+                    return TextHelper.CleanText(tmp.text);
             }
         }
         catch (System.Exception ex)
@@ -304,7 +305,7 @@ public static class UISettingsPatch
         if (slider.valueText == null || string.IsNullOrEmpty(slider.valueText.text))
             return null;
 
-        string raw = CleanText(slider.valueText.text);
+        string raw = TextHelper.CleanText(slider.valueText.text);
 
         if (slider.gameObject.name == "Target_Framerate_SettingsSlider"
             && slider.textMultiplier > 1
@@ -325,7 +326,7 @@ public static class UISettingsPatch
                 var child = control.GetChild(i);
                 var tmp = child.GetComponent<TextMeshProUGUI>();
                 if (tmp != null && !string.IsNullOrEmpty(tmp.text))
-                    return CleanText(tmp.text);
+                    return TextHelper.CleanText(tmp.text);
             }
 
             // 2. Check direct siblings (same parent) for TMP
@@ -339,7 +340,7 @@ public static class UISettingsPatch
 
                     var tmp = child.GetComponent<TextMeshProUGUI>();
                     if (tmp != null && !string.IsNullOrEmpty(tmp.text))
-                        return CleanText(tmp.text);
+                        return TextHelper.CleanText(tmp.text);
                 }
             }
         }
@@ -347,11 +348,4 @@ public static class UISettingsPatch
         return null;
     }
 
-    internal static string CleanText(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return text;
-        text = System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "");
-        return text.Trim();
-    }
 }

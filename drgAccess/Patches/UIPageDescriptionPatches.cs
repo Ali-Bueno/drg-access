@@ -3,7 +3,7 @@ using DRS.UI;
 using TMPro;
 using UnityEngine.Localization;
 using System.Text;
-using System.Linq;
+using drgAccess.Helpers;
 
 namespace drgAccess.Patches;
 
@@ -146,19 +146,19 @@ public static class UIPageDescriptionPatches
             // Read title from the page's TMP field
             var titleTMP = page.title;
             if (titleTMP != null && !string.IsNullOrEmpty(titleTMP.text))
-                sb.Append(CleanText(titleTMP.text));
+                sb.Append(TextHelper.CleanText(titleTMP.text));
 
             // Read description from the TMP (may contain lore or score info)
             var descTMP = page.description;
             if (descTMP != null && !string.IsNullOrEmpty(descTMP.text))
             {
                 string rawDescText = descTMP.text;
-                string descText = CleanText(rawDescText);
+                string descText = TextHelper.CleanText(rawDescText);
 
-                Plugin.Log?.LogInfo($"BiomePage - Raw description: '{rawDescText}', Cleaned: '{descText}', IsJustNumber: {IsJustNumber(descText)}");
+                Plugin.Log?.LogInfo($"BiomePage - Raw description: '{rawDescText}', Cleaned: '{descText}', IsJustNumber: {TextHelper.IsJustNumber(descText)}");
 
                 // Only include if it's not just a number (score)
-                if (!string.IsNullOrEmpty(descText) && !IsJustNumber(descText))
+                if (!string.IsNullOrEmpty(descText) && !TextHelper.IsJustNumber(descText))
                 {
                     if (sb.Length > 0) sb.Append(". ");
                     sb.Append(descText);
@@ -178,19 +178,6 @@ public static class UIPageDescriptionPatches
         }
     }
 
-    private static bool IsJustNumber(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return false;
-        // Check if the text is just numbers, spaces, dots, or commas (score format)
-        foreach (char c in text)
-        {
-            if (!char.IsDigit(c) && c != ' ' && c != '.' && c != ',')
-                return false;
-        }
-        return text.Any(char.IsDigit); // Must have at least one digit
-    }
-
     private static void AnnounceChallengeSetPageDescription(UIChallengeSetSelectPage page)
     {
         try
@@ -198,13 +185,13 @@ public static class UIPageDescriptionPatches
             var sb = new StringBuilder();
             var titleText = page.title;
             if (titleText != null && !string.IsNullOrEmpty(titleText.text))
-                sb.Append(CleanText(titleText.text));
+                sb.Append(TextHelper.CleanText(titleText.text));
 
             var descText = page.description;
             if (descText != null && !string.IsNullOrEmpty(descText.text))
             {
                 if (sb.Length > 0) sb.Append(". ");
-                sb.Append(CleanText(descText.text));
+                sb.Append(TextHelper.CleanText(descText.text));
             }
 
             if (sb.Length > 0)
@@ -222,12 +209,12 @@ public static class UIPageDescriptionPatches
         {
             var sb = new StringBuilder();
             if (titleTMP != null && !string.IsNullOrEmpty(titleTMP.text))
-                sb.Append(CleanText(titleTMP.text));
+                sb.Append(TextHelper.CleanText(titleTMP.text));
 
             if (descTMP != null && !string.IsNullOrEmpty(descTMP.text))
             {
                 if (sb.Length > 0) sb.Append(". ");
-                sb.Append(CleanText(descTMP.text));
+                sb.Append(TextHelper.CleanText(descTMP.text));
             }
 
             if (sb.Length > 0)
@@ -239,14 +226,4 @@ public static class UIPageDescriptionPatches
         }
     }
 
-    private static string CleanText(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return text;
-        text = System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "");
-        // Remove serial number patterns like "nº cm-718-689" or "n° XX-XXX-XXX"
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"[Nn][º°]\s*\S+", "");
-        text = System.Text.RegularExpressions.Regex.Replace(text, @"\s+", " ");
-        return text.Trim();
-    }
 }

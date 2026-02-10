@@ -26,8 +26,9 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
 - **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables). Coordinates with SetValueText patch via frame counter to avoid double announcements
 - **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next)
-- **Stat Upgrades**: Reads localized title, description, stat type + value, level, cost, and affordability
-- **Gear Inventory**: Reads gear name, slot type, rarity, tier, stat mods, and quirk descriptions
+- **Stat Upgrades**: Reads localized title, description, stat type + correctly formatted value (percentage stats ×100), level, cost, and affordability
+- **Gear Inventory**: Reads gear name, slot type, rarity, tier, correctly formatted stat mods, and quirk descriptions
+- **Level-Up Skill Selection**: Reads skill name, rarity (Common/Uncommon/Rare/Epic/Legendary), stats, and description
 - **Mineral Market**: Reads localized button text instead of raw enum names
 - **Localized Game Data**: Stat names, rarity names, and gear slot types use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
 - **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
@@ -70,7 +71,6 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 ### Pending Improvements
 - [ ] In-game HUD reading (health, XP, wave, etc.)
-- [ ] Level-up skill selection improvements
 - [ ] Death/victory announcements
 - [ ] Settings: tab content accessibility for remaining pages
 
@@ -83,6 +83,9 @@ drgAccess/
 ├── Plugin.cs                      # Main plugin entry point
 ├── ScreenReader.cs                # Tolk wrapper for screen reader output
 ├── SettingsFocusTracker.cs        # MonoBehaviour polling EventSystem for settings focus
+├── Helpers/
+│   ├── TextHelper.cs              # Shared text cleaning (CleanText, IsJustNumber)
+│   └── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
 ├── Components/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies
@@ -91,7 +94,10 @@ drgAccess/
 │   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (chirp beeps)
 │   └── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
 ├── Patches/
-│   ├── UIButtonPatch.cs           # All button types (class, subclass, shop, selectors, etc.)
+│   ├── UIButtonPatch.cs           # Core button dispatch + simple handlers (partial class)
+│   ├── UIButtonPatch.ClassSelection.cs  # Class/subclass button text (partial)
+│   ├── UIButtonPatch.Mission.cs   # Mission/campaign/challenge buttons (partial)
+│   ├── UIButtonPatch.Gear.cs      # Gear inventory + stat upgrades (partial)
 │   ├── UIFormPatches.cs           # Form/menu announcements
 │   ├── UIPageDescriptionPatches.cs  # Page description panel reading
 │   ├── UISettingsPatch.cs         # Settings sliders, toggles, selectors, tabs
@@ -167,6 +173,8 @@ references/tolk/                   # Tolk DLL references
 **Rule of thumb:** Only patch methods that are **declared directly on the target class**, not inherited from base classes. When in doubt, check the decompiled code.
 
 **Localization approach:** Always prefer the game's own localized text. Use `LocalizedString.GetLocalizedString()`, `StatSettingCollection.Get(statType).GetDisplayName`, `UiRarityData.GetRarityName(rarity)`, `LocalizedResources.GearType*` etc. Only mod-created messages (labels like "Stats:", "Level", "Cost:") should be in English. Cache ScriptableObject singletons via `Resources.FindObjectsOfTypeAll<T>()` with a "searched" flag to avoid repeated lookups.
+
+**Percentage stat values are stored as fractions** (0.05 = 5%). Always use `LocalizationHelper.FormatStatValue()` which multiplies by 100 for percentage stats. Never format stat values with raw `{value:0}%` directly.
 
 ---
 

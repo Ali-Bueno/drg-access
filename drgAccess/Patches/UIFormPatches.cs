@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using System.Text;
 using System.Reflection;
+using drgAccess.Helpers;
 
 namespace drgAccess.Patches;
 
@@ -193,7 +194,7 @@ public static class UIFormPatches
             {
                 var titleText = __instance.titleText;
                 string title = titleText != null ? titleText.text : null;
-                string message = !string.IsNullOrEmpty(title) ? $"Level Up: {CleanText(title)}" : "Level Up";
+                string message = !string.IsNullOrEmpty(title) ? $"Level Up: {TextHelper.CleanText(title)}" : "Level Up";
                 ScreenReader.Interrupt(message);
             }
             catch (System.Exception ex)
@@ -217,12 +218,12 @@ public static class UIFormPatches
                 var weaponTitle = __instance.weaponTitleText;
                 if (weaponTitle != null && !string.IsNullOrEmpty(weaponTitle.text))
                 {
-                    sb.Append(": " + CleanText(weaponTitle.text));
+                    sb.Append(": " + TextHelper.CleanText(weaponTitle.text));
                 }
                 var weaponLevel = __instance.weaponLevelText;
                 if (weaponLevel != null && !string.IsNullOrEmpty(weaponLevel.text))
                 {
-                    sb.Append(", " + CleanText(weaponLevel.text));
+                    sb.Append(", " + TextHelper.CleanText(weaponLevel.text));
                 }
                 ScreenReader.Interrupt(sb.ToString());
             }
@@ -247,17 +248,17 @@ public static class UIFormPatches
                 var typeTitle = __instance.unlockTypeTitle;
                 if (typeTitle != null && !string.IsNullOrEmpty(typeTitle.text))
                 {
-                    sb.Append(": " + CleanText(typeTitle.text));
+                    sb.Append(": " + TextHelper.CleanText(typeTitle.text));
                 }
                 var unlockName = __instance.unlockName;
                 if (unlockName != null && !string.IsNullOrEmpty(unlockName.text))
                 {
-                    sb.Append(". " + CleanText(unlockName.text));
+                    sb.Append(". " + TextHelper.CleanText(unlockName.text));
                 }
                 var unlockDesc = __instance.unlockDescription;
                 if (unlockDesc != null && !string.IsNullOrEmpty(unlockDesc.text))
                 {
-                    sb.Append(". " + CleanText(unlockDesc.text));
+                    sb.Append(". " + TextHelper.CleanText(unlockDesc.text));
                 }
                 ScreenReader.Interrupt(sb.ToString());
             }
@@ -281,15 +282,15 @@ public static class UIFormPatches
                 var sb = new StringBuilder("Run Summary");
                 var credits = __instance.creditsText;
                 if (credits != null && !string.IsNullOrEmpty(credits.text))
-                    sb.Append($". Credits: {CleanText(credits.text)}");
+                    sb.Append($". Credits: {TextHelper.CleanText(credits.text)}");
 
                 var xp = __instance.xpText;
                 if (xp != null && !string.IsNullOrEmpty(xp.text))
-                    sb.Append($". XP: {CleanText(xp.text)}");
+                    sb.Append($". XP: {TextHelper.CleanText(xp.text)}");
 
                 var rank = __instance.rankGainedText;
                 if (rank != null && !string.IsNullOrEmpty(rank.text))
-                    sb.Append($". Rank: {CleanText(rank.text)}");
+                    sb.Append($". Rank: {TextHelper.CleanText(rank.text)}");
 
                 ScreenReader.Interrupt(sb.ToString());
             }
@@ -374,13 +375,13 @@ public static class UIFormPatches
             var sb = new StringBuilder();
             var title = instance.title;
             if (title != null && !string.IsNullOrEmpty(title.text))
-                sb.Append(CleanText(title.text));
+                sb.Append(TextHelper.CleanText(title.text));
 
             var desc = instance.decription;
             if (desc != null && !string.IsNullOrEmpty(desc.text))
             {
                 if (sb.Length > 0) sb.Append(". ");
-                sb.Append(CleanText(desc.text));
+                sb.Append(TextHelper.CleanText(desc.text));
             }
 
             if (sb.Length > 0)
@@ -392,11 +393,4 @@ public static class UIFormPatches
         }
     }
 
-    private static string CleanText(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return text;
-        text = System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "");
-        return text.Trim();
-    }
 }
