@@ -21,9 +21,15 @@ public class SettingsFocusTracker : MonoBehaviour
     /// </summary>
     internal static int LastSliderFocusFrame = -1;
 
+    /// <summary>
+    /// Suppress all focus announcements until this frame. Used by screens
+    /// that announce their own context on open (e.g. GammaAdjuster).
+    /// </summary>
+    internal static int SuppressUntilFrame = -1;
+
     void Update()
     {
-        if (!Patches.UISettingsPatch.SettingsOpen)
+        if (!Patches.UISettingsPatch.SettingsOpen && !Patches.UIFormPatches.GammaAdjusterOpen)
             return;
 
         var es = EventSystem.current;
@@ -36,6 +42,10 @@ public class SettingsFocusTracker : MonoBehaviour
 
         _lastSelected = current;
         if (current == null)
+            return;
+
+        // Suppress announcements for a few frames after a screen opens with its own announcement
+        if (Time.frameCount <= SuppressUntilFrame)
             return;
 
         try

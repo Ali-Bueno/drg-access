@@ -15,14 +15,20 @@ namespace drgAccess.Patches;
 /// </summary>
 public static class UIFormPatches
 {
-    // Main Menu Splash
+    /// <summary>
+    /// True while the GammaAdjuster brightness screen is visible.
+    /// Used to suppress "Main Menu" and enable focus tracking on the slider.
+    /// </summary>
+    internal static bool GammaAdjusterOpen;
+
+    // Main Menu Splash - suppress when gamma adjuster is on top
     [HarmonyPatch(typeof(UIMenuSplashForm), nameof(UIMenuSplashForm.SetVisibility))]
     public static class UIMenuSplashForm_SetVisibility
     {
         [HarmonyPostfix]
         public static void Postfix(UIMenuSplashForm __instance, bool visible)
         {
-            if (visible)
+            if (visible && !GammaAdjusterOpen)
             {
                 ScreenReader.Interrupt("Main Menu");
             }
@@ -402,6 +408,94 @@ public static class UIFormPatches
         public static void Postfix(UIScoreInpectForm __instance)
         {
             ScreenReader.Interrupt("Score");
+        }
+    }
+
+    // Splash Form - announce "press any key" only when flow reaches SPLASH state (after intro videos)
+    [HarmonyPatch(typeof(UISplashForm), nameof(UISplashForm.AdvanceFlow))]
+    public static class UISplashForm_AdvanceFlow
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UISplashForm __instance)
+        {
+            try
+            {
+                if (__instance.flow != UISplashForm.EFlow.SPLASH) return;
+
+                var keyText = __instance.pressAnyKeyText;
+                if (keyText != null && !string.IsNullOrEmpty(keyText.text))
+                {
+                    ScreenReader.Interrupt(TextHelper.CleanText(keyText.text));
+                    return;
+                }
+                var btnText = __instance.pressAnyButtonText;
+                if (btnText != null && !string.IsNullOrEmpty(btnText.text))
+                {
+                    ScreenReader.Interrupt(TextHelper.CleanText(btnText.text));
+                    return;
+                }
+                ScreenReader.Interrupt("Press any key");
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UISplashForm AdvanceFlow error: {ex.Message}");
+            }
+        }
+    }
+
+    // Gamma Adjuster (first-time brightness setup screen)
+    [HarmonyPatch(typeof(GammaAdjuster), nameof(GammaAdjuster.Show))]
+    public static class GammaAdjuster_Show
+    {
+        [HarmonyPostfix]
+        public static void Postfix(GammaAdjuster __instance)
+        {
+            GammaAdjusterOpen = true;
+            SettingsFocusTracker.SuppressUntilFrame = Time.frameCount + 3;
+            try
+            {
+                var sb = new StringBuilder("Brightness Adjustment. ");
+                sb.Append("Use left and right arrows to adjust brightness, then press Enter to confirm");
+
+                var slider = __instance.slider;
+                if (slider != null)
+                {
+                    string label = UISettingsPatch.GetSliderLabel(slider);
+                    string value = UISettingsPatch.GetSliderValue(slider);
+                    if (!string.IsNullOrEmpty(label))
+                        sb.Append($". {label}");
+                    if (!string.IsNullOrEmpty(value))
+                        sb.Append($": {value}");
+                }
+
+                ScreenReader.Interrupt(sb.ToString());
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"GammaAdjuster Show error: {ex.Message}");
+                ScreenReader.Interrupt("Brightness Adjustment. Use left and right arrows to adjust, Enter to confirm");
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(GammaAdjuster), nameof(GammaAdjuster.Hide))]
+    public static class GammaAdjuster_Hide
+    {
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            GammaAdjusterOpen = false;
+        }
+    }
+
+    [HarmonyPatch(typeof(GammaAdjuster), nameof(GammaAdjuster.OnClickOK))]
+    public static class GammaAdjuster_OnClickOK
+    {
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            GammaAdjusterOpen = false;
+            ScreenReader.Interrupt("Brightness confirmed");
         }
     }
 

@@ -27,11 +27,19 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - G key reads wallet balance (same as stat upgrades)
 - **Toggle Settings**: Announces On/Off state when clicked
 - **Tooltips**: Tooltip reading with rich text and serial number cleanup
+- **Splash Screen (Press Any Key)**: Announces the "press any key" prompt only after intro videos finish (patches `UISplashForm.AdvanceFlow`, checks `flow == SPLASH`)
+- **Brightness Adjustment (First Launch)**: Full accessibility for the GammaAdjuster screen
+  - Announces "Brightness Adjustment" + instructions + slider label/value on open
+  - Slider reads value on left/right arrow changes (via existing `SetValueText` patch)
+  - Slider reads label + value on focus via `SettingsFocusTracker` (up/down navigation)
+  - "Brightness confirmed" feedback on OK
+  - `GammaAdjusterOpen` flag suppresses "Main Menu" announcement while brightness screen is on top
+  - `SuppressUntilFrame` prevents focus tracker from interrupting the initial announcement
 - **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score, shop)
 - **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, and missions
 - **Biome Selection**: Reads biome name, lore/description, and high score when selecting mission nodes (biomes)
 - **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
-- **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables). Coordinates with SetValueText patch via frame counter to avoid double announcements
+- **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables). Coordinates with SetValueText patch via frame counter to avoid double announcements. Also active during GammaAdjuster screen. Supports `SuppressUntilFrame` to avoid interrupting screen open announcements
 - **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next)
 - **Stat Upgrades**: Reads localized title, description, stat type + correctly formatted value (percentage stats ×100), level, cost, and affordability
 - **Gear Inventory**: Reads gear name, slot type, rarity, tier, correctly formatted stat mods, and quirk descriptions
@@ -198,6 +206,8 @@ references/tolk/                   # Tolk DLL references
 | `UIEndScreen` | End screen stats reader (arrow-key navigable) |
 | `UIMilestoneForm` | Milestone form visibility + tab change refresh |
 | `UIMilestoneProgress` | Individual milestone display (desc, progress, reward) |
+| `UISplashForm` | Splash screen "press any key" (via AdvanceFlow, flow == SPLASH) |
+| `GammaAdjuster` | First-launch brightness adjustment (Show, Hide, OnClickOK) |
 | Various `UIForm` subclasses | Menu/form announcements |
 | Various page classes | Description panel reading |
 | `GroundSpike` | Ground spike hazard detection (Dreadnought boss attack) |
