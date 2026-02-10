@@ -74,28 +74,5 @@ namespace drgAccess.Patches
             }
         }
 
-        /// <summary>
-        /// Called when extraction pod starts descending - warning for danger zone.
-        /// </summary>
-        [HarmonyPatch(typeof(DropPod), nameof(DropPod.AnimateIn), new System.Type[] { typeof(float) })]
-        [HarmonyPostfix]
-        public static void AnimateIn_Postfix(DropPod __instance, float distance)
-        {
-            try
-            {
-                Plugin.Log.LogInfo($"[DropPodPatch] Pod descending from {distance}m - landing warning!");
-
-                var audioSystem = DropPodAudio.Instance;
-                if (audioSystem != null)
-                {
-                    // Start landing warning (fast urgent beeps)
-                    audioSystem.OnPodDescending(__instance);
-                }
-            }
-            catch (System.Exception e)
-            {
-                Plugin.Log.LogError($"[DropPodPatch] AnimateIn error: {e.Message}");
-            }
-        }
     }
 }

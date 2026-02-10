@@ -111,10 +111,26 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix(UIMilestoneForm __instance, bool visible)
         {
+            var reader = Components.MilestoneReaderComponent.Instance;
+            if (reader == null) return;
+
             if (visible)
-            {
-                ScreenReader.Interrupt("Milestones");
-            }
+                reader.Activate(__instance);
+            else
+                reader.Deactivate();
+        }
+    }
+
+    // Milestone Form - refresh reader when tab changes (milestones re-setup)
+    [HarmonyPatch(typeof(UIMilestoneForm), nameof(UIMilestoneForm.SetupMilestoneUI))]
+    public static class UIMilestoneForm_SetupMilestoneUI
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIMilestoneForm __instance)
+        {
+            var reader = Components.MilestoneReaderComponent.Instance;
+            if (reader != null)
+                reader.Refresh();
         }
     }
 

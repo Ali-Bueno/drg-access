@@ -148,14 +148,20 @@ namespace drgAccess.Components
                 },
                 new AudioCueItem
                 {
+                    Name = "Enemy: Loot",
+                    Description = "Loot enemy nearby. Bright ascending chime. Kill it for rewards.",
+                    PlayPreview = () => PreviewEnemyBeep(EnemyAudioType.Loot, 1800, 3)
+                },
+                new AudioCueItem
+                {
                     Name = "Drop Pod Beacon",
-                    Description = "Guides you to the extraction pod. Chirps faster as you approach.",
-                    PlayPreview = () => PreviewBeacon(700, 0.15f)
+                    Description = "Guides you to the extraction pod. High-pitched chirp, faster as you approach.",
+                    PlayPreview = () => PreviewBeacon(1100, 0.15f)
                 },
                 new AudioCueItem
                 {
                     Name = "Supply Pod Beacon",
-                    Description = "Guides you to supply pod zones. Lower chirp, same pattern as drop pod.",
+                    Description = "Guides you to supply pod zones. Lower chirp, distinct from drop pod.",
                     PlayPreview = () => PreviewBeacon(500, 0.18f)
                 },
                 new AudioCueItem
@@ -200,12 +206,14 @@ namespace drgAccess.Components
                     {
                         enemyGenerator?.Play(
                             currentEnemyType == EnemyAudioType.Boss ? 70 :
-                            currentEnemyType == EnemyAudioType.Elite ? 300 : 1000,
+                            currentEnemyType == EnemyAudioType.Elite ? 300 :
+                            currentEnemyType == EnemyAudioType.Loot ? 1800 : 1000,
                             0.35f, currentEnemyType);
                         enemyBeepsRemaining--;
 
                         float interval = currentEnemyType == EnemyAudioType.Boss ? 0.5f :
-                                         currentEnemyType == EnemyAudioType.Elite ? 0.35f : 0.2f;
+                                         currentEnemyType == EnemyAudioType.Elite ? 0.35f :
+                                         currentEnemyType == EnemyAudioType.Loot ? 0.3f : 0.2f;
                         nextEnemyBeepTime = Time.unscaledTime + interval;
                     }
 
@@ -443,6 +451,7 @@ namespace drgAccess.Components
 
                 float totalDuration = type == EnemyAudioType.Boss ? beepCount * 0.5f + 0.5f :
                                       type == EnemyAudioType.Elite ? beepCount * 0.35f + 0.3f :
+                                      type == EnemyAudioType.Loot ? beepCount * 0.3f + 0.3f :
                                       beepCount * 0.2f + 0.2f;
                 previewEndTime = Time.unscaledTime + totalDuration;
             }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
@@ -15,7 +16,8 @@ namespace drgAccess.Components
     {
         Normal,
         Elite,
-        Boss
+        Boss,
+        Loot
     }
 
     /// <summary>
@@ -68,6 +70,9 @@ namespace drgAccess.Components
                     break;
                 case EnemyAudioType.Elite:
                     totalSamples = (int)(sampleRate * 0.18); // 180ms
+                    break;
+                case EnemyAudioType.Loot:
+                    totalSamples = (int)(sampleRate * 0.12); // 120ms bright chime
                     break;
                 default:
                     totalSamples = (int)(sampleRate * 0.05); // 50ms
@@ -139,6 +144,18 @@ namespace drgAccess.Components
                     waveform = triangle * 0.6 + harmonic * 0.4;
                     break;
 
+                case EnemyAudioType.Loot:
+                    // Loot: bright ascending chime (pleasant, clearly not a threat)
+                    frequency = baseFrequency * (1.0 + progress * 0.3); // Ascend 30% (opposite of boss)
+                    envelope = (float)(Math.Exp(-progress * 4.0) * (progress < 0.05 ? progress / 0.05 : 1.0));
+
+                    // Pure sine + octave harmonic for sparkle/chime quality
+                    double chime = Math.Sin(2.0 * Math.PI * phase);
+                    double octave = Math.Sin(2.0 * Math.PI * phase * 2.0) * 0.3;
+                    double fifthHarm = Math.Sin(2.0 * Math.PI * phase * 3.0) * 0.1;
+                    waveform = chime * 0.6 + octave + fifthHarm;
+                    break;
+
                 default: // Normal
                     envelope = (float)Math.Exp(-progress * 8); // Very sharp attack/decay
 
@@ -175,39 +192,47 @@ namespace drgAccess.Components
         public int NormalCount;
         public int EliteCount;
         public int BossCount;
+        public int LootCount;
 
         public float ClosestNormalDistance = float.MaxValue;
         public float ClosestEliteDistance = float.MaxValue;
         public float ClosestBossDistance = float.MaxValue;
+        public float ClosestLootDistance = float.MaxValue;
 
         // Pan of closest enemy of each type
         public float ClosestNormalPan;
         public float ClosestElitePan;
         public float ClosestBossPan;
+        public float ClosestLootPan;
 
         // Height of closest enemy (for pitch adjustment)
         public float ClosestNormalHeight;
         public float ClosestEliteHeight;
         public float ClosestBossHeight;
+        public float ClosestLootHeight;
 
         public float NextNormalPlayTime;
         public float NextElitePlayTime;
         public float NextBossPlayTime;
+        public float NextLootPlayTime;
 
         public void Reset()
         {
             NormalCount = 0;
             EliteCount = 0;
             BossCount = 0;
+            LootCount = 0;
             ClosestNormalDistance = float.MaxValue;
             ClosestEliteDistance = float.MaxValue;
             ClosestBossDistance = float.MaxValue;
+            ClosestLootDistance = float.MaxValue;
         }
 
-        public int TotalCount => NormalCount + EliteCount + BossCount;
+        public int TotalCount => NormalCount + EliteCount + BossCount + LootCount;
         public bool HasBoss => BossCount > 0;
         public bool HasElite => EliteCount > 0;
         public bool HasNormal => NormalCount > 0;
+        public bool HasLoot => LootCount > 0;
     }
 
     /// <summary>
@@ -236,6 +261,10 @@ namespace drgAccess.Components
         private float bossBaseInterval = 1.0f;
         private float bossMinInterval = 0.3f;
         private float bossCriticalInterval = 0.15f;
+        // Loot: Distinctive chime beeps
+        private float lootBaseInterval = 0.7f;
+        private float lootMinInterval = 0.2f;
+        private float lootCriticalInterval = 0.1f;
 
         // 8 directions for better precision
         private const int NUM_DIRECTIONS = 8;
@@ -263,6 +292,14 @@ namespace drgAccess.Components
 
         // Game state tracking
         private IGameStateProvider gameStateProvider;
+
+        // Enemy name announcements
+        private HashSet<EKillScoreFamily> announcedEnemyTypes = new HashSet<EKillScoreFamily>();
+        private HashSet<EKillScoreFamily> currentNearbyTypes = new HashSet<EKillScoreFamily>();
+        private float nextNameAnnouncementTime = 0f;
+        private const float NAME_ANNOUNCEMENT_INTERVAL = 3f;
+        private LocalizedEnemyResources localizedEnemyResources;
+        private bool searchedEnemyResources = false;
 
         static EnemyAudioSystem()
         {
@@ -317,6 +354,7 @@ namespace drgAccess.Components
                     CreateAudioChannel($"normal_{dir}");
                     CreateAudioChannel($"elite_{dir}");
                     CreateAudioChannel($"boss_{dir}");
+                    CreateAudioChannel($"loot_{dir}");
                 }
 
                 // Single output device for all enemy audio
@@ -396,6 +434,7 @@ namespace drgAccess.Components
                 if (Time.time >= nextUpdateTime)
                 {
                     UpdateEnemyGroups();
+                    AnnounceEnemyNames();
                     nextUpdateTime = Time.time + updateInterval;
                 }
 
@@ -419,6 +458,7 @@ namespace drgAccess.Components
                 {
                     directionGroups[i].Reset();
                 }
+                currentNearbyTypes.Clear();
 
                 if (Time.frameCount % 60 == 0)
                     Plugin.Log.LogInfo("[EnemyAudio] Groups reset, getting player position");
@@ -471,6 +511,9 @@ namespace drgAccess.Components
 
                     validEnemyCount++;
 
+                    // Track enemy type for name announcements
+                    try { currentNearbyTypes.Add(enemy.killScoreFamily); } catch { }
+
                     // Use Enemy's position property
                     Vector3 enemyPos = enemy.position;
                     float distance = Vector3.Distance(playerPos, enemyPos);
@@ -491,16 +534,30 @@ namespace drgAccess.Components
                     pan = Mathf.Clamp(pan, -1f, 1f);
 
                     // Determine enemy type
-                    // MINI_ELITE: Treat as normal (common enemies, not worth elite sound)
-                    // ELITE: True elites with distinctive vibrato
+                    // Loot enemies: LOOTBUG, LOOTBUG_GOLDEN, HUUL_HOARDER - special chime
                     // BOSS: Big threatening bosses
-                    bool isBoss = enemyType == EEnemyType.BOSS;
-                    bool isElite = !isBoss && enemyType == EEnemyType.ELITE; // Only true ELITE, not MINI_ELITE
-                    // MINI_ELITE treated as normal (but could have slightly different pitch if needed)
+                    // ELITE: True elites with distinctive vibrato
+                    // MINI_ELITE: Treat as normal (common enemies)
+                    var enemyId = enemy.id;
+                    bool isLoot = enemyId == EEnemy.LOOTBUG ||
+                                  enemyId == EEnemy.LOOTBUG_GOLDEN ||
+                                  enemyId == EEnemy.HUUL_HOARDER;
+                    bool isBoss = !isLoot && enemyType == EEnemyType.BOSS;
+                    bool isElite = !isLoot && !isBoss && enemyType == EEnemyType.ELITE;
 
                     var group = directionGroups[dirIndex];
 
-                    if (isBoss)
+                    if (isLoot)
+                    {
+                        group.LootCount++;
+                        if (distance < group.ClosestLootDistance)
+                        {
+                            group.ClosestLootDistance = distance;
+                            group.ClosestLootPan = pan;
+                            group.ClosestLootHeight = height;
+                        }
+                    }
+                    else if (isBoss)
                     {
                         group.BossCount++;
                         if (distance < group.ClosestBossDistance)
@@ -549,6 +606,68 @@ namespace drgAccess.Components
             }
         }
 
+        private void AnnounceEnemyNames()
+        {
+            try
+            {
+                if (currentNearbyTypes.Count == 0) return;
+                if (Time.time < nextNameAnnouncementTime) return;
+
+                // Find types not yet announced
+                var newTypes = new List<EKillScoreFamily>();
+                foreach (var type in currentNearbyTypes)
+                {
+                    if (!announcedEnemyTypes.Contains(type))
+                        newTypes.Add(type);
+                }
+
+                if (newTypes.Count == 0) return;
+
+                // Look up localized names
+                if (!searchedEnemyResources)
+                {
+                    searchedEnemyResources = true;
+                    try
+                    {
+                        var resources = UnityEngine.Resources.FindObjectsOfTypeAll<LocalizedEnemyResources>();
+                        if (resources != null && resources.Length > 0)
+                            localizedEnemyResources = resources[0];
+                    }
+                    catch { }
+                }
+
+                var sb = new StringBuilder();
+                foreach (var type in newTypes)
+                {
+                    announcedEnemyTypes.Add(type);
+
+                    string name = null;
+                    try
+                    {
+                        if (localizedEnemyResources != null)
+                            name = localizedEnemyResources.GetKillScoreFamilyName(type);
+                    }
+                    catch { }
+
+                    if (string.IsNullOrEmpty(name))
+                        name = type.ToString();
+
+                    if (sb.Length > 0) sb.Append(", ");
+                    sb.Append(name);
+                }
+
+                if (sb.Length > 0)
+                {
+                    ScreenReader.Say(sb.ToString());
+                    nextNameAnnouncementTime = Time.time + NAME_ANNOUNCEMENT_INTERVAL;
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogDebug($"[EnemyAudio] AnnounceEnemyNames error: {ex.Message}");
+            }
+        }
+
         private int GetDirectionIndex(float angle)
         {
             // 8 directions of 45 degrees each
@@ -567,7 +686,13 @@ namespace drgAccess.Components
             {
                 var group = directionGroups[dir];
 
-                // Play boss sound (highest priority)
+                // Play loot sound (highest priority - rare and valuable)
+                if (group.HasLoot)
+                {
+                    PlayEnemySound(dir, EnemyAudioType.Loot, group, currentTime);
+                }
+
+                // Play boss sound
                 if (group.HasBoss)
                 {
                     PlayEnemySound(dir, EnemyAudioType.Boss, group, currentTime);
@@ -596,6 +721,15 @@ namespace drgAccess.Components
 
             switch (type)
             {
+                case EnemyAudioType.Loot:
+                    distance = group.ClosestLootDistance;
+                    pan = group.ClosestLootPan;
+                    height = group.ClosestLootHeight;
+                    count = group.LootCount;
+                    baseInterval = lootBaseInterval;
+                    minInterval = lootMinInterval;
+                    nextPlayTime = ref group.NextLootPlayTime;
+                    break;
                 case EnemyAudioType.Boss:
                     distance = group.ClosestBossDistance;
                     pan = group.ClosestBossPan;
@@ -638,6 +772,7 @@ namespace drgAccess.Components
             float targetInterval = isCritical ?
                 (type == EnemyAudioType.Boss ? bossCriticalInterval :
                  type == EnemyAudioType.Elite ? eliteCriticalInterval :
+                 type == EnemyAudioType.Loot ? lootCriticalInterval :
                  normalCriticalInterval) :
                 minInterval;
 
@@ -660,6 +795,13 @@ namespace drgAccess.Components
 
                 switch (type)
                 {
+                    case EnemyAudioType.Loot:
+                        // Loot: Very high bright chime (1500-2200 Hz) - clearly not a threat
+                        frequency = 1500 + (proximityFactor * 700);
+                        frequency *= (1.0 + heightAdjustment);
+                        volume = 0.25f + proximityFactor * 0.15f;
+                        if (isCritical) volume *= 1.3f;
+                        break;
                     case EnemyAudioType.Boss:
                         // Boss: VERY deep (40-100 Hz) - unmistakable rumble
                         frequency = 40 + (proximityFactor * 60);
@@ -729,12 +871,20 @@ namespace drgAccess.Components
                         directionGroups[i].NextNormalPlayTime = 0;
                         directionGroups[i].NextElitePlayTime = 0;
                         directionGroups[i].NextBossPlayTime = 0;
+                        directionGroups[i].NextLootPlayTime = 0;
                     }
 
                     // Reset player/camera references (will be found again)
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;
+
+                    // Reset enemy name announcements
+                    announcedEnemyTypes.Clear();
+                    currentNearbyTypes.Clear();
+                    nextNameAnnouncementTime = 0f;
+                    searchedEnemyResources = false;
+                    localizedEnemyResources = null;
 
                     // Reset game state provider
                     gameStateProvider = null;

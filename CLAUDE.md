@@ -54,22 +54,23 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Normal enemies (including MINI_ELITE): Pure sine wave, 700-1400 Hz, 50ms duration
   - Elite enemies (ELITE only): Triangle wave + 2nd harmonic, 200-400 Hz, 180ms, 15Hz vibrato
   - Boss enemies: Square wave + sub-bass, 40-100 Hz, 350ms, dramatic pitch descent
+  - Loot enemies (Lootbug, Golden Lootbug, Huuli Hoarder): Bright ascending chime, 1500-2200 Hz, 120ms
   - Critical proximity warning (< 3.5m): Faster beeps, boosted volume, higher pitch for urgency
   - 8-directional detection with stereo panning
+  - Enemy name announcements via screen reader: new enemy types announced when first detected, cooldown of 3 seconds between announcements
   - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
 - **Gameplay Audio - Drop Pod Beacon**: Chirp beeps for extraction pod location
   - Uses BeaconBeepGenerator with descending-frequency chirp (distinct from enemy flat beeps)
   - Accelerating interval: 250ms (far) → 30ms (very close)
-  - 3D positional audio with distance-based volume (0.25-0.45) and frequency (500-900 Hz)
-  - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (900-1200 Hz), louder, screen reader announces "Drop pod very close"
+  - 3D positional audio with distance-based volume (0.25-0.45) and frequency (800-1400 Hz)
+  - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (1200-1600 Hz), louder, screen reader announces "Drop pod very close"
   - Stops when player enters pod
-  - Landing warning: Rapid urgent chirps (1000-1400 Hz, 80ms interval) when pod is descending (5 seconds)
   - Only activates for extraction pod (not initial drop pod)
 - **Gameplay Audio - Supply Pod Beacon**: Chirp beeps for ActivationZone (supply pod zones)
-  - Uses BeaconBeepGenerator with descending-frequency chirp (same as drop pod)
+  - Uses BeaconBeepGenerator with descending-frequency chirp
   - Accelerating interval: 250ms (far) → 30ms (very close)
   - 3D positional audio with distance-based volume (0.2-0.38) and frequency (350-650 Hz)
-  - Lowest frequency range to distinguish from enemies and drop pod
+  - Clearly distinct from drop pod beacon (lower frequency range)
   - Stops when player is inside zone or zone is activating
   - Detects nearest active zone within 100m
 - **Gameplay Audio - Hazard Warning**: Siren alarm for nearby dangers
@@ -81,10 +82,15 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Audio Cue Preview Menu**: Standalone menu to preview all audio cues outside gameplay
   - Opens with Backspace (only when NOT in active gameplay), closes with Backspace/Escape
   - Navigate with W/S or Up/Down arrows, preview with Enter
-  - 9 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning
+  - 10 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss/Loot, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Deactivates EventSystem while open to block game UI input, toggles InputSystemUIInputModule on close to restore navigation
   - Uses shared WaveOutEvent + MixingSampleProvider, created on menu open, disposed on close
+- **Milestones Menu**: Arrow-key navigable reader for milestone progress
+  - Activates when milestone form opens, collects all visible milestones
+  - Navigate with W/S or Up/Down arrows to browse milestones
+  - Reads: description, progress (X/Y), completion state, reward, requirements
+  - Auto-refreshes when changing tabs (All, Weapons, Artifacts, Classes, Challenges, Gear)
 - **Pause Menu**: Reads weapon name/level on weapon select, artifact name on artifact select, all player stats (name + value) when pause form opens
 - **End Screen (Death/Victory Stats)**: Arrow-key navigable reader for post-run statistics
   - Activates when end screen opens, collects all visible text into ordered list
@@ -122,7 +128,8 @@ drgAccess/
 │   ├── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
 │   ├── AudioCueMenu.cs            # Audio cue preview menu (Backspace to open/close)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
-│   └── EndScreenReaderComponent.cs # Arrow-key navigable end screen stats reader
+│   ├── EndScreenReaderComponent.cs # Arrow-key navigable end screen stats reader
+│   └── MilestoneReaderComponent.cs # W/S navigable milestone reader
 ├── Patches/
 │   ├── UIButtonPatch.cs           # Core button dispatch + simple handlers (partial class)
 │   ├── UIButtonPatch.ClassSelection.cs  # Class/subclass button text (partial)
@@ -184,6 +191,8 @@ references/tolk/                   # Tolk DLL references
 | `UICorePauseForm` | Pause menu (weapon/artifact select, player stats) |
 | `UIPauseWeapon` / `UIPauseArtifact` | Pause menu weapon/artifact buttons |
 | `UIEndScreen` | End screen stats reader (arrow-key navigable) |
+| `UIMilestoneForm` | Milestone form visibility + tab change refresh |
+| `UIMilestoneProgress` | Individual milestone display (desc, progress, reward) |
 | Various `UIForm` subclasses | Menu/form announcements |
 | Various page classes | Description panel reading |
 | `GroundSpike` | Ground spike hazard detection (Dreadnought boss attack) |
@@ -214,7 +223,7 @@ references/tolk/                   # Tolk DLL references
 
 **Percentage stat values are stored as fractions** (0.05 = 5%). Always use `LocalizationHelper.FormatStatValue()` which multiplies by 100 for percentage stats. Never format stat values with raw `{value:0}%` directly.
 
-**NAudio shared mixer architecture:** Too many simultaneous `WaveOutEvent` instances (~30+) overwhelms Windows audio handles, causing ~10 second startup delay before any audio plays. Components that need multiple audio channels (WallNavigationAudio: 4 directions, EnemyAudioSystem: 8 directions × 3 types = 24 channels) must use a single shared `MixingSampleProvider` + one `WaveOutEvent`. Individual generators are added as mixer inputs and controlled independently via their Volume/Pan properties. **Important:** With a shared mixer, beeps triggered on the same frame merge into one sound. Use `delaySamples` stagger (10ms per direction) in `EnemyAlertSoundGenerator.Play()` to offset beeps at the audio buffer level so they sound distinct.
+**NAudio shared mixer architecture:** Too many simultaneous `WaveOutEvent` instances (~30+) overwhelms Windows audio handles, causing ~10 second startup delay before any audio plays. Components that need multiple audio channels (WallNavigationAudio: 4 directions, EnemyAudioSystem: 8 directions × 4 types = 32 channels) must use a single shared `MixingSampleProvider` + one `WaveOutEvent`. Individual generators are added as mixer inputs and controlled independently via their Volume/Pan properties. **Important:** With a shared mixer, beeps triggered on the same frame merge into one sound. Use `delaySamples` stagger (10ms per direction) in `EnemyAlertSoundGenerator.Play()` to offset beeps at the audio buffer level so they sound distinct.
 
 ---
 

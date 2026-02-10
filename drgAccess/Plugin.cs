@@ -37,6 +37,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.AudioCueMenu>();
         AddComponent<Components.WalletReaderComponent>();
         AddComponent<Components.EndScreenReaderComponent>();
+        AddComponent<Components.MilestoneReaderComponent>();
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded successfully!");
         ScreenReader.Say("DRG Survivor Accessibility mod loaded");

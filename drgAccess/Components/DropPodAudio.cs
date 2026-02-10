@@ -158,7 +158,6 @@ namespace drgAccess.Components
         // Drop pod reference
         private DropPod activePod;
         private bool isBeaconActive = false;
-        private bool isLandingWarning = false;
 
         // Player references
         private Transform playerTransform;
@@ -170,10 +169,6 @@ namespace drgAccess.Components
         private float maxDistance = 150f;
         private const float CRITICAL_DISTANCE = 8f;
         private bool announcedCriticalProximity = false;
-
-        // Landing warning
-        private float landingWarningDuration = 5f;
-        private float landingWarningEndTime = 0f;
 
         // Game state
         private IGameStateProvider gameStateProvider;
@@ -248,18 +243,7 @@ namespace drgAccess.Components
                     return;
                 }
 
-                if (isLandingWarning && activePod != null)
-                {
-                    if (Time.time < landingWarningEndTime)
-                        UpdateLandingWarning();
-                    else
-                    {
-                        isLandingWarning = false;
-                        beepGenerator.Active = false;
-                        Plugin.Log.LogInfo("[DropPodAudio] Landing warning ended");
-                    }
-                }
-                else if (isBeaconActive && activePod != null)
+                if (isBeaconActive && activePod != null)
                 {
                     UpdateBeacon();
                 }
@@ -274,18 +258,9 @@ namespace drgAccess.Components
             }
         }
 
-        public void OnPodDescending(DropPod pod)
-        {
-            activePod = pod;
-            isLandingWarning = true;
-            landingWarningEndTime = Time.time + landingWarningDuration;
-            Plugin.Log.LogInfo("[DropPodAudio] Landing warning activated");
-        }
-
         public void OnPodLanded(DropPod pod)
         {
             activePod = pod;
-            isLandingWarning = false;
             isBeaconActive = true;
             announcedCriticalProximity = false;
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
@@ -294,7 +269,6 @@ namespace drgAccess.Components
         public void OnPlayerEntered()
         {
             isBeaconActive = false;
-            isLandingWarning = false;
             beepGenerator.Active = false;
             Plugin.Log.LogInfo("[DropPodAudio] Audio deactivated - player entered pod");
         }
@@ -321,28 +295,6 @@ namespace drgAccess.Components
             return (distance, pan);
         }
 
-        private void UpdateLandingWarning()
-        {
-            try
-            {
-                var (distance, pan) = GetPodDirectionInfo();
-                if (distance < 0) { beepGenerator.Active = false; return; }
-
-                panProvider.Pan = pan;
-
-                float proximityFactor = 1f - Mathf.Clamp01(distance / 50f);
-
-                beepGenerator.Frequency = 1000 + proximityFactor * 400; // 1000-1400 Hz
-                beepGenerator.Volume = 0.35f + proximityFactor * 0.2f; // 0.35-0.55
-                beepGenerator.Interval = 0.08f; // Fast urgent beeps
-                beepGenerator.Active = true;
-            }
-            catch (Exception e)
-            {
-                Plugin.Log.LogError($"[DropPodAudio] UpdateLandingWarning error: {e.Message}");
-            }
-        }
-
         private void UpdateBeacon()
         {
             try
@@ -356,10 +308,10 @@ namespace drgAccess.Components
 
                 if (isCritical)
                 {
-                    // Critical proximity: double-beep pattern, higher pitch, louder
+                    // Critical proximity: double-beep pattern, very high pitch, louder
                     float criticalFactor = 1f - Mathf.Clamp01(distance / CRITICAL_DISTANCE);
 
-                    beepGenerator.Frequency = 900 + criticalFactor * 300; // 900-1200 Hz
+                    beepGenerator.Frequency = 1200 + criticalFactor * 400; // 1200-1600 Hz
                     beepGenerator.Volume = 0.4f + criticalFactor * 0.15f; // 0.4-0.55
                     beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
                     beepGenerator.DoubleBeep = true;
@@ -373,13 +325,13 @@ namespace drgAccess.Components
                 }
                 else
                 {
-                    // Normal beacon
+                    // Normal beacon - high frequency range, clearly distinct from supply pod (350-650 Hz)
                     float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
                     proximityFactor = proximityFactor * proximityFactor;
 
                     float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
 
-                    beepGenerator.Frequency = 500 + proximityFactor * 400; // 500-900 Hz
+                    beepGenerator.Frequency = 800 + proximityFactor * 600; // 800-1400 Hz
                     beepGenerator.Volume = 0.25f + proximityFactor * 0.2f; // 0.25-0.45
                     beepGenerator.Interval = interval;
                     beepGenerator.DoubleBeep = false;
@@ -401,9 +353,7 @@ namespace drgAccess.Components
                 {
                     Plugin.Log.LogInfo($"[DropPodAudio] Scene changed to {currentScene} - resetting");
                     isBeaconActive = false;
-                    isLandingWarning = false;
                     activePod = null;
-                    landingWarningEndTime = 0f;
                     announcedCriticalProximity = false;
                     playerTransform = null;
                     cameraTransform = null;
