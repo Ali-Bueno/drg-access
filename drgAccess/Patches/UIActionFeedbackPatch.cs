@@ -1,0 +1,266 @@
+using HarmonyLib;
+using DRS.UI;
+using drgAccess.Helpers;
+using System.Text;
+
+namespace drgAccess.Patches;
+
+/// <summary>
+/// Patches for action feedback: announces results when player performs actions
+/// (buy/sell minerals, apply upgrades, equip/unequip gear).
+/// Also provides wallet reading via G key through cached wallet reference.
+/// </summary>
+
+// Mineral Market: announce buy result
+[HarmonyPatch(typeof(UIMineralMarketButton), nameof(UIMineralMarketButton.TryBuyMaterial))]
+public static class MineralBuyPatch
+{
+    public static void Postfix(UIMineralMarketButton __instance, bool __result)
+    {
+        try
+        {
+            if (__instance.wallet != null)
+                WalletReader.CachedWallet = __instance.wallet;
+
+            ScreenReader.Interrupt(__result ? "Bought" : "Cannot afford");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"MineralBuyPatch error: {ex.Message}");
+        }
+    }
+}
+
+// Mineral Market: announce sell result
+[HarmonyPatch(typeof(UIMineralMarketButton), nameof(UIMineralMarketButton.TrySellMaterial))]
+public static class MineralSellPatch
+{
+    public static void Postfix(UIMineralMarketButton __instance, bool __result)
+    {
+        try
+        {
+            if (__instance.wallet != null)
+                WalletReader.CachedWallet = __instance.wallet;
+
+            if (__result)
+            {
+                ScreenReader.Interrupt("Sold");
+            }
+            else
+            {
+                int amount = __instance.wallet.GetAmount(__instance.material);
+                ScreenReader.Interrupt(amount <= 0 ? "Nothing to sell" : "Cannot sell");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"MineralSellPatch error: {ex.Message}");
+        }
+    }
+}
+
+// Stat Upgrades: announce "Cannot afford" on failed click
+[HarmonyPatch(typeof(UIStatUpgradeButton), nameof(UIStatUpgradeButton.OnButtonClick))]
+public static class StatUpgradeClickPatch
+{
+    public static void Prefix(UIStatUpgradeButton __instance, out bool __state)
+    {
+        __state = false;
+        try
+        {
+            __state = __instance.canAfford;
+            var wallet = __instance.wallet;
+            if (wallet != null)
+                WalletReader.CachedWallet = wallet;
+        }
+        catch { }
+    }
+
+    public static void Postfix(UIStatUpgradeButton __instance, bool __state)
+    {
+        try
+        {
+            // If couldn't afford before the click, announce it
+            // Success case is handled by StatUpgradeSuccessPatch (OnUpgradeSuccess)
+            if (!__state)
+                ScreenReader.Interrupt("Cannot afford");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"StatUpgradeClickPatch error: {ex.Message}");
+        }
+    }
+}
+
+// Stat Upgrades: announce successful upgrade
+[HarmonyPatch(typeof(UIStatUpgradeButton), nameof(UIStatUpgradeButton.OnUpgradeSuccess))]
+public static class StatUpgradeSuccessPatch
+{
+    public static void Postfix(UIStatUpgradeButton __instance, int newLevel)
+    {
+        try
+        {
+            int maxLevel = 0;
+            try
+            {
+                var levels = __instance.data?.Levels;
+                if (levels != null)
+                    maxLevel = levels.Length;
+            }
+            catch { }
+
+            string feedback;
+            if (maxLevel > 0 && newLevel >= maxLevel)
+                feedback = "Max level reached";
+            else if (maxLevel > 0)
+                feedback = $"Upgraded to level {newLevel}/{maxLevel}";
+            else
+                feedback = $"Upgraded to level {newLevel}";
+
+            ScreenReader.Interrupt(feedback);
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"StatUpgradeSuccessPatch error: {ex.Message}");
+        }
+    }
+}
+
+// Gear Equip: announce when gear is equipped
+[HarmonyPatch(typeof(GearManager), nameof(GearManager.TryEquipGear))]
+public static class GearEquipPatch
+{
+    private static float lastAnnounceTime;
+
+    public static void Postfix(bool __result, GearView gv)
+    {
+        try
+        {
+            if (!__result) return;
+
+            // Debounce: TryEquipGearOnAll calls this per class
+            float now = UnityEngine.Time.unscaledTime;
+            if (now - lastAnnounceTime < 0.3f) return;
+            lastAnnounceTime = now;
+
+            string gearName = "gear";
+            try
+            {
+                var data = gv?.Data;
+                if (data != null)
+                {
+                    string title = data.GetTitle();
+                    if (!string.IsNullOrEmpty(title))
+                        gearName = TextHelper.CleanText(title);
+                }
+            }
+            catch { }
+
+            ScreenReader.Interrupt($"Equipped {gearName}");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"GearEquipPatch error: {ex.Message}");
+        }
+    }
+}
+
+// Gear Unequip: announce when gear is unequipped
+[HarmonyPatch(typeof(GearManager), nameof(GearManager.TryUnequipGear))]
+public static class GearUnequipPatch
+{
+    private static float lastAnnounceTime;
+
+    public static void Postfix(bool __result, GearView gv)
+    {
+        try
+        {
+            if (!__result) return;
+
+            float now = UnityEngine.Time.unscaledTime;
+            if (now - lastAnnounceTime < 0.3f) return;
+            lastAnnounceTime = now;
+
+            string gearName = "gear";
+            try
+            {
+                var data = gv?.Data;
+                if (data != null)
+                {
+                    string title = data.GetTitle();
+                    if (!string.IsNullOrEmpty(title))
+                        gearName = TextHelper.CleanText(title);
+                }
+            }
+            catch { }
+
+            ScreenReader.Interrupt($"Unequipped {gearName}");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"GearUnequipPatch error: {ex.Message}");
+        }
+    }
+}
+
+/// <summary>
+/// Static helper to cache wallet reference and read balances on G key.
+/// The MonoBehaviour (WalletReaderComponent) handles Update/key detection.
+/// </summary>
+public static class WalletReader
+{
+    internal static Wallet CachedWallet;
+    internal static bool UpgradeFormOpen;
+
+    public static void ReadWallet()
+    {
+        try
+        {
+            var wallet = CachedWallet;
+            if (wallet == null)
+            {
+                ScreenReader.Interrupt("No wallet available");
+                return;
+            }
+
+            var sb = new StringBuilder();
+
+            // Main currencies
+            AppendCurrency(sb, "Gold", wallet.Gold);
+            AppendCurrency(sb, "Credits", wallet.Credits);
+
+            // Minerals
+            AppendCurrency(sb, "Morkite", wallet.Morkite);
+            AppendCurrency(sb, "Nitra", wallet.Nitra);
+            AppendCurrency(sb, "Bismor", wallet.Bismor);
+            AppendCurrency(sb, "Croppa", wallet.Croppa);
+            AppendCurrency(sb, "Enor Pearl", wallet.EnorPearl);
+            AppendCurrency(sb, "Jadiz", wallet.Jadiz);
+            AppendCurrency(sb, "Magnite", wallet.Magnite);
+            AppendCurrency(sb, "Umanite", wallet.Umanite);
+
+            // Special currencies
+            AppendCurrency(sb, "Power Core", wallet.PowerCore);
+            AppendCurrency(sb, "Artifact Rerolls", wallet.ArtifactRerolls);
+            AppendCurrency(sb, "Mutator Rerolls", wallet.MutatorRerolls);
+            AppendCurrency(sb, "Ommoran Core", wallet.OmmoranCures);
+
+            if (sb.Length == 0)
+                sb.Append("No currency");
+
+            ScreenReader.Interrupt(sb.ToString());
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"WalletReader.ReadWallet error: {ex.Message}");
+            ScreenReader.Interrupt("Cannot read wallet");
+        }
+    }
+
+    private static void AppendCurrency(StringBuilder sb, string name, int amount)
+    {
+        if (amount <= 0) return;
+        if (sb.Length > 0) sb.Append(", ");
+        sb.Append($"{name}: {amount}");
+    }
+}

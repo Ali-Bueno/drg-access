@@ -29,7 +29,12 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Stat Upgrades**: Reads localized title, description, stat type + correctly formatted value (percentage stats ×100), level, cost, and affordability
 - **Gear Inventory**: Reads gear name, slot type, rarity, tier, correctly formatted stat mods, and quirk descriptions
 - **Level-Up Skill Selection**: Reads skill name, rarity (Common/Uncommon/Rare/Epic/Legendary), stats, and description
-- **Mineral Market**: Reads localized button text instead of raw enum names
+- **Mineral Market**: Reads localized button text instead of raw enum names. Action feedback: "Bought"/"Sold" on success, "Cannot afford"/"Nothing to sell" on failure
+- **Action Feedback**: Screen reader announces results when pressing Enter on actionable buttons:
+  - Mineral market: "Bought" / "Cannot afford" / "Sold" / "Nothing to sell"
+  - Stat upgrades: "Upgraded to level X/Y" / "Max level reached" / "Cannot afford"
+  - Gear: "Equipped [name]" / "Unequipped [name]"
+- **Wallet Reading**: Press G in the stat upgrades menu to hear all currency balances (Gold, Credits, minerals, special currencies)
 - **Localized Game Data**: Stat names, rarity names, and gear slot types use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
 - **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
 - **Gameplay Audio - Wall Navigation**: Continuous tones for wall detection in 4 directions (forward, back, left, right) with volume based on proximity
@@ -100,7 +105,8 @@ drgAccess/
 │   ├── DropPodAudio.cs            # Drop pod beacon + BeaconBeepGenerator (chirp beeps)
 │   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (chirp beeps)
 │   ├── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
-│   └── AudioCueMenu.cs            # Audio cue preview menu (Backspace to open/close)
+│   ├── AudioCueMenu.cs            # Audio cue preview menu (Backspace to open/close)
+│   └── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
 ├── Patches/
 │   ├── UIButtonPatch.cs           # Core button dispatch + simple handlers (partial class)
 │   ├── UIButtonPatch.ClassSelection.cs  # Class/subclass button text (partial)
@@ -111,6 +117,7 @@ drgAccess/
 │   ├── UISettingsPatch.cs         # Settings sliders, toggles, selectors, tabs
 │   ├── UITooltipPatch.cs          # Tooltip reading
 │   ├── UISliderTogglePatch.cs     # Toggle state announcements
+│   ├── UIActionFeedbackPatch.cs   # Action results (buy/sell, upgrade, equip/unequip, wallet reader)
 │   ├── EnemyPatches.cs            # Enemy registration for audio system
 │   ├── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
 │   └── HazardPatches.cs           # Ground spike detection for hazard warnings
@@ -145,7 +152,8 @@ references/tolk/                   # Tolk DLL references
 | `UIHazLevelButton` | Hazard level selection |
 | `UIMutatorView` / `UIMutatorButton` | Hazard modifiers |
 | `UIStatUpgradeButton` | Stat upgrade menu (localized title/desc, stat values, cost) |
-| `UIMineralMarketButton` | Mineral market (reads localized TMP children) |
+| `UIMineralMarketButton` | Mineral market (reads localized TMP children, buy/sell feedback) |
+| `GearManager` | Gear equip/unequip action feedback |
 | `UIGearViewCompact` | Gear inventory (name, rarity, stats, quirks) |
 | `UISliderToggle` | Toggle settings |
 | `UITooltip` | Tooltips |

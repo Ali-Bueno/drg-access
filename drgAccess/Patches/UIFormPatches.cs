@@ -79,9 +79,11 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix(UIStatUpgradeForm __instance, bool visible)
         {
+            WalletReader.UpgradeFormOpen = visible;
             if (visible)
             {
                 ScreenReader.Interrupt("Stat Upgrades");
+                try { WalletReader.CachedWallet = __instance.wallet; } catch { }
             }
         }
     }
