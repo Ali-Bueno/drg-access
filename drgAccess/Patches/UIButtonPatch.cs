@@ -152,6 +152,15 @@ public static partial class UIButtonPatch
         if (gearViewCompact != null)
             return GetGearViewCompactText(gearViewCompact);
 
+        // Pause menu buttons
+        var pauseWeapon = button.TryCast<UIPauseWeapon>();
+        if (pauseWeapon != null)
+            return GetPauseWeaponText(pauseWeapon);
+
+        var pauseArtifact = button.TryCast<UIPauseArtifact>();
+        if (pauseArtifact != null)
+            return GetPauseArtifactText(pauseArtifact);
+
         // Default: try to get text from buttonText field
         return GetDefaultButtonText(button);
     }

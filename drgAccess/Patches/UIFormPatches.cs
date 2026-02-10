@@ -130,17 +130,20 @@ public static class UIFormPatches
         }
     }
 
-    // End Screen (game over / victory)
+    // End Screen (game over / victory) - activates arrow-key navigable reader
     [HarmonyPatch(typeof(UIEndScreen), nameof(UIEndScreen.SetVisibility))]
     public static class UIEndScreen_SetVisibility
     {
         [HarmonyPostfix]
         public static void Postfix(UIEndScreen __instance, bool visible)
         {
+            var reader = Components.EndScreenReaderComponent.Instance;
+            if (reader == null) return;
+
             if (visible)
-            {
-                ScreenReader.Interrupt("Run Complete");
-            }
+                reader.Activate(__instance);
+            else
+                reader.Deactivate();
         }
     }
 
