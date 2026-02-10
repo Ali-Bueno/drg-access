@@ -178,9 +178,8 @@ namespace drgAccess.Components
         private bool isInitialized = false;
         private float maxDistance = 150f;
         private const float CRITICAL_DISTANCE = 8f;
-        private const float RAMP_DISTANCE = 3f;
         private bool announcedCriticalProximity = false;
-        private bool announcedOnRamp = false;
+        private bool insidePodTonePlaying = false;
 
         // Game state
         private IGameStateProvider gameStateProvider;
@@ -252,6 +251,15 @@ namespace drgAccess.Components
                 {
                     beepGenerator.Active = false;
                     rampToneGenerator.Volume = 0f;
+                    insidePodTonePlaying = false;
+                    return;
+                }
+
+                // Update pulsing effect for inside-pod confirmation tone
+                if (insidePodTonePlaying)
+                {
+                    float pulse = Mathf.Sin(Time.time * 8f);
+                    rampToneGenerator.Frequency = 1400f + pulse * 200f;
                     return;
                 }
 
@@ -290,7 +298,7 @@ namespace drgAccess.Components
             activePod = pod;
             isBeaconActive = true;
             announcedCriticalProximity = false;
-            announcedOnRamp = false;
+            insidePodTonePlaying = false;
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
         }
 
@@ -298,8 +306,16 @@ namespace drgAccess.Components
         {
             isBeaconActive = false;
             beepGenerator.Active = false;
-            rampToneGenerator.Volume = 0f;
-            Plugin.Log.LogInfo("[DropPodAudio] Audio deactivated - player entered pod");
+
+            // Play continuous pulsing tone to confirm player is inside the pod
+            insidePodTonePlaying = true;
+            rampToneGenerator.Frequency = 1400f;
+            rampToneGenerator.Volume = 0.35f;
+            rampToneVolumeProvider.Volume = 1.0f;
+            rampTonePanProvider.Pan = 0f;
+
+            ScreenReader.Interrupt("Inside the pod");
+            Plugin.Log.LogInfo("[DropPodAudio] Player entered pod - confirmation tone active");
         }
 
         /// <summary>
@@ -408,70 +424,41 @@ namespace drgAccess.Components
                 float pitchMultiplier = 0.6f + verticalFactor * 0.4f;
                 float facingVolumeMultiplier = 0.8f + verticalFactor * 0.2f;
 
-                bool isOnRamp = distance < RAMP_DISTANCE;
                 bool isCritical = distance < CRITICAL_DISTANCE;
 
-                if (isOnRamp)
+                // Set panning for beacon chirps
+                beepPanProvider.Pan = pan;
+
+                if (isCritical)
                 {
-                    // ON THE RAMP: continuous pulsing tone, completely different from chirp beeps
-                    // Stop the beacon chirps
-                    beepGenerator.Active = false;
+                    // Critical proximity: double-beep pattern, high pitch, louder
+                    float criticalFactor = 1f - Mathf.Clamp01(distance / CRITICAL_DISTANCE);
 
-                    // Pulsing frequency oscillates for a distinctive "you're here" signal
-                    float pulse = Mathf.Sin(Time.time * 8f); // 8 Hz pulse
-                    float rampFreq = 1400f + pulse * 200f; // 1200-1600 Hz pulsing
+                    beepGenerator.Frequency = (1200 + criticalFactor * 400) * pitchMultiplier;
+                    beepGenerator.Volume = (0.4f + criticalFactor * 0.15f) * facingVolumeMultiplier;
+                    beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
+                    beepGenerator.DoubleBeep = true;
+                    beepGenerator.Active = true;
 
-                    rampToneGenerator.Frequency = rampFreq;
-                    rampToneGenerator.Volume = 0.35f;
-                    rampToneVolumeProvider.Volume = 1.0f;
-                    rampTonePanProvider.Pan = pan;
-
-                    if (!announcedOnRamp)
+                    if (!announcedCriticalProximity)
                     {
-                        announcedOnRamp = true;
-                        ScreenReader.Interrupt("On the ramp");
+                        announcedCriticalProximity = true;
+                        ScreenReader.Interrupt("Drop pod very close");
                     }
                 }
                 else
                 {
-                    // Not on ramp: silence the proximity tone
-                    rampToneGenerator.Volume = 0f;
-                    announcedOnRamp = false;
+                    // Normal beacon chirps
+                    float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
+                    proximityFactor = proximityFactor * proximityFactor;
 
-                    // Set panning for beacon chirps
-                    beepPanProvider.Pan = pan;
+                    float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
 
-                    if (isCritical)
-                    {
-                        // Critical proximity: double-beep pattern, high pitch, louder
-                        float criticalFactor = 1f - Mathf.Clamp01(distance / CRITICAL_DISTANCE);
-
-                        beepGenerator.Frequency = (1200 + criticalFactor * 400) * pitchMultiplier;
-                        beepGenerator.Volume = (0.4f + criticalFactor * 0.15f) * facingVolumeMultiplier;
-                        beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
-                        beepGenerator.DoubleBeep = true;
-                        beepGenerator.Active = true;
-
-                        if (!announcedCriticalProximity)
-                        {
-                            announcedCriticalProximity = true;
-                            ScreenReader.Interrupt("Drop pod very close");
-                        }
-                    }
-                    else
-                    {
-                        // Normal beacon chirps
-                        float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
-                        proximityFactor = proximityFactor * proximityFactor;
-
-                        float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
-
-                        beepGenerator.Frequency = (800 + proximityFactor * 600) * pitchMultiplier;
-                        beepGenerator.Volume = (0.25f + proximityFactor * 0.2f) * facingVolumeMultiplier;
-                        beepGenerator.Interval = interval;
-                        beepGenerator.DoubleBeep = false;
-                        beepGenerator.Active = true;
-                    }
+                    beepGenerator.Frequency = (800 + proximityFactor * 600) * pitchMultiplier;
+                    beepGenerator.Volume = (0.25f + proximityFactor * 0.2f) * facingVolumeMultiplier;
+                    beepGenerator.Interval = interval;
+                    beepGenerator.DoubleBeep = false;
+                    beepGenerator.Active = true;
                 }
             }
             catch (Exception e)
@@ -515,7 +502,7 @@ namespace drgAccess.Components
                     isBeaconActive = false;
                     activePod = null;
                     announcedCriticalProximity = false;
-                    announcedOnRamp = false;
+                    insidePodTonePlaying = false;
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;

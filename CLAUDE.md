@@ -35,7 +35,11 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - "Brightness confirmed" feedback on OK
   - `GammaAdjusterOpen` flag suppresses "Main Menu" announcement while brightness screen is on top
   - `SuppressUntilFrame` prevents focus tracker from interrupting the initial announcement
-- **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score, shop)
+- **Save Slot Selection**: Reads save slot details when selecting a save file
+  - Slot number, rank, total dives, mission goals completed, last saved date
+  - Empty slots announce "Empty"
+  - Delete confirmation dialog announced, with "Save deleted" / "Cancelled" feedback
+- **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score, shop, save slot selector)
 - **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, and missions
 - **Biome Selection**: Reads biome name, lore/description, and high score when selecting mission nodes (biomes)
 - **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
@@ -70,14 +74,14 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
 - **Gameplay Audio - Drop Pod Beacon**: Chirp beeps guiding to extraction pod ramp
   - Targets the pod's **ramp position** (`rampDetector` Transform) — the specific entry side, not pod center
-  - Uses MixingSampleProvider with BeaconBeepGenerator (chirps) + SineWaveGenerator (ramp proximity tone)
+  - Uses MixingSampleProvider with BeaconBeepGenerator (chirps) + SineWaveGenerator (inside-pod confirmation tone)
   - Accelerating interval: 250ms (far) → 30ms (very close)
   - 3D positional audio with distance-based volume (0.25-0.45) and frequency (800-1400 Hz)
   - **Top-down pitch modulation**: Higher pitch when pod is above on screen (W direction), lower when below (S direction)
   - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (1200-1600 Hz), louder, screen reader announces "Drop pod very close"
-  - **Ramp proximity (< 3m)**: Chirps stop, continuous pulsing tone (1200-1600 Hz, 8 Hz oscillation) indicates ramp location. Screen reader announces "On the ramp"
+  - Chirps continue all the way to the ramp (no cutoff at close range)
+  - **Inside pod confirmation**: When player enters the pod, chirps stop and continuous pulsing tone plays (1400 Hz base, 8 Hz oscillation). Screen reader announces "Inside the pod"
   - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
-  - Stops when player enters pod
   - Only activates for extraction pod (not initial drop pod)
 - **Gameplay Audio - Supply Pod Beacon**: Chirp beeps for ActivationZone (supply pod zones)
   - Uses BeaconBeepGenerator with descending-frequency chirp
@@ -208,6 +212,8 @@ references/tolk/                   # Tolk DLL references
 | `UIMilestoneProgress` | Individual milestone display (desc, progress, reward) |
 | `UISplashForm` | Splash screen "press any key" (via AdvanceFlow, flow == SPLASH) |
 | `GammaAdjuster` | First-launch brightness adjustment (Show, Hide, OnClickOK) |
+| `UISaveSlot` | Save slot button (rank, dives, mission goals, last saved) |
+| `UISaveSlotSelector` | Save slot selection screen + delete confirmation dialog |
 | Various `UIForm` subclasses | Menu/form announcements |
 | Various page classes | Description panel reading |
 | `GroundSpike` | Ground spike hazard detection (Dreadnought boss attack) |

@@ -499,6 +499,75 @@ public static class UIFormPatches
         }
     }
 
+    // Save Slot Selector (overrides SetVisibility)
+    [HarmonyPatch(typeof(UISaveSlotSelector), nameof(UISaveSlotSelector.SetVisibility))]
+    public static class UISaveSlotSelector_SetVisibility
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UISaveSlotSelector __instance, bool visible)
+        {
+            if (!visible) return;
+            try
+            {
+                var header = __instance.headerText;
+                string title = header != null && !string.IsNullOrEmpty(header.text)
+                    ? TextHelper.CleanText(header.text)
+                    : "Save Slot Selection";
+                ScreenReader.Interrupt(title);
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UISaveSlotSelector announce error: {ex.Message}");
+                ScreenReader.Interrupt("Save Slot Selection");
+            }
+        }
+    }
+
+    // Save slot delete confirmation dialog
+    [HarmonyPatch(typeof(UISaveSlotSelector), nameof(UISaveSlotSelector.ShowDeleteSaveSlotDialog))]
+    public static class UISaveSlotSelector_ShowDeleteDialog
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UISaveSlotSelector __instance)
+        {
+            try
+            {
+                var slotToDelete = __instance.uiSaveSlotToDelete;
+                int slotNum = slotToDelete != null ? (int)slotToDelete.SaveSlot + 1 : 0;
+                string msg = slotNum > 0
+                    ? $"Delete Save Slot {slotNum}? Press Enter to confirm, Escape to cancel"
+                    : "Delete save slot? Press Enter to confirm, Escape to cancel";
+                ScreenReader.Interrupt(msg);
+            }
+            catch
+            {
+                ScreenReader.Interrupt("Delete save slot? Press Enter to confirm, Escape to cancel");
+            }
+        }
+    }
+
+    // Save slot delete confirmed feedback
+    [HarmonyPatch(typeof(UISaveSlotSelector), nameof(UISaveSlotSelector.OnDeleteSaveConfirmed))]
+    public static class UISaveSlotSelector_DeleteConfirmed
+    {
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            ScreenReader.Interrupt("Save slot deleted");
+        }
+    }
+
+    // Save slot delete cancelled feedback
+    [HarmonyPatch(typeof(UISaveSlotSelector), nameof(UISaveSlotSelector.OnDeleteSaveCancelled))]
+    public static class UISaveSlotSelector_DeleteCancelled
+    {
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            ScreenReader.Interrupt("Cancelled");
+        }
+    }
+
     private static void AnnounceGenericPopup(UIGenericPopupForm instance)
     {
         try

@@ -152,6 +152,11 @@ public static partial class UIButtonPatch
         if (gearViewCompact != null)
             return GetGearViewCompactText(gearViewCompact);
 
+        // Save slot buttons
+        var saveSlot = button.TryCast<UISaveSlot>();
+        if (saveSlot != null)
+            return GetSaveSlotText(saveSlot);
+
         // Pause menu buttons
         var pauseWeapon = button.TryCast<UIPauseWeapon>();
         if (pauseWeapon != null)
@@ -557,6 +562,65 @@ public static partial class UIButtonPatch
             Plugin.Log?.LogError($"UIButtonPatch.GetSkinOverridesButtonText error: {ex.Message}");
             return null;
         }
+    }
+
+    private static string GetSaveSlotText(UISaveSlot slot)
+    {
+        try
+        {
+            int slotNum = (int)slot.SaveSlot + 1;
+            var sb = new StringBuilder($"Save Slot {slotNum}");
+
+            // Check if slot has data by looking at the rank value text
+            var rankVal = slot.playerRankValueText;
+            if (rankVal == null || string.IsNullOrEmpty(rankVal.text))
+            {
+                sb.Append(", Empty");
+                return sb.ToString();
+            }
+
+            // Rank
+            var rankHeader = slot.playerRankHeaderText;
+            if (rankHeader != null && !string.IsNullOrEmpty(rankHeader.text))
+                sb.Append($". {TextHelper.CleanText(rankHeader.text)}: {TextHelper.CleanText(rankVal.text)}");
+
+            // Dives
+            var divesVal = slot.divesValueText;
+            var divesHeader = slot.divesHeaderText;
+            if (divesHeader != null && divesVal != null
+                && !string.IsNullOrEmpty(divesVal.text))
+                sb.Append($". {TextHelper.CleanText(divesHeader.text)}: {TextHelper.CleanText(divesVal.text)}");
+
+            // Mission Goals
+            var goalsVal = slot.missionGoalsValueText;
+            var goalsHeader = slot.missionGoalsHeaderText;
+            if (goalsHeader != null && goalsVal != null
+                && !string.IsNullOrEmpty(goalsVal.text))
+                sb.Append($". {TextHelper.CleanText(goalsHeader.text)}: {TextHelper.CleanText(goalsVal.text)}");
+
+            // Last Saved
+            var savedVal = slot.lastSavedValueText;
+            var savedHeader = slot.lastSavedHeaderText;
+            if (savedHeader != null && savedVal != null
+                && !string.IsNullOrEmpty(savedVal.text))
+                sb.Append($". {TextHelper.CleanText(savedHeader.text)}: {TextHelper.CleanText(savedVal.text)}");
+
+            // Early Access indicator
+            var earlyRoot = slot.earlyAccessRoot;
+            if (earlyRoot != null && earlyRoot.activeSelf)
+            {
+                var earlyText = slot.earlyAccessText;
+                if (earlyText != null && !string.IsNullOrEmpty(earlyText.text))
+                    sb.Append($". {TextHelper.CleanText(earlyText.text)}");
+            }
+
+            return sb.ToString();
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"GetSaveSlotText error: {ex.Message}");
+        }
+        return null;
     }
 
     private static string GetDefaultButtonText(UIButton button)
