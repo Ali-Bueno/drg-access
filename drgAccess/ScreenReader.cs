@@ -9,13 +9,19 @@ namespace drgAccess;
 public static class ScreenReader
 {
     /// <summary>
+    /// When true, all game announcements via Say/Interrupt/Output are suppressed.
+    /// Used by AudioCueMenu to prevent game UI patches from speaking over it.
+    /// </summary>
+    public static bool Suppressed { get; set; } = false;
+
+    /// <summary>
     /// Speaks text through the screen reader.
     /// </summary>
     /// <param name="text">Text to speak</param>
     /// <param name="interrupt">If true, interrupts current speech</param>
     public static void Say(string text, bool interrupt = false)
     {
-        if (string.IsNullOrEmpty(text))
+        if (string.IsNullOrEmpty(text) || Suppressed)
             return;
 
         try
@@ -59,7 +65,7 @@ public static class ScreenReader
     /// </summary>
     public static void Output(string text, bool interrupt = false)
     {
-        if (string.IsNullOrEmpty(text))
+        if (string.IsNullOrEmpty(text) || Suppressed)
             return;
 
         try

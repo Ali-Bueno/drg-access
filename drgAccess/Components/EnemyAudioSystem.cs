@@ -26,9 +26,12 @@ namespace drgAccess.Components
     /// </summary>
     public class EnemyAlertSoundGenerator : ISampleProvider
     {
+        private static readonly System.Random rng = new System.Random();
+
         private readonly WaveFormat waveFormat;
         private double phase;
         private int samplesRemaining;
+        private int delaySamples; // Pre-beep silence for staggering across directions
         private double baseFrequency;
         private float volume;
         private int totalSamples;
@@ -43,31 +46,37 @@ namespace drgAccess.Components
             this.sampleRate = sampleRate;
             waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
             samplesRemaining = 0;
-            volume = 0.15f;  // Reduced from 0.3 to 0.15
+            phase = rng.NextDouble(); // Random initial phase so overlapping beeps sound distinct
+            volume = 0.15f;
         }
 
-        public void Play(double freq, float vol, EnemyAudioType type)
+        /// <summary>
+        /// Trigger a beep. delaySamples offsets the start within the audio buffer
+        /// so beeps from different directions don't merge into one sound.
+        /// </summary>
+        public void Play(double freq, float vol, EnemyAudioType type, int delaySamples = 0)
         {
             baseFrequency = Math.Max(50, Math.Min(2000, freq));
             volume = Math.Max(0, Math.Min(0.9f, vol));
             enemyType = type;
             vibratoPhase = 0;
-            phase = 0;
 
-            // Duration based on type (more distinctive)
             switch (type)
             {
                 case EnemyAudioType.Boss:
-                    totalSamples = (int)(sampleRate * 0.35); // 350ms - very long and menacing
+                    totalSamples = (int)(sampleRate * 0.35); // 350ms
                     break;
                 case EnemyAudioType.Elite:
-                    totalSamples = (int)(sampleRate * 0.18); // 180ms - noticeably longer than normal
+                    totalSamples = (int)(sampleRate * 0.18); // 180ms
                     break;
                 default:
-                    totalSamples = (int)(sampleRate * 0.05); // 50ms - very short and sharp
+                    totalSamples = (int)(sampleRate * 0.05); // 50ms
                     break;
             }
+            // Set samplesRemaining BEFORE delaySamples for thread safety
+            // (audio thread checks delaySamples first, then samplesRemaining)
             samplesRemaining = totalSamples;
+            this.delaySamples = delaySamples;
         }
 
         public bool IsPlaying => samplesRemaining > 0;
@@ -76,7 +85,13 @@ namespace drgAccess.Components
         {
             for (int i = 0; i < count; i++)
             {
-                if (samplesRemaining > 0)
+                if (delaySamples > 0)
+                {
+                    // Silence before the beep starts (stagger offset)
+                    buffer[offset + i] = 0;
+                    delaySamples--;
+                }
+                else if (samplesRemaining > 0)
                 {
                     float progress = 1f - (float)samplesRemaining / totalSamples;
                     float sample = GenerateSample(progress);
@@ -144,24 +159,12 @@ namespace drgAccess.Components
     /// <summary>
     /// Audio channel for enemies.
     /// </summary>
-    public class EnemyAudioChannel : IDisposable
+    public class EnemyAudioChannel
     {
-        public WaveOutEvent OutputDevice;
         public EnemyAlertSoundGenerator SoundGenerator;
         public PanningSampleProvider PanProvider;
         public VolumeSampleProvider VolumeProvider;
         public bool IsDisposed;
-
-        public void Dispose()
-        {
-            IsDisposed = true;
-            try
-            {
-                OutputDevice?.Stop();
-                OutputDevice?.Dispose();
-            }
-            catch { }
-        }
     }
 
     /// <summary>
@@ -238,7 +241,11 @@ namespace drgAccess.Components
         private const int NUM_DIRECTIONS = 8;
         private DirectionalEnemyGroup[] directionGroups = new DirectionalEnemyGroup[NUM_DIRECTIONS];
 
-        // Audio channels: 3 per direction (normal, elite, boss)
+        // Shared audio output (single device for all enemy sounds)
+        private WaveOutEvent outputDevice;
+        private MixingSampleProvider mixer;
+
+        // Audio channels: 3 per direction (normal, elite, boss), all share one output
         private Dictionary<string, EnemyAudioChannel> audioChannels = new Dictionary<string, EnemyAudioChannel>();
 
         // References
@@ -300,6 +307,10 @@ namespace drgAccess.Components
         {
             try
             {
+                // Single shared mixer for all enemy sounds
+                var format = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
+                mixer = new MixingSampleProvider(format) { ReadFully = true };
+
                 // Create channels for each direction and type
                 for (int dir = 0; dir < NUM_DIRECTIONS; dir++)
                 {
@@ -307,8 +318,14 @@ namespace drgAccess.Components
                     CreateAudioChannel($"elite_{dir}");
                     CreateAudioChannel($"boss_{dir}");
                 }
+
+                // Single output device for all enemy audio
+                outputDevice = new WaveOutEvent();
+                outputDevice.Init(mixer);
+                outputDevice.Play();
+
                 isInitialized = true;
-                Plugin.Log.LogInfo($"[EnemyAudio] Created {audioChannels.Count} audio channels");
+                Plugin.Log.LogInfo($"[EnemyAudio] Created {audioChannels.Count} channels (1 shared device)");
             }
             catch (Exception e)
             {
@@ -322,15 +339,11 @@ namespace drgAccess.Components
             {
                 var generator = new EnemyAlertSoundGenerator();
                 var panProvider = new PanningSampleProvider(generator);
-                var volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 0.15f };  // Reduced from 0.3 to 0.15
-
-                var outputDevice = new WaveOutEvent();
-                outputDevice.Init(volumeProvider);
-                outputDevice.Play();
+                var volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 0.15f };
+                mixer.AddMixerInput(volumeProvider);
 
                 audioChannels[key] = new EnemyAudioChannel
                 {
-                    OutputDevice = outputDevice,
                     SoundGenerator = generator,
                     PanProvider = panProvider,
                     VolumeProvider = volumeProvider,
@@ -683,7 +696,13 @@ namespace drgAccess.Components
 
                 channel.PanProvider.Pan = pan;
                 channel.VolumeProvider.Volume = volume;
-                channel.SoundGenerator.Play(frequency, volume, type);
+
+                // Stagger beeps across directions at the audio buffer level.
+                // Without this, all directions fire in the same mixer Read() call
+                // and merge into one indistinguishable beep.
+                // ~10ms per direction = 70ms total spread across 8 directions.
+                int staggerSamples = dirIndex * 441; // 441 samples ≈ 10ms at 44100Hz
+                channel.SoundGenerator.Play(frequency, volume, type, staggerSamples);
 
                 nextPlayTime = currentTime + interval;
             }
@@ -825,13 +844,15 @@ namespace drgAccess.Components
 
         void OnDestroy()
         {
-            Plugin.Log.LogWarning($"[EnemyAudio] OnDestroy called! Stack trace: {UnityEngine.StackTraceUtility.ExtractStackTrace()}");
-
-            foreach (var channel in audioChannels.Values)
-            {
-                channel?.Dispose();
-            }
             audioChannels.Clear();
+
+            try
+            {
+                outputDevice?.Stop();
+                outputDevice?.Dispose();
+            }
+            catch { }
+
             Instance = null;
             Plugin.Log.LogInfo("[EnemyAudio] Destroyed");
         }

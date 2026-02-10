@@ -77,25 +77,11 @@ namespace drgAccess.Components
     /// <summary>
     /// Audio channel for a wall direction.
     /// </summary>
-    public class WallAudioChannel : IDisposable
+    public class WallAudioChannel
     {
-        public WaveOutEvent OutputDevice;
         public SineWaveGenerator SineGenerator;
         public PanningSampleProvider PanProvider;
-        public VolumeSampleProvider VolumeProvider;
-        public bool IsPlaying;
         public bool IsDisposed;
-
-        public void Dispose()
-        {
-            IsDisposed = true;
-            try
-            {
-                OutputDevice?.Stop();
-                OutputDevice?.Dispose();
-            }
-            catch { }
-        }
     }
 
     /// <summary>
@@ -130,7 +116,11 @@ namespace drgAccess.Components
         private float minVolumeDistance = 0.5f;
         private float baseVolume = 0.05f;  // Reduced from 0.15 to 0.05 (much quieter)
 
-        // Audio channels (one per direction)
+        // Shared audio output (single device for all directions)
+        private WaveOutEvent outputDevice;
+        private MixingSampleProvider mixer;
+
+        // Audio channels (one per direction, all share the same output)
         private Dictionary<WallDirection, WallAudioChannel> channels = new Dictionary<WallDirection, WallAudioChannel>();
         private readonly object channelLock = new object();
 
@@ -244,13 +234,21 @@ namespace drgAccess.Components
         {
             lock (channelLock)
             {
-                // Create a channel for each direction
-                CreateChannel(WallDirection.Forward, FREQ_FORWARD, 0f);   // Center
-                CreateChannel(WallDirection.Back, FREQ_BACK, 0f);         // Center
-                CreateChannel(WallDirection.Left, FREQ_SIDES, -1f);       // Left
-                CreateChannel(WallDirection.Right, FREQ_SIDES, 1f);       // Right
+                // Single shared mixer for all directions
+                var format = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
+                mixer = new MixingSampleProvider(format) { ReadFully = true };
 
-                Plugin.Log.LogInfo("[WallNav] Audio channels created");
+                CreateChannel(WallDirection.Forward, FREQ_FORWARD, 0f);
+                CreateChannel(WallDirection.Back, FREQ_BACK, 0f);
+                CreateChannel(WallDirection.Left, FREQ_SIDES, -1f);
+                CreateChannel(WallDirection.Right, FREQ_SIDES, 1f);
+
+                // Single output device for all wall audio
+                outputDevice = new WaveOutEvent();
+                outputDevice.Init(mixer);
+                outputDevice.Play();
+
+                Plugin.Log.LogInfo("[WallNav] Audio channels created (1 shared device)");
             }
         }
 
@@ -258,41 +256,16 @@ namespace drgAccess.Components
         {
             try
             {
-                // Create sine wave generator (mono)
                 var sineGen = new SineWaveGenerator(frequency, 0f); // Start silenced
+                var panProvider = new PanningSampleProvider(sineGen) { Pan = pan };
+                mixer.AddMixerInput(panProvider);
 
-                // Add panning
-                var panProvider = new PanningSampleProvider(sineGen)
+                channels[direction] = new WallAudioChannel
                 {
-                    Pan = pan
-                };
-
-                // Add volume control
-                var volumeProvider = new VolumeSampleProvider(panProvider)
-                {
-                    Volume = 1.0f
-                };
-
-                // Create output device
-                var outputDevice = new WaveOutEvent();
-                outputDevice.Init(volumeProvider);
-
-                // Create channel
-                var channel = new WallAudioChannel
-                {
-                    OutputDevice = outputDevice,
                     SineGenerator = sineGen,
                     PanProvider = panProvider,
-                    VolumeProvider = volumeProvider,
-                    IsPlaying = false,
                     IsDisposed = false
                 };
-
-                channels[direction] = channel;
-
-                // Start playback (but silenced)
-                outputDevice.Play();
-                channel.IsPlaying = true;
 
                 Plugin.Log.LogInfo($"[WallNav] Channel created: {direction} at {frequency}Hz, pan={pan}");
             }
@@ -591,16 +564,17 @@ namespace drgAccess.Components
 
         void OnDestroy()
         {
-            Plugin.Log.LogWarning($"[WallNav] OnDestroy called! Stack trace: {UnityEngine.StackTraceUtility.ExtractStackTrace()}");
-
             lock (channelLock)
             {
-                foreach (var channel in channels.Values)
-                {
-                    channel?.Dispose();
-                }
                 channels.Clear();
             }
+
+            try
+            {
+                outputDevice?.Stop();
+                outputDevice?.Dispose();
+            }
+            catch { }
 
             Instance = null;
             Plugin.Log.LogInfo("[WallNav] Destroyed");

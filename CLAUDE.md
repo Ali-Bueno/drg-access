@@ -65,6 +65,13 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Alarm uses oscillating frequency (siren effect) clearly distinct from enemy beeps
   - Alarm rate increases with proximity (5-25 Hz oscillation)
   - Stereo panning toward the hazard direction
+- **Audio Cue Preview Menu**: Standalone menu to preview all audio cues outside gameplay
+  - Opens with Backspace (only when NOT in active gameplay), closes with Backspace/Escape
+  - Navigate with W/S or Up/Down arrows, preview with Enter
+  - 9 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning
+  - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
+  - Deactivates EventSystem while open to block game UI input, toggles InputSystemUIInputModule on close to restore navigation
+  - Uses shared WaveOutEvent + MixingSampleProvider, created on menu open, disposed on close
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
@@ -87,12 +94,13 @@ drgAccess/
 │   ├── TextHelper.cs              # Shared text cleaning (CleanText, IsJustNumber)
 │   └── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
 ├── Components/
-│   ├── WallNavigationAudio.cs     # Wall detection with continuous tones
-│   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies
+│   ├── WallNavigationAudio.cs     # Wall detection with continuous tones (1 shared WaveOutEvent)
+│   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies (1 shared WaveOutEvent)
 │   ├── EnemyTracker.cs            # Tracks active enemies in scene
 │   ├── DropPodAudio.cs            # Drop pod beacon + BeaconBeepGenerator (chirp beeps)
 │   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (chirp beeps)
-│   └── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
+│   ├── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
+│   └── AudioCueMenu.cs            # Audio cue preview menu (Backspace to open/close)
 ├── Patches/
 │   ├── UIButtonPatch.cs           # Core button dispatch + simple handlers (partial class)
 │   ├── UIButtonPatch.ClassSelection.cs  # Class/subclass button text (partial)
@@ -175,6 +183,8 @@ references/tolk/                   # Tolk DLL references
 **Localization approach:** Always prefer the game's own localized text. Use `LocalizedString.GetLocalizedString()`, `StatSettingCollection.Get(statType).GetDisplayName`, `UiRarityData.GetRarityName(rarity)`, `LocalizedResources.GearType*` etc. Only mod-created messages (labels like "Stats:", "Level", "Cost:") should be in English. Cache ScriptableObject singletons via `Resources.FindObjectsOfTypeAll<T>()` with a "searched" flag to avoid repeated lookups.
 
 **Percentage stat values are stored as fractions** (0.05 = 5%). Always use `LocalizationHelper.FormatStatValue()` which multiplies by 100 for percentage stats. Never format stat values with raw `{value:0}%` directly.
+
+**NAudio shared mixer architecture:** Too many simultaneous `WaveOutEvent` instances (~30+) overwhelms Windows audio handles, causing ~10 second startup delay before any audio plays. Components that need multiple audio channels (WallNavigationAudio: 4 directions, EnemyAudioSystem: 8 directions × 3 types = 24 channels) must use a single shared `MixingSampleProvider` + one `WaveOutEvent`. Individual generators are added as mixer inputs and controlled independently via their Volume/Pan properties. **Important:** With a shared mixer, beeps triggered on the same frame merge into one sound. Use `delaySamples` stagger (10ms per direction) in `EnemyAlertSoundGenerator.Play()` to offset beeps at the audio buffer level so they sound distinct.
 
 ---
 
