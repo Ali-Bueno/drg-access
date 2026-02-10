@@ -17,10 +17,17 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Biome Selection**: Reads biome name and locked status
 - **Hazard Level Selection**: Reads hazard level and locked status
 - **Mutators**: Reads mutator name and description
-- **Shop Items**: Reads item name, stats, and description
+- **Shop Screen (Inter-Level)**: Full accessibility for the between-levels shop after extraction
+  - Form announcement ("Shop") when opened
+  - Shop buttons read: weapon name (if weapon-specific), skill name, rarity, stats, description, price, affordability
+  - Empty slots announce "Empty"
+  - Purchase feedback: "Purchased [name]" / "Cannot afford"
+  - Reroll feedback: "Rerolled" / "Cannot afford reroll"
+  - Heal feedback: "Healed" / "Cannot afford heal"
+  - G key reads wallet balance (same as stat upgrades)
 - **Toggle Settings**: Announces On/Off state when clicked
 - **Tooltips**: Tooltip reading with rich text and serial number cleanup
-- **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score)
+- **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score, shop)
 - **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, and missions
 - **Biome Selection**: Reads biome name, lore/description, and high score when selecting mission nodes (biomes)
 - **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
@@ -28,13 +35,14 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next)
 - **Stat Upgrades**: Reads localized title, description, stat type + correctly formatted value (percentage stats ×100), level, cost, and affordability
 - **Gear Inventory**: Reads gear name, slot type, rarity, tier, correctly formatted stat mods, and quirk descriptions
-- **Level-Up Skill Selection**: Reads skill name, rarity (Common/Uncommon/Rare/Epic/Legendary), stats, and description
+- **Level-Up Skill Selection**: Reads weapon name (if weapon-specific), skill name, rarity (Common/Uncommon/Rare/Epic/Legendary), stats, and description
 - **Mineral Market**: Reads localized button text instead of raw enum names. Action feedback: "Bought"/"Sold" on success, "Cannot afford"/"Nothing to sell" on failure
 - **Action Feedback**: Screen reader announces results when pressing Enter on actionable buttons:
   - Mineral market: "Bought" / "Cannot afford" / "Sold" / "Nothing to sell"
   - Stat upgrades: "Upgraded to level X/Y" / "Max level reached" / "Cannot afford"
   - Gear: "Equipped [name]" / "Unequipped [name]"
-- **Wallet Reading**: Press G in the stat upgrades menu to hear all currency balances (Gold, Credits, minerals, special currencies)
+  - Shop: "Purchased [name]" / "Cannot afford" / "Rerolled" / "Cannot afford reroll" / "Healed" / "Cannot afford heal"
+- **Wallet Reading**: Press G in the stat upgrades menu or shop screen to hear all currency balances (Gold, Credits, minerals, special currencies)
 - **Localized Game Data**: Stat names, rarity names, and gear slot types use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
 - **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
 - **Gameplay Audio - Wall Navigation**: Continuous tones for wall detection in 4 directions (forward, back, left, right) with volume based on proximity
@@ -165,6 +173,7 @@ references/tolk/                   # Tolk DLL references
 | `UIMineralMarketButton` | Mineral market (reads localized TMP children, buy/sell feedback) |
 | `GearManager` | Gear equip/unequip action feedback |
 | `UIGearViewCompact` | Gear inventory (name, rarity, stats, quirks) |
+| `UIShopScreen` | Inter-level shop (purchase, reroll, heal, wallet reading) |
 | `UISliderToggle` | Toggle settings |
 | `UITooltip` | Tooltips |
 | `UISettingsSlider` | Settings sliders (label + value) |

@@ -126,6 +126,98 @@ public static class StatUpgradeSuccessPatch
     }
 }
 
+// Shop Screen: announce successful purchase
+[HarmonyPatch(typeof(UIShopScreen), nameof(UIShopScreen.OnPurchaseComplete))]
+public static class ShopPurchasePatch
+{
+    public static void Postfix(UIShopScreen __instance, UIShopButton btn)
+    {
+        try
+        {
+            string name = "item";
+            var skillData = btn?.skillData;
+            if (skillData != null && !string.IsNullOrEmpty(skillData.Title))
+                name = TextHelper.CleanText(skillData.Title);
+
+            ScreenReader.Interrupt($"Purchased {name}");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"ShopPurchasePatch error: {ex.Message}");
+        }
+    }
+}
+
+// Shop Screen: announce reroll result
+[HarmonyPatch(typeof(UIShopScreen), nameof(UIShopScreen.OnRerollButton))]
+public static class ShopRerollPatch
+{
+    public static void Prefix(UIShopScreen __instance, out bool __state)
+    {
+        __state = false;
+        try { __state = __instance.CanAffordReroll(); } catch { }
+    }
+
+    public static void Postfix(UIShopScreen __instance, bool __state)
+    {
+        try
+        {
+            ScreenReader.Interrupt(__state ? "Rerolled" : "Cannot afford reroll");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"ShopRerollPatch error: {ex.Message}");
+        }
+    }
+}
+
+// Shop Screen: announce heal result
+[HarmonyPatch(typeof(UIShopScreen), nameof(UIShopScreen.OnHealButton))]
+public static class ShopHealPatch
+{
+    public static void Prefix(UIShopScreen __instance, out bool __state)
+    {
+        __state = false;
+        try { __state = __instance.CanAffordHeal(); } catch { }
+    }
+
+    public static void Postfix(UIShopScreen __instance, bool __state)
+    {
+        try
+        {
+            ScreenReader.Interrupt(__state ? "Healed" : "Cannot afford heal");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"ShopHealPatch error: {ex.Message}");
+        }
+    }
+}
+
+// Shop Button: announce "Cannot afford" on failed purchase attempt
+[HarmonyPatch(typeof(UIShopButton), nameof(UIShopButton.OnButtonClick))]
+public static class ShopButtonClickPatch
+{
+    public static void Prefix(UIShopButton __instance, out bool __state)
+    {
+        __state = false;
+        try { __state = __instance.canAfford; } catch { }
+    }
+
+    public static void Postfix(UIShopButton __instance, bool __state)
+    {
+        try
+        {
+            if (!__state)
+                ScreenReader.Interrupt("Cannot afford");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"ShopButtonClickPatch error: {ex.Message}");
+        }
+    }
+}
+
 // Gear Equip: announce when gear is equipped
 [HarmonyPatch(typeof(GearManager), nameof(GearManager.TryEquipGear))]
 public static class GearEquipPatch
@@ -211,6 +303,9 @@ public static class WalletReader
 {
     internal static Wallet CachedWallet;
     internal static bool UpgradeFormOpen;
+    internal static bool ShopFormOpen;
+
+    internal static bool IsWalletReadable => UpgradeFormOpen || ShopFormOpen;
 
     public static void ReadWallet()
     {

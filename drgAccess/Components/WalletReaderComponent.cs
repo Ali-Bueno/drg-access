@@ -13,7 +13,7 @@ public class WalletReaderComponent : MonoBehaviour
     {
         try
         {
-            if (!Patches.WalletReader.UpgradeFormOpen) return;
+            if (!Patches.WalletReader.IsWalletReadable) return;
 
             var kb = Keyboard.current;
             if (kb == null) return;

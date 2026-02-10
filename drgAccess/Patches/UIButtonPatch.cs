@@ -179,21 +179,24 @@ public static partial class UIButtonPatch
 
                 if (!string.IsNullOrEmpty(title))
                 {
-                    string result = TextHelper.CleanText(title) + ", " + LocalizationHelper.GetRarityText(rarity);
+                    var sb = new StringBuilder();
+
+                    // Weapon name prefix if weapon-specific
+                    string weaponName = GetWeaponNameFromSkillRaritySet(skillButton.skillRaritySet);
+                    if (!string.IsNullOrEmpty(weaponName))
+                        sb.Append(weaponName + ": ");
+
+                    sb.Append(TextHelper.CleanText(title) + ", " + LocalizationHelper.GetRarityText(rarity));
 
                     string statDescription = skillData.GetStatDescription(rarity);
                     if (!string.IsNullOrEmpty(statDescription))
-                    {
-                        result += ". " + TextHelper.CleanText(statDescription);
-                    }
+                        sb.Append(". " + TextHelper.CleanText(statDescription));
 
                     string description = skillData.GetDescription(rarity);
                     if (!string.IsNullOrEmpty(description))
-                    {
-                        result += ". " + TextHelper.CleanText(description);
-                    }
+                        sb.Append(". " + TextHelper.CleanText(description));
 
-                    return result;
+                    return sb.ToString();
                 }
             }
         }
@@ -289,6 +292,10 @@ public static partial class UIButtonPatch
     {
         try
         {
+            // Check if this is an empty slot
+            if (!shopButton.HasContent())
+                return "Empty";
+
             var skillData = shopButton.skillData;
             if (skillData != null)
             {
@@ -296,21 +303,37 @@ public static partial class UIButtonPatch
 
                 if (!string.IsNullOrEmpty(title))
                 {
-                    string result = TextHelper.CleanText(title);
+                    var sb = new StringBuilder();
 
-                    string statDescription = skillData.GetStatDescription(ERarity.COMMON);
+                    // Weapon name prefix if weapon-specific
+                    string weaponName = GetWeaponNameFromSkillRaritySet(shopButton.skillRaritySet);
+                    if (!string.IsNullOrEmpty(weaponName))
+                        sb.Append(weaponName + ": ");
+
+                    sb.Append(TextHelper.CleanText(title));
+
+                    // Rarity
+                    ERarity rarity = shopButton.rarity;
+                    sb.Append(", " + LocalizationHelper.GetRarityText(rarity));
+
+                    string statDescription = skillData.GetStatDescription(rarity);
                     if (!string.IsNullOrEmpty(statDescription))
-                    {
-                        result += ". " + TextHelper.CleanText(statDescription);
-                    }
+                        sb.Append(". " + TextHelper.CleanText(statDescription));
 
-                    string description = skillData.GetDescription(ERarity.COMMON);
+                    string description = skillData.GetDescription(rarity);
                     if (!string.IsNullOrEmpty(description))
-                    {
-                        result += ". " + TextHelper.CleanText(description);
-                    }
+                        sb.Append(". " + TextHelper.CleanText(description));
 
-                    return result;
+                    // Price
+                    var priceText = shopButton.priceText;
+                    if (priceText != null && !string.IsNullOrEmpty(priceText.text))
+                        sb.Append(". Price: " + TextHelper.CleanText(priceText.text));
+
+                    // Affordability
+                    if (!shopButton.canAfford)
+                        sb.Append(", Cannot afford");
+
+                    return sb.ToString();
                 }
             }
         }
@@ -319,6 +342,35 @@ public static partial class UIButtonPatch
             Plugin.Log?.LogError($"UIButtonPatch.GetShopButtonText error: {ex.Message}");
         }
 
+        return null;
+    }
+
+    /// <summary>
+    /// Tries to extract a weapon name from a SkillRaritySet by casting to WeaponSkillRaritySet.
+    /// Returns null if not weapon-specific.
+    /// </summary>
+    private static string GetWeaponNameFromSkillRaritySet(SkillRaritySet srs)
+    {
+        try
+        {
+            if (srs == null) return null;
+            var weaponSrs = srs.TryCast<WeaponSkillRaritySet>();
+            if (weaponSrs == null) return null;
+
+            var wh = weaponSrs.WeaponHandler;
+            if (wh == null) return null;
+
+            var weaponData = wh.Data;
+            if (weaponData == null) return null;
+
+            string weaponTitle = weaponData.Title;
+            if (!string.IsNullOrEmpty(weaponTitle))
+                return TextHelper.CleanText(weaponTitle);
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogDebug($"GetWeaponNameFromSkillRaritySet: {ex.Message}");
+        }
         return null;
     }
 

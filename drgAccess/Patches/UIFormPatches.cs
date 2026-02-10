@@ -88,6 +88,22 @@ public static class UIFormPatches
         }
     }
 
+    // Shop Screen (inter-level shop after extraction)
+    [HarmonyPatch(typeof(UIShopScreen), nameof(UIShopScreen.SetVisibility))]
+    public static class UIShopScreen_SetVisibility
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIShopScreen __instance, bool visible)
+        {
+            WalletReader.ShopFormOpen = visible;
+            if (visible)
+            {
+                ScreenReader.Interrupt("Shop");
+                try { WalletReader.CachedWallet = __instance.wallet; } catch { }
+            }
+        }
+    }
+
     // Milestone Form
     [HarmonyPatch(typeof(UIMilestoneForm), nameof(UIMilestoneForm.SetVisibility))]
     public static class UIMilestoneForm_SetVisibility
