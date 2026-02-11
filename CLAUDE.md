@@ -13,13 +13,13 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
 - **Current version**: v0.2.0
-- **Permanent download links (v0.2.0)**:
-  - Full: https://github.com/Ali-Bueno/drg-access/releases/download/v0.2.0/DRGAccess-v0.2.0-full.zip
-  - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/download/v0.2.0/DRGAccess-v0.2.0-plugin-only.zip
+- **Permanent download links** (always point to latest release):
+  - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
+  - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
 - **Release folders**:
   - `DRGAccess release full/` — contains everything (BepInEx, NAudio, Tolk, the mod DLL). For first-time install.
   - `DRGAccess release plugin only/` — contains only BepInEx/plugins, README, and CHANGELOG. For users updating an existing install.
-- **Release process**: Create zips from both release folders, then `gh release create vX.Y.Z full.zip plugin-only.zip --title "..." --notes "..."`. The `/releases/latest` link always points to the newest release automatically.
+- **Release process**: Create zips with fixed names (`DRGAccess-full.zip`, `DRGAccess-plugin-only.zip`), then `gh release create vX.Y.Z DRGAccess-full.zip DRGAccess-plugin-only.zip --title "..." --notes "..."`. The permanent download links always resolve to the latest release automatically.
 
 ---
 
