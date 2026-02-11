@@ -2,6 +2,68 @@ CHANGELOG
 =========
 
 
+v0.3.0 - February 11, 2026
+---------------------------
+
+New Features:
+
+  - NavMesh Pathfinding: Drop pod beacon now uses Unity's NavMesh to calculate
+    paths around walls and obstacles instead of pointing in a straight line.
+    Beacon guides toward the next path waypoint. Falls back to direct targeting
+    if path fails or within 8m of pod. Path recalculated every 0.5s.
+
+  - Ramp Interior Guidance: When near the drop pod ramp (< 2.5m), a continuous
+    tone pans toward the pod interior (playerPoint — the exact spot that triggers
+    departure). Screen reader announces "On the ramp, follow the tone inside".
+
+  - Directional Pitch Modulation: All spatial audio cues now sound higher-pitched
+    when the target is ahead (W/up direction) and lower when behind (S/down).
+    This helps distinguish forward from behind in the top-down perspective.
+    Drop pod uses a pronounced 0.4x-1.0x range; all other cues use 0.6x-1.0x.
+
+  - Supply Zone Guidance: Supply pod zones now announce enter/exit, activation
+    state ("Clearing zone, X rocks to mine"), progress as rocks are mined,
+    timer milestones every 10 seconds, and completion. Beacon stays active when
+    activating and player is outside to guide them back.
+
+  - Pickup Announcements: Screen reader now announces during gameplay:
+      * Heals: "Healed X HP" (direct heals only, not regen or stat setup)
+      * Currency: "X [currency name]" with cooldown to avoid spam
+      * Gear: "Picked up [gear name]"
+      * Loot crates: "[rarity] loot crate"
+
+  - HP Reader: Press H during active gameplay to hear current and max HP
+    (e.g. "HP: 85 / 120").
+
+  - Shop Pin Toggles: Pin/lock buttons in the shop now announce
+    "Pin [item name], Pinned/Unpinned" instead of generic toggle text.
+
+  - Shop Price Buttons: Heal and Reroll buttons now read their label, price
+    with currency name, and affordability (e.g. "Heal 50%. Price: 30 Gold").
+
+Improvements:
+
+  - Shop Wallet: Gold balance is now always shown when pressing G, even when
+    zero (it's the primary shop currency). Previously only shown if > 0.
+
+  - Shop Currency Names: Shop item prices now show the currency name
+    (e.g. "50 Gold") instead of just the number.
+
+  - Drop Pod Audio Cue Preview: Added 3 new previews to the Audio Cue Preview
+    menu — Drop Pod Critical (close range double-beep) and Ramp Tone (continuous
+    guidance tone near the ramp).
+
+Bug Fixes:
+
+  - Fixed "Max HP increased by 10" announcement on game start. Heal
+    announcements now only fire for direct heals (EHealType.HEAL), not
+    REGEN or MAX_HP which fire during stat initialization.
+
+  - Fixed shop toggle labels showing "UISliderToggle, Off" or
+    "Shop Button Group, Off" — now correctly identifies pin toggles
+    and reads the associated item name.
+
+
 v0.2.0 - February 11, 2026
 ---------------------------
 
