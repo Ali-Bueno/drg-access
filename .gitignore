@@ -16,6 +16,7 @@ drg code/
 
 # Release folders (releases are created separately on GitHub)
 DRGAccess release full/
+DRGAccess release full with libs/
 DRGAccess release plugin only/
 
 # OS files

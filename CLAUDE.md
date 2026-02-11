@@ -15,11 +15,13 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Current version**: v0.2.0
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
+  - Full with libs: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full-with-libs.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
 - **Release folders**:
   - `DRGAccess release full/` — contains everything (BepInEx, NAudio, Tolk, the mod DLL). For first-time install.
+  - `DRGAccess release full with libs/` — same as full but includes pre-generated `unity-libs/` and `interop/` folders. For users whose firewall/network blocks BepInEx's first-run Unity library download.
   - `DRGAccess release plugin only/` — contains only BepInEx/plugins, README, and CHANGELOG. For users updating an existing install.
-- **Release process**: Create zips with fixed names (`DRGAccess-full.zip`, `DRGAccess-plugin-only.zip`), then `gh release create vX.Y.Z DRGAccess-full.zip DRGAccess-plugin-only.zip --title "..." --notes "..."`. The permanent download links always resolve to the latest release automatically.
+- **Release process**: Create zips with fixed names (`DRGAccess-full.zip`, `DRGAccess-full-with-libs.zip`, `DRGAccess-plugin-only.zip`), then `gh release create vX.Y.Z *.zip --title "..." --notes "..."`. The permanent download links always resolve to the latest release automatically.
 
 ---
 
