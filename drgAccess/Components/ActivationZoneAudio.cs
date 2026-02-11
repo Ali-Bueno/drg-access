@@ -3,6 +3,7 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using Il2CppInterop.Runtime.Injection;
+using drgAccess.Helpers;
 
 namespace drgAccess.Components
 {
@@ -32,6 +33,13 @@ namespace drgAccess.Components
 
         // State
         private bool isInitialized = false;
+
+        // Zone tracking state
+        private bool wasInsideZone = false;
+        private ActivationZone.EState lastZoneState = ActivationZone.EState.INACTIVE;
+        private bool announcedCompletion = false;
+        private float lastProgressTime = 0f;
+        private int lastRocksAnnounced = -1;
 
         // Audio parameters
         private float maxDistance = 100f;
@@ -150,8 +158,13 @@ namespace drgAccess.Components
                     }
                 }
 
-                if (nearestActiveZone != activeZone && nearestActiveZone != null)
-                    Plugin.Log.LogInfo($"[ActivationZoneAudio] Found zone at {nearestDistance:F1}m");
+                if (nearestActiveZone != activeZone)
+                {
+                    if (nearestActiveZone != null)
+                        Plugin.Log.LogInfo($"[ActivationZoneAudio] Found zone at {nearestDistance:F1}m");
+                    // Reset tracking state for new zone
+                    ResetZoneTracking();
+                }
 
                 activeZone = nearestActiveZone;
                 isZoneActive = activeZone != null;
@@ -174,42 +187,135 @@ namespace drgAccess.Components
                 bool isInside = distance <= radius;
                 var state = activeZone.state;
 
-                // Silent when inside or activating
-                if (isInside || state == ActivationZone.EState.ACTIVATING)
+                // Announce enter/exit transitions
+                if (isInside && !wasInsideZone)
+                {
+                    ScreenReader.Interrupt("Inside supply zone");
+                    lastRocksAnnounced = -1;
+                }
+                else if (!isInside && wasInsideZone)
+                {
+                    if (state == ActivationZone.EState.ACTIVATING)
+                        ScreenReader.Interrupt("Left supply zone, return to zone");
+                    else
+                        ScreenReader.Interrupt("Left supply zone");
+                }
+                wasInsideZone = isInside;
+
+                // Announce state transitions
+                if (state != lastZoneState)
+                {
+                    if (state == ActivationZone.EState.ACTIVATING)
+                    {
+                        AnnounceActivating();
+                    }
+                    else if (state == ActivationZone.EState.DONE && !announcedCompletion)
+                    {
+                        announcedCompletion = true;
+                        ScreenReader.Interrupt("Supply zone complete");
+                    }
+                    lastZoneState = state;
+                }
+
+                // Announce progress during activation
+                if (state == ActivationZone.EState.ACTIVATING)
+                    AnnounceProgress();
+
+                // Beacon behavior depends on state and position
+                if (state == ActivationZone.EState.DONE)
                 {
                     beepGenerator.Active = false;
                     return;
                 }
 
-                // Direction and pan
-                Vector3 toZone = zonePos - playerPos;
-                toZone.y = 0;
-                toZone.Normalize();
+                if (isInside)
+                {
+                    // Inside zone: silence beacon (player is where they need to be)
+                    beepGenerator.Active = false;
+                    return;
+                }
 
-                Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                forward.y = 0;
-                forward.Normalize();
-                Vector3 right = new Vector3(forward.z, 0, -forward.x);
-
-                float pan = Mathf.Clamp(Vector3.Dot(toZone, right), -1f, 1f);
-                panProvider.Pan = pan;
-
-                // Proximity factor (0 = far, 1 = close)
-                float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
-                proximityFactor = proximityFactor * proximityFactor;
-
-                // Interval: 250ms far → 30ms close
-                float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
-
-                beepGenerator.Frequency = 350 + proximityFactor * 300; // 350-650 Hz
-                beepGenerator.Volume = 0.2f + proximityFactor * 0.18f; // 0.2-0.38
-                beepGenerator.Interval = interval;
-                beepGenerator.Active = true;
+                // Outside zone (INACTIVE or ACTIVATING): guide player to zone
+                UpdateBeaconAudio(zonePos, playerPos, distance);
             }
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[ActivationZoneAudio] UpdateZoneBeacon error: {e.Message}");
             }
+        }
+
+        private void UpdateBeaconAudio(Vector3 zonePos, Vector3 playerPos, float distance)
+        {
+            Vector3 toZone = zonePos - playerPos;
+            toZone.y = 0;
+            toZone.Normalize();
+
+            Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+            forward.y = 0;
+            forward.Normalize();
+            Vector3 right = new Vector3(forward.z, 0, -forward.x);
+
+            float pan = Mathf.Clamp(Vector3.Dot(toZone, right), -1f, 1f);
+            panProvider.Pan = pan;
+
+            // Proximity factor (0 = far, 1 = close)
+            float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
+            proximityFactor = proximityFactor * proximityFactor;
+
+            // Interval: 250ms far → 30ms close
+            float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
+
+            float pitchMultiplier = AudioDirectionHelper.GetDirectionalPitchMultiplier(forward, toZone);
+            beepGenerator.Frequency = (350 + proximityFactor * 300) * pitchMultiplier; // 350-650 Hz * direction
+            beepGenerator.Volume = 0.2f + proximityFactor * 0.18f; // 0.2-0.38
+            beepGenerator.Interval = interval;
+            beepGenerator.Active = true;
+        }
+
+        private void AnnounceActivating()
+        {
+            try
+            {
+                var rocks = activeZone.rocksInArea;
+                int rockCount = rocks != null ? rocks.Count : 0;
+                if (rockCount > 0)
+                    ScreenReader.Say($"Clearing zone, {rockCount} rocks to mine");
+                else
+                    ScreenReader.Say("Zone activating");
+            }
+            catch { }
+        }
+
+        private void AnnounceProgress()
+        {
+            try
+            {
+                // Announce rocks remaining (list shrinks as rocks are mined)
+                var rocks = activeZone.rocksInArea;
+                int remaining = rocks != null ? rocks.Count : 0;
+                if (remaining != lastRocksAnnounced && lastRocksAnnounced >= 0)
+                {
+                    lastRocksAnnounced = remaining;
+                    if (remaining > 0)
+                        ScreenReader.Say($"{remaining} rocks remaining");
+                    else
+                        ScreenReader.Say("All rocks cleared");
+                    return;
+                }
+                if (lastRocksAnnounced < 0)
+                    lastRocksAnnounced = remaining;
+
+                // Announce timer milestones every 10 seconds
+                float timeLeft = activeZone.timeLeft;
+                if (timeLeft > 0 && Time.time - lastProgressTime >= 10f)
+                {
+                    lastProgressTime = Time.time;
+                    int seconds = Mathf.RoundToInt(timeLeft);
+                    if (seconds > 0)
+                        ScreenReader.Say($"{seconds} seconds remaining");
+                }
+            }
+            catch { }
         }
 
         private void CheckSceneChange()
@@ -226,6 +332,7 @@ namespace drgAccess.Components
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;
                     gameStateProvider = null;
+                    ResetZoneTracking();
                 }
                 lastSceneName = currentScene;
             }
@@ -288,6 +395,15 @@ namespace drgAccess.Components
             }
             catch { }
             return false;
+        }
+
+        private void ResetZoneTracking()
+        {
+            wasInsideZone = false;
+            lastZoneState = ActivationZone.EState.INACTIVE;
+            announcedCompletion = false;
+            lastProgressTime = 0f;
+            lastRocksAnnounced = -1;
         }
 
         void OnDestroy()

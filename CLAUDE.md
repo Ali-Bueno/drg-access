@@ -87,7 +87,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Rare loot enemies (Golden Lootbug, Huuli Hoarder only): Bright ascending chime, 1500-2200 Hz, 120ms
   - Common lootbugs (LOOTBUG) are filtered out to avoid audio spam — they are too numerous
   - Critical proximity warning (< 3.5m): Faster beeps, boosted volume, higher pitch for urgency
-  - 8-directional detection with stereo panning
+  - 8-directional detection with stereo panning + **directional pitch modulation** (higher when enemy is ahead, lower when behind)
   - Enemy name announcements via screen reader: new enemy types announced when first detected, cooldown of 3 seconds between announcements
   - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
 - **Gameplay Audio - Drop Pod Beacon**: Metallic sonar ping guiding to extraction pod ramp
@@ -95,7 +95,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Uses MixingSampleProvider with BeaconBeepGenerator (sonar ping: detuned oscillators with 5th harmonic, reverberant decay) + SineWaveGenerator (ramp proximity tone)
   - Accelerating interval: 250ms (far) → 30ms (very close)
   - 3D positional audio with distance-based volume (0.25-0.45) and frequency (800-1400 Hz)
-  - **Top-down pitch modulation**: Higher pitch when pod is above on screen (W direction), lower when below (S direction)
+  - **Top-down pitch modulation**: Higher pitch when pod is ahead (W direction, 1.0x), lower when behind (S direction, 0.4x) — pronounced range for clear orientation
   - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (1200-1600 Hz), louder, screen reader announces "Drop pod very close"
   - **Ramp proximity (< 2.5m)**: Continuous tone (1200-1600 Hz) pans toward pod interior (`playerPoint` — the exact spot that triggers departure), screen reader announces "On the ramp, follow the tone inside"
   - **Inside pod**: All audio stops, screen reader announces "Inside the pod"
@@ -105,23 +105,27 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Gameplay Audio - Supply Pod Beacon**: Warbling trill for ActivationZone (supply pod zones)
   - Uses BeaconBeepGenerator (warble: 18 Hz frequency oscillation, sawtooth+sine mix with sub-octave)
   - Accelerating interval: 250ms (far) → 30ms (very close)
-  - 3D positional audio with distance-based volume (0.2-0.38) and frequency (350-650 Hz)
+  - 3D positional audio with distance-based volume (0.2-0.38) and frequency (350-650 Hz) + **directional pitch modulation**
   - Clearly distinct from drop pod beacon (different waveform and frequency range)
-  - Stops when player is inside zone or zone is activating
+  - **Zone enter/exit announcements**: "Inside supply zone" / "Left supply zone" (+ "return to zone" if activating)
+  - **Beacon stays active when ACTIVATING + player outside**: guides player back to zone
+  - Silent when player is inside zone (player is where they need to be)
+  - **State announcements**: "Clearing zone, X rocks to mine" on activation start, "Supply zone complete" on done
+  - **Progress feedback**: remaining rocks announced as they're mined, timer announced every 10 seconds
   - Detects nearest active zone within 100m
 - **Gameplay Audio - Hazard Warning**: Siren alarm for nearby dangers
   - Exploders (horde enemies): Detected by name, alarm at 900-1400 Hz within 8m range
   - Ground Spikes (Dreadnought boss): Registered via patch on GroundSpike.OnSpawn, alarm at 600-1000 Hz
   - Alarm uses oscillating frequency (siren effect) clearly distinct from enemy beeps
   - Alarm rate increases with proximity (5-25 Hz oscillation)
-  - Stereo panning toward the hazard direction
+  - Stereo panning toward the hazard direction + **directional pitch modulation**
 - **Gameplay Audio - Collectible Items**: 3D positional audio for pickups, mineral veins, and loot crates
   - 7 distinct sound categories, each with unique synthesis: Red Sugar (water-drop bloop 500-750 Hz), Gear Drop (two-tone chord 800-1200 Hz), Buff Pickup (FM synthesis buzz 1000-1500 Hz), Currency (crystalline chime 600-900 Hz), Mineral Vein (metallic clink 300-500 Hz), Loot Crate (shimmering sparkle 1200-1800 Hz), XP Nearby (triangle wave + tremolo 350-700 Hz)
   - Detection distances: 8-18m depending on importance (gear/crates 18m, buffs 12m, XP 8m)
   - Only the nearest item per category gets audio (max 7 simultaneous sounds)
   - Beacon-style accelerating beeps for all pickups/crates/minerals, continuous tone for XP only
   - XP uses triangle wave with 6 Hz tremolo to distinguish from wall detection sine tones
-  - Stereo panning toward the target, volume and frequency increase with proximity
+  - Stereo panning toward the target, volume and frequency increase with proximity + **directional pitch modulation**
   - Uses 1 WaveOutEvent + 1 MixingSampleProvider with 7 CollectibleSoundGenerator channels
 - **Objective Announcements**: Mission objectives announced via screen reader
   - Objective text announced when it first appears (Show)
@@ -148,6 +152,8 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Action buttons at end: Retry (OnRetryButton), Continue (OnMenuButton), Go Endless (OnEndlessButton, endless mode only)
   - Blocks EventSystem while active, restores on button activation
   - The "Continue" button has no field on UIEndScreen (connected via Inspector), calls OnMenuButton() directly
+- **HP Reader**: Press H during active gameplay to hear current/max HP (e.g. "HP: 85 / 120"), falls back to percentage if MAX_HP stat unavailable
+- **Directional Pitch Modulation**: All spatial audio cues (drop pod, supply pod, enemies, hazards, collectibles) use forward/behind pitch modulation — higher pitch when target is ahead (W/up), lower when behind (S/down). Uses shared `AudioDirectionHelper` to avoid code duplication. Drop pod uses pronounced 0.4x–1.0x range; all others use 0.6x–1.0x
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
@@ -168,7 +174,8 @@ drgAccess/
 ├── Helpers/
 │   ├── TextHelper.cs              # Shared text cleaning (CleanText, IsJustNumber)
 │   ├── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
-│   └── NavMeshPathHelper.cs       # NavMesh pathfinding for beacon guidance around obstacles
+│   ├── NavMeshPathHelper.cs       # NavMesh pathfinding for beacon guidance around obstacles
+│   └── AudioDirectionHelper.cs    # Shared forward/behind pitch modulation for all audio cues
 ├── Components/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones (1 shared WaveOutEvent)
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies (1 shared WaveOutEvent)

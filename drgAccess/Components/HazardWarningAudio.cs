@@ -4,6 +4,7 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using Il2CppInterop.Runtime.Injection;
+using drgAccess.Helpers;
 
 namespace drgAccess.Components
 {
@@ -441,8 +442,9 @@ namespace drgAccess.Components
 
                 volume = Mathf.Clamp(volume, 0f, 0.7f);
 
+                float pitchMultiplier = AudioDirectionHelper.GetDirectionalPitchMultiplier(forward, toHazard);
                 panProvider.Pan = pan;
-                alarmGenerator.Frequency = frequency;
+                alarmGenerator.Frequency = frequency * pitchMultiplier;
                 alarmGenerator.Volume = volume;
                 alarmGenerator.AlarmRate = alarmRate;
             }

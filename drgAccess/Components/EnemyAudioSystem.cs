@@ -6,6 +6,7 @@ using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using UnityEngine.UI;
 using Il2CppInterop.Runtime.Injection;
+using drgAccess.Helpers;
 
 namespace drgAccess.Components
 {
@@ -838,6 +839,9 @@ namespace drgAccess.Components
                         }
                         break;
                 }
+
+                // Forward/behind pitch modulation (on top of height adjustment)
+                frequency *= AudioDirectionHelper.GetDirectionalPitchMultiplier(dirIndex);
 
                 volume = Mathf.Clamp(volume, 0.15f, 0.7f);  // Allow louder for critical warnings
 

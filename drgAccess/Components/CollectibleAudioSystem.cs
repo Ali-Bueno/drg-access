@@ -5,6 +5,7 @@ using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using Il2CppInterop.Runtime.Injection;
 using Assets.Scripts.LevelGeneration;
+using drgAccess.Helpers;
 
 namespace drgAccess.Components
 {
@@ -415,9 +416,10 @@ namespace drgAccess.Components
                 float proximity = 1f - Mathf.Clamp01(target.Distance / config.MaxDistance);
                 proximity *= proximity; // Squared for aggressive close-range emphasis
 
-                // Frequency: increases with proximity
+                // Frequency: increases with proximity, modulated by direction
                 float freq = config.MinFreq + proximity * (config.MaxFreq - config.MinFreq);
-                channel.Generator.Frequency = freq;
+                float pitchMult = AudioDirectionHelper.GetDirectionalPitchMultiplier(forward, toTarget);
+                channel.Generator.Frequency = freq * pitchMult;
 
                 // Volume: increases with proximity
                 float volume = config.MinVolume + proximity * (config.MaxVolume - config.MinVolume);

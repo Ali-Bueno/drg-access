@@ -517,7 +517,7 @@ namespace drgAccess.Components
 
                 // Top-down game: facingDot tells us if waypoint is "up" or "down" on screen
                 float verticalFactor = (facingDot + 1f) / 2f; // 0 = bottom, 1 = top
-                float pitchMultiplier = 0.6f + verticalFactor * 0.4f;
+                float pitchMultiplier = 0.4f + verticalFactor * 0.6f;
                 float facingVolumeMultiplier = 0.8f + verticalFactor * 0.2f;
 
                 // Use direct distance for proximity thresholds (physical closeness to pod)
