@@ -11,8 +11,11 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 ## GitHub & Releases
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
-- **Latest release (permanent link)**: https://github.com/Ali-Bueno/drg-access/releases/latest
+- **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
 - **Current version**: v0.2.0
+- **Permanent download links (v0.2.0)**:
+  - Full: https://github.com/Ali-Bueno/drg-access/releases/download/v0.2.0/DRGAccess-v0.2.0-full.zip
+  - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/download/v0.2.0/DRGAccess-v0.2.0-plugin-only.zip
 - **Release folders**:
   - `DRGAccess release full/` — contains everything (BepInEx, NAudio, Tolk, the mod DLL). For first-time install.
   - `DRGAccess release plugin only/` — contains only BepInEx/plugins, README, and CHANGELOG. For users updating an existing install.
