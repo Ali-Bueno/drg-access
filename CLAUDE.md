@@ -98,7 +98,8 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (1200-1600 Hz), louder, screen reader announces "Drop pod very close"
   - **Ramp proximity (< 2.5m)**: Continuous tone (1200-1600 Hz) guides player onto the exact ramp position, screen reader announces "On the ramp"
   - **Inside pod**: All audio stops, screen reader announces "Inside the pod"
-  - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
+  - **NavMesh pathfinding**: Uses Unity's NavMesh to calculate paths around walls/obstacles instead of pointing in a straight line. Beacon guides toward next path waypoint. Falls back to direct targeting if path fails or within 8m of pod. Path recalculated every 0.5s via `NavMeshPathHelper`
+  - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + path distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
   - Only activates for extraction pod (not initial drop pod)
 - **Gameplay Audio - Supply Pod Beacon**: Warbling trill for ActivationZone (supply pod zones)
   - Uses BeaconBeepGenerator (warble: 18 Hz frequency oscillation, sawtooth+sine mix with sub-octave)
@@ -165,7 +166,8 @@ drgAccess/
 ├── SettingsFocusTracker.cs        # MonoBehaviour polling EventSystem for settings focus
 ├── Helpers/
 │   ├── TextHelper.cs              # Shared text cleaning (CleanText, IsJustNumber)
-│   └── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
+│   ├── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
+│   └── NavMeshPathHelper.cs       # NavMesh pathfinding for beacon guidance around obstacles
 ├── Components/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones (1 shared WaveOutEvent)
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies (1 shared WaveOutEvent)
