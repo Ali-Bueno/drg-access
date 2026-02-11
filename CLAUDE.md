@@ -38,10 +38,12 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Form announcement ("Shop") when opened
   - Shop buttons read: weapon name (if weapon-specific), skill name, rarity, stats, description, price with currency name (e.g. "50 Gold"), affordability
   - Empty slots announce "Empty"
+  - Pin toggles: "Pin [item name], Pinned/Unpinned" — detected by matching UIShopScreen.shopButtons[i].pinnedToggle (toggles aren't children of shop buttons in hierarchy)
+  - Reroll/Heal buttons (`UIButtonPrice`): reads label + price with currency name + affordability (e.g. "Heal 50%. Price: 30 Gold")
   - Purchase feedback: "Purchased [name]" / "Cannot afford"
   - Reroll feedback: "Rerolled" / "Cannot afford reroll"
   - Heal feedback: "Healed" / "Cannot afford heal"
-  - G key reads wallet balance (same as stat upgrades)
+  - G key reads wallet balance (Gold always shown even when 0, plus all other currencies > 0)
 - **Toggle Settings**: Announces label + On/Off state when clicked (finds label from children/siblings)
 - **Tooltips**: Tooltip reading with rich text and serial number cleanup
 - **Splash Screen (Press Any Key)**: Announces the "press any key" prompt only after intro videos finish (patches `UISplashForm.AdvanceFlow`, checks `flow == SPLASH`)
@@ -155,7 +157,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **HP Reader**: Press H during active gameplay to hear current/max HP (e.g. "HP: 85 / 120"), falls back to percentage if MAX_HP stat unavailable
 - **Directional Pitch Modulation**: All spatial audio cues (drop pod, supply pod, enemies, hazards, collectibles) use forward/behind pitch modulation — higher pitch when target is ahead (W/up), lower when behind (S/down). Uses shared `AudioDirectionHelper` to avoid code duplication. Drop pod uses pronounced 0.4x–1.0x range; all others use 0.6x–1.0x
 - **Pickup Announcements**: Screen reader announces pickups during gameplay via CoreGameEvents patches
-  - Heals: "Healed X HP" (skips REGEN to avoid spam), "Max HP increased by X" for MAX_HP type
+  - Heals: "Healed X HP" (only HEAL type — skips REGEN and MAX_HP to avoid spam on stat setup/game start)
   - Currency: "X [currency name]" with 2-second cooldown per currency type to avoid rapid-pickup spam
   - Gear: "Picked up [gear name]" via GearData.GetTitle()
   - Loot crates: "[rarity] loot crate"
@@ -247,8 +249,9 @@ references/tolk/                   # Tolk DLL references
 | `UIMineralMarketButton` | Mineral market (reads localized TMP children, buy/sell feedback) |
 | `GearManager` | Gear equip/unequip action feedback |
 | `UIGearViewCompact` | Gear inventory (name, rarity, stats, quirks) |
-| `UIShopScreen` | Inter-level shop (purchase, reroll, heal, wallet reading) |
-| `UISliderToggle` | Toggle settings |
+| `UIShopScreen` | Inter-level shop (purchase, reroll, heal, wallet reading, pin toggle matching) |
+| `UIButtonPrice` | Price buttons (shop heal/reroll — label, price, affordability) |
+| `UISliderToggle` | Toggle settings + shop pin toggles |
 | `UITooltip` | Tooltips |
 | `UISettingsSlider` | Settings sliders (label + value) |
 | `UISettingsPageGameplay` | Gameplay toggle callbacks |

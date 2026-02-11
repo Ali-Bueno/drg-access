@@ -166,6 +166,11 @@ public static partial class UIButtonPatch
         if (pauseArtifact != null)
             return GetPauseArtifactText(pauseArtifact);
 
+        // Price buttons (shop heal/reroll)
+        var buttonPrice = button.TryCast<UIButtonPrice>();
+        if (buttonPrice != null)
+            return GetButtonPriceText(buttonPrice);
+
         // Default: try to get text from buttonText field
         return GetDefaultButtonText(button);
     }
@@ -394,6 +399,56 @@ public static partial class UIButtonPatch
         return null;
     }
 
+    private static string GetButtonPriceText(UIButtonPrice buttonPrice)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+
+            // Get button label from buttonText or TMP children
+            var textComponent = buttonPrice.buttonText;
+            if (textComponent != null && !string.IsNullOrEmpty(textComponent.text))
+            {
+                sb.Append(TextHelper.CleanText(textComponent.text));
+            }
+
+            // Price
+            var priceText = buttonPrice.priceText;
+            if (priceText != null && !string.IsNullOrEmpty(priceText.text))
+            {
+                string priceAmount = TextHelper.CleanText(priceText.text);
+                string currencyName = null;
+                try
+                {
+                    var priceValue = buttonPrice.price;
+                    if (priceValue != null)
+                        currencyName = LocalizationHelper.GetCurrencyName(priceValue.type);
+                }
+                catch { }
+
+                if (sb.Length > 0) sb.Append(". ");
+                if (!string.IsNullOrEmpty(currencyName))
+                    sb.Append($"Price: {priceAmount} {currencyName}");
+                else
+                    sb.Append($"Price: {priceAmount}");
+            }
+
+            // Affordability
+            if (!buttonPrice.canAfford)
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append("Cannot afford");
+            }
+
+            return sb.Length > 0 ? sb.ToString() : null;
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"UIButtonPatch.GetButtonPriceText error: {ex.Message}");
+        }
+        return null;
+    }
+
     private static string GetHazLevelButtonText(UIHazLevelButton hazLevelButton)
     {
         try
@@ -429,6 +484,20 @@ public static partial class UIButtonPatch
     {
         try
         {
+            bool isToggled = sliderToggle.IsToggled;
+
+            // Check if this is a pin toggle on a shop button
+            // The toggle isn't a child of UIShopButton in the hierarchy,
+            // so we search UIShopScreen.shopButtons to find which button owns it
+            string pinItemName = FindShopPinItemName(sliderToggle);
+            if (pinItemName != null)
+            {
+                string pinState = isToggled ? "Pinned" : "Unpinned";
+                return $"Pin {pinItemName}, {pinState}";
+            }
+
+            // Not a shop pin toggle — use generic label detection
+            string state = isToggled ? "On" : "Off";
             string labelText = "";
 
             // 1. Check buttonText field
@@ -446,15 +515,6 @@ public static partial class UIButtonPatch
                     labelText = controlLabel;
             }
 
-            // 3. Fallback: derive name from parent/grandparent GO name
-            if (string.IsNullOrEmpty(labelText))
-            {
-                labelText = GetCleanGameObjectName(sliderToggle.transform);
-            }
-
-            bool isToggled = sliderToggle.IsToggled;
-            string state = isToggled ? "On" : "Off";
-
             return !string.IsNullOrEmpty(labelText)
                 ? $"{labelText}, {state}"
                 : state;
@@ -468,33 +528,37 @@ public static partial class UIButtonPatch
     }
 
     /// <summary>
-    /// Tries to derive a human-readable name from the GameObject hierarchy.
-    /// Checks self, parent, and grandparent names, skipping generic ones.
+    /// Finds the item name for a pin toggle by searching UIShopScreen's shopButtons.
+    /// Returns null if the toggle doesn't belong to any shop button.
     /// </summary>
-    private static string GetCleanGameObjectName(UnityEngine.Transform transform)
+    private static string FindShopPinItemName(UISliderToggle toggle)
     {
-        string[] genericNames = { "UISliderToggle", "Toggle", "Button", "Slider", "Content", "Panel", "Container" };
-
-        for (var t = transform; t != null && t.parent != null; t = t.parent)
+        try
         {
-            string name = t.gameObject.name;
-            if (string.IsNullOrEmpty(name)) continue;
+            var shopScreen = UnityEngine.Object.FindObjectOfType<UIShopScreen>();
+            if (shopScreen == null) return null;
 
-            bool isGeneric = false;
-            foreach (var g in genericNames)
+            var buttons = shopScreen.shopButtons;
+            if (buttons == null) return null;
+
+            for (int i = 0; i < buttons.Length; i++)
             {
-                if (name.Equals(g, System.StringComparison.OrdinalIgnoreCase))
-                { isGeneric = true; break; }
-            }
-            if (isGeneric) continue;
+                var btn = buttons[i];
+                if (btn == null) continue;
 
-            // Clean up: add spaces before capitals, remove UI prefix
-            name = System.Text.RegularExpressions.Regex.Replace(name, "([a-z])([A-Z])", "$1 $2");
-            name = System.Text.RegularExpressions.Regex.Replace(name, "_", " ");
-            if (name.StartsWith("UI ")) name = name.Substring(3);
-            name = name.Trim();
-            if (!string.IsNullOrEmpty(name))
-                return name;
+                var pinnedToggle = btn.pinnedToggle;
+                if (pinnedToggle != null && pinnedToggle.gameObject == toggle.gameObject)
+                {
+                    var skillData = btn.SkillData;
+                    if (skillData != null && !string.IsNullOrEmpty(skillData.Title))
+                        return TextHelper.CleanText(skillData.Title);
+                    return "item";
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogDebug($"FindShopPinItemName: {ex.Message}");
         }
         return null;
     }
