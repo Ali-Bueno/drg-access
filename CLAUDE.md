@@ -154,6 +154,11 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - The "Continue" button has no field on UIEndScreen (connected via Inspector), calls OnMenuButton() directly
 - **HP Reader**: Press H during active gameplay to hear current/max HP (e.g. "HP: 85 / 120"), falls back to percentage if MAX_HP stat unavailable
 - **Directional Pitch Modulation**: All spatial audio cues (drop pod, supply pod, enemies, hazards, collectibles) use forward/behind pitch modulation — higher pitch when target is ahead (W/up), lower when behind (S/down). Uses shared `AudioDirectionHelper` to avoid code duplication. Drop pod uses pronounced 0.4x–1.0x range; all others use 0.6x–1.0x
+- **Pickup Announcements**: Screen reader announces pickups during gameplay via CoreGameEvents patches
+  - Heals: "Healed X HP" (skips REGEN to avoid spam), "Max HP increased by X" for MAX_HP type
+  - Currency: "X [currency name]" with 2-second cooldown per currency type to avoid rapid-pickup spam
+  - Gear: "Picked up [gear name]" via GearData.GetTitle()
+  - Loot crates: "[rarity] loot crate"
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
@@ -206,7 +211,8 @@ drgAccess/
 │   ├── UIObjectivePatches.cs      # Objective announcements (show, progress, completion)
 │   ├── EnemyPatches.cs            # Enemy registration for audio system
 │   ├── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
-│   └── HazardPatches.cs           # Ground spike detection for hazard warnings
+│   ├── HazardPatches.cs           # Ground spike detection for hazard warnings
+│   └── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
 └── drgAccess.csproj               # Project file
 
 drg code/                          # Decompiled game code for reference (not included in repo)
