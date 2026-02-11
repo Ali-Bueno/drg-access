@@ -4,6 +4,7 @@ using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Il2CppInterop.Runtime.Injection;
+using drgAccess.Helpers;
 
 namespace drgAccess.Components
 {
@@ -236,6 +237,9 @@ namespace drgAccess.Components
         private bool announcedCriticalProximity = false;
         private bool announcedRampProximity = false;
 
+        // Pathfinding
+        private NavMeshPathHelper.PathResult currentPathResult;
+
         // Game state
         private IGameStateProvider gameStateProvider;
         private string lastSceneName = "";
@@ -325,6 +329,7 @@ namespace drgAccess.Components
 
                 if (isBeaconActive && activePod != null)
                 {
+                    UpdatePathfinding();
                     UpdateBeacon();
                     HandleCompassKey();
                 }
@@ -346,6 +351,7 @@ namespace drgAccess.Components
             isBeaconActive = true;
             announcedCriticalProximity = false;
             announcedRampProximity = false;
+            NavMeshPathHelper.Reset();
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
         }
 
@@ -380,26 +386,35 @@ namespace drgAccess.Components
             return podTransform != null ? podTransform.position : Vector3.zero;
         }
 
-        private (float distance, float pan, float facingDot) GetPodDirectionInfo()
+        private (float pathDistance, float directDistance, float pan, float facingDot) GetPodDirectionInfo()
         {
-            Vector3 targetPos = GetBeaconTargetPosition();
-            if (targetPos == Vector3.zero) return (-1f, 0f, 0f);
+            Vector3 podPos = GetBeaconTargetPosition();
+            if (podPos == Vector3.zero) return (-1f, -1f, 0f, 0f);
 
             Vector3 playerPos = playerTransform.position;
-            float distance = Vector3.Distance(playerPos, targetPos);
+            float directDistance = Vector3.Distance(playerPos, podPos);
 
-            Vector3 toTarget = targetPos - playerPos;
-            toTarget.y = 0;
-            toTarget.Normalize();
+            // Direction toward next waypoint (path-guided) or pod directly
+            Vector3 waypointPos = currentPathResult.IsValid
+                ? currentPathResult.NextWaypoint
+                : podPos;
+
+            float pathDistance = currentPathResult.IsValid
+                ? currentPathResult.TotalPathDistance
+                : directDistance;
+
+            Vector3 toWaypoint = waypointPos - playerPos;
+            toWaypoint.y = 0;
+            toWaypoint.Normalize();
 
             Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
             forward.y = 0;
             forward.Normalize();
             Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
-            float pan = Mathf.Clamp(Vector3.Dot(toTarget, right), -1f, 1f);
-            float facingDot = Vector3.Dot(forward, toTarget); // 1=facing target, -1=facing away
-            return (distance, pan, facingDot);
+            float pan = Mathf.Clamp(Vector3.Dot(toWaypoint, right), -1f, 1f);
+            float facingDot = Vector3.Dot(forward, toWaypoint);
+            return (pathDistance, directDistance, pan, facingDot);
         }
 
         /// <summary>
@@ -410,7 +425,10 @@ namespace drgAccess.Components
         {
             try
             {
-                Vector3 targetPos = GetBeaconTargetPosition();
+                // Point toward next waypoint (path-guided) or pod directly
+                Vector3 targetPos = currentPathResult.IsValid
+                    ? currentPathResult.NextWaypoint
+                    : GetBeaconTargetPosition();
                 if (targetPos == Vector3.zero) return "unknown";
 
                 Vector3 toTarget = targetPos - playerTransform.position;
@@ -445,32 +463,44 @@ namespace drgAccess.Components
             catch { return "unknown"; }
         }
 
+        private void UpdatePathfinding()
+        {
+            if (activePod == null || playerTransform == null) return;
+
+            Vector3 targetPos = GetBeaconTargetPosition();
+            if (targetPos == Vector3.zero) return;
+
+            currentPathResult = NavMeshPathHelper.GetNextWaypoint(
+                playerTransform.position, targetPos);
+        }
+
         private void UpdateBeacon()
         {
             try
             {
-                var (distance, pan, facingDot) = GetPodDirectionInfo();
-                if (distance < 0)
+                var (pathDistance, directDistance, pan, facingDot) = GetPodDirectionInfo();
+                if (pathDistance < 0)
                 {
                     beepGenerator.Active = false;
                     rampToneGenerator.Volume = 0f;
                     return;
                 }
 
-                // Top-down game: facingDot tells us if pod is "up" or "down" on screen
+                // Top-down game: facingDot tells us if waypoint is "up" or "down" on screen
                 float verticalFactor = (facingDot + 1f) / 2f; // 0 = bottom, 1 = top
                 float pitchMultiplier = 0.6f + verticalFactor * 0.4f;
                 float facingVolumeMultiplier = 0.8f + verticalFactor * 0.2f;
 
-                bool isCritical = distance < CRITICAL_DISTANCE;
-                bool isOnRamp = distance < RAMP_DISTANCE;
+                // Use direct distance for proximity thresholds (physical closeness to pod)
+                bool isCritical = directDistance < CRITICAL_DISTANCE;
+                bool isOnRamp = directDistance < RAMP_DISTANCE;
 
                 beepPanProvider.Pan = pan;
 
                 // Ramp proximity: continuous tone guides player onto the exact ramp spot
                 if (isOnRamp)
                 {
-                    float rampFactor = 1f - Mathf.Clamp01(distance / RAMP_DISTANCE);
+                    float rampFactor = 1f - Mathf.Clamp01(directDistance / RAMP_DISTANCE);
                     rampToneGenerator.Frequency = 1200f + rampFactor * 400f;
                     rampToneGenerator.Volume = 0.15f + rampFactor * 0.20f;
                     rampToneVolumeProvider.Volume = 1.0f;
@@ -490,7 +520,7 @@ namespace drgAccess.Components
                 if (isCritical)
                 {
                     // Critical proximity: double-beep pattern, high pitch, louder
-                    float criticalFactor = 1f - Mathf.Clamp01(distance / CRITICAL_DISTANCE);
+                    float criticalFactor = 1f - Mathf.Clamp01(directDistance / CRITICAL_DISTANCE);
 
                     beepGenerator.Frequency = (1200 + criticalFactor * 400) * pitchMultiplier;
                     beepGenerator.Volume = (0.4f + criticalFactor * 0.15f) * facingVolumeMultiplier;
@@ -506,8 +536,8 @@ namespace drgAccess.Components
                 }
                 else
                 {
-                    // Normal beacon chirps
-                    float proximityFactor = 1f - Mathf.Clamp01(distance / maxDistance);
+                    // Normal beacon chirps - use path distance for accurate "how far to walk"
+                    float proximityFactor = 1f - Mathf.Clamp01(pathDistance / maxDistance);
                     proximityFactor = proximityFactor * proximityFactor;
 
                     float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
@@ -534,10 +564,14 @@ namespace drgAccess.Components
                 if (!kb[Key.F].wasPressedThisFrame) return;
                 if (playerTransform == null) return;
 
-                Vector3 targetPos = GetBeaconTargetPosition();
-                if (targetPos == Vector3.zero) return;
+                Vector3 podPos = GetBeaconTargetPosition();
+                if (podPos == Vector3.zero) return;
 
-                float distance = Vector3.Distance(playerTransform.position, targetPos);
+                // Use path distance if available, otherwise direct distance
+                float distance = currentPathResult.IsValid
+                    ? currentPathResult.TotalPathDistance
+                    : Vector3.Distance(playerTransform.position, podPos);
+
                 string direction = GetScreenDirection();
                 int meters = Mathf.RoundToInt(distance);
 
@@ -565,6 +599,7 @@ namespace drgAccess.Components
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;
                     gameStateProvider = null;
+                    NavMeshPathHelper.Reset();
                     beepGenerator.Active = false;
                     rampToneGenerator.Volume = 0f;
                 }

@@ -82,6 +82,10 @@
       <HintPath>$(BepInExDir)\interop\Il2CppMonoPools.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>$(BepInExDir)\interop\UnityEngine.AIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <!-- Tolk references -->
