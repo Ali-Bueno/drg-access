@@ -438,21 +438,18 @@ public static partial class UIButtonPatch
             }
             else
             {
-                TextMeshProUGUI childText = sliderToggle.GetComponentInChildren<TextMeshProUGUI>();
-                if (childText != null && !string.IsNullOrEmpty(childText.text))
-                {
-                    labelText = TextHelper.CleanText(childText.text);
-                }
-                else
-                {
-                    labelText = sliderToggle.gameObject.name;
-                }
+                // Search children, siblings, and parent hierarchy for a label
+                string controlLabel = UISettingsPatch.GetControlLabel(sliderToggle.transform);
+                if (!string.IsNullOrEmpty(controlLabel))
+                    labelText = controlLabel;
             }
 
             bool isToggled = sliderToggle.IsToggled;
             string state = isToggled ? "On" : "Off";
 
-            return $"{labelText}, {state}";
+            return !string.IsNullOrEmpty(labelText)
+                ? $"{labelText}, {state}"
+                : state;
         }
         catch (System.Exception ex)
         {

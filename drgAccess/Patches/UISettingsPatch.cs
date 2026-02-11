@@ -329,7 +329,18 @@ public static class UISettingsPatch
                     return TextHelper.CleanText(tmp.text);
             }
 
-            // 2. Check direct siblings (same parent) for TMP
+            // 2. Check grandchildren (deeper UI hierarchies like shop toggles)
+            var allTmps = control.GetComponentsInChildren<TextMeshProUGUI>();
+            if (allTmps != null)
+            {
+                foreach (var tmp in allTmps)
+                {
+                    if (tmp != null && !string.IsNullOrEmpty(tmp.text))
+                        return TextHelper.CleanText(tmp.text);
+                }
+            }
+
+            // 3. Check direct siblings (same parent) for TMP
             var parent = control.parent;
             if (parent != null)
             {
@@ -341,6 +352,21 @@ public static class UISettingsPatch
                     var tmp = child.GetComponent<TextMeshProUGUI>();
                     if (tmp != null && !string.IsNullOrEmpty(tmp.text))
                         return TextHelper.CleanText(tmp.text);
+                }
+
+                // 4. Check grandparent's children (label might be a level up)
+                var grandparent = parent.parent;
+                if (grandparent != null)
+                {
+                    for (int i = 0; i < grandparent.childCount; i++)
+                    {
+                        var child = grandparent.GetChild(i);
+                        if (child == parent) continue;
+
+                        var tmp = child.GetComponent<TextMeshProUGUI>();
+                        if (tmp != null && !string.IsNullOrEmpty(tmp.text))
+                            return TextHelper.CleanText(tmp.text);
+                    }
                 }
             }
         }

@@ -320,8 +320,8 @@ public static class WalletReader
 
             var sb = new StringBuilder();
 
-            // Main currencies
-            AppendCurrency(sb, "Gold", wallet.Gold);
+            // Main currencies (Gold always shown — it's the primary shop currency)
+            sb.Append($"Gold: {wallet.Gold}");
             AppendCurrency(sb, "Credits", wallet.Credits);
 
             // Minerals
