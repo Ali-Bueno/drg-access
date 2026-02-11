@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.3.0
+- **Current version**: v0.3.1
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -27,7 +27,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 ### Implemented Features
 - **Menu Navigation**: Buttons announce their text when selected (all specialized button types supported)
-- **Class Selection**: Reads class name, description, and base stats (HP, Evasion, Crit Chance, Crit Damage)
+- **Class Selection**: Reads class name, description, and base stats (HP, Evasion, Crit Chance, Crit Damage). Locked classes announce unlock requirement (e.g. "Unlocks at player rank 3")
 - **Subclass Selection**: Reads subclass name, stat bonuses, starter weapon info (name, description, stats, targeting, damage type)
 - **Biome Selection**: Reads biome name and locked status
 - **Hazard Level Selection**: Reads hazard level and locked status
@@ -97,7 +97,9 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - 3D positional audio with distance-based volume (0.25-0.45) and frequency (800-1400 Hz)
   - **Top-down pitch modulation**: Higher pitch when pod is ahead (W direction, 1.0x), lower when behind (S direction, 0.4x) — pronounced range for clear orientation
   - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (1200-1600 Hz), louder, screen reader announces "Drop pod very close"
-  - **Ramp proximity (< 2.5m)**: Continuous tone (1200-1600 Hz) pans toward pod interior (`playerPoint` — the exact spot that triggers departure), screen reader announces "On the ramp, follow the tone inside"
+  - **Ramp guidance zone (< 5m)**: Continuous tone (900-2200 Hz) targets playerPoint with directional pitch modulation. Volume and frequency respond to distance from playerPoint, not ramp. Both beacon beeps and tone pan toward playerPoint
+  - **Very close (< 1.5m from playerPoint)**: Peak intensity (1800-2200 Hz), screen reader announces "Almost inside, keep going"
+  - Screen reader announces "Near the pod, follow the tone inside" at 5m
   - **Inside pod**: All audio stops, screen reader announces "Inside the pod"
   - **NavMesh pathfinding**: Uses Unity's NavMesh to calculate paths around walls/obstacles instead of pointing in a straight line. Beacon guides toward next path waypoint. Falls back to direct targeting if path fails or within 8m of pod. Path recalculated every 0.5s via `NavMeshPathHelper`
   - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + path distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
@@ -152,7 +154,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Action buttons at end: Retry (OnRetryButton), Continue (OnMenuButton), Go Endless (OnEndlessButton, endless mode only)
   - Blocks EventSystem while active, restores on button activation
   - The "Continue" button has no field on UIEndScreen (connected via Inspector), calls OnMenuButton() directly
-- **HP Reader**: Press H during active gameplay to hear current/max HP (e.g. "HP: 85 / 120"), falls back to percentage if MAX_HP stat unavailable
+- **HP Reader**: Press H during active gameplay or in the shop to hear current/max HP (e.g. "HP: 85 / 120"), falls back to percentage if MAX_HP stat unavailable
 - **Directional Pitch Modulation**: All spatial audio cues (drop pod, supply pod, enemies, hazards, collectibles) use forward/behind pitch modulation — higher pitch when target is ahead (W/up), lower when behind (S/down). Uses shared `AudioDirectionHelper` to avoid code duplication. Drop pod uses pronounced 0.4x–1.0x range; all others use 0.6x–1.0x
 - **Pickup Announcements**: Screen reader announces pickups during gameplay via CoreGameEvents patches
   - Heals: "Healed X HP" (only HEAL type — skips REGEN and MAX_HP to avoid spam on stat setup/game start)

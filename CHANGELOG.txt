@@ -2,6 +2,39 @@ CHANGELOG
 =========
 
 
+v0.3.1 - February 11, 2026
+---------------------------
+
+New Features:
+
+  - Locked Class Requirements: Locked classes now announce the player rank
+    required to unlock them (e.g. "Engineer, Locked. Unlocks at player rank 3").
+
+  - HP in Shop: Press H in the shop screen to hear your current HP, helping
+    decide whether to spend on healing.
+
+Improvements:
+
+  - Drop Pod Guidance Overhaul:
+      * Ramp guidance zone expanded from 2.5m to 5m for earlier interior guidance.
+      * All audio (beacon beeps + continuous tone) now targets playerPoint (the
+        exact departure trigger) instead of the ramp when in the guidance zone.
+      * Ramp tone uses directional pitch modulation — higher and louder when
+        facing the entry point, lower when facing away.
+      * Added "very close" zone (< 1.5m from playerPoint) with peak audio
+        intensity and "Almost inside, keep going" announcement.
+      * F key compass reports direction and distance to playerPoint when in the
+        guidance zone (e.g. "Pod entrance: up-right, 2 meters").
+      * Announcements: "Drop pod very close" (8m) → "Near the pod, follow the
+        tone inside" (5m) → "Almost inside, keep going" (1.5m) → "Inside the pod".
+
+  - Supply Pod Volume: Increased supply pod beacon volume (0.20-0.38 → 0.28-0.48)
+    so it stands out better among other audio cues.
+
+  - Red Sugar Volume: Decreased red sugar audio volume (0.30-0.50 → 0.22-0.40)
+    to reduce clutter.
+
+
 v0.3.0 - February 11, 2026
 ---------------------------
 

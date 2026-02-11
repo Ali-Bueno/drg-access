@@ -47,7 +47,7 @@ namespace drgAccess.Components
         // Category config
         private static readonly CategoryConfig[] configs = new[]
         {
-            new CategoryConfig(CollectibleSoundType.RedSugar, 15f, 0.30f, 0.50f, 500f, 750f, 0.5f, 0.08f),
+            new CategoryConfig(CollectibleSoundType.RedSugar, 15f, 0.22f, 0.40f, 500f, 750f, 0.5f, 0.08f),
             new CategoryConfig(CollectibleSoundType.GearDrop, 18f, 0.28f, 0.45f, 800f, 1200f, 0.6f, 0.10f),
             new CategoryConfig(CollectibleSoundType.BuffPickup, 12f, 0.18f, 0.35f, 1000f, 1500f, 0.4f, 0.06f),
             new CategoryConfig(CollectibleSoundType.CurrencyPickup, 13f, 0.16f, 0.30f, 600f, 900f, 0.45f, 0.07f),

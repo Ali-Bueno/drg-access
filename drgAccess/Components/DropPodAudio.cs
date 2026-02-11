@@ -233,9 +233,11 @@ namespace drgAccess.Components
         private bool isInitialized = false;
         private float maxDistance = 150f;
         private const float CRITICAL_DISTANCE = 8f;
-        private const float RAMP_DISTANCE = 2.5f;
+        private const float RAMP_DISTANCE = 5f;
+        private const float INTERIOR_CLOSE_DISTANCE = 1.5f;
         private bool announcedCriticalProximity = false;
         private bool announcedRampProximity = false;
+        private bool announcedInteriorClose = false;
 
         // Pathfinding
         private NavMeshPathHelper.PathResult currentPathResult;
@@ -351,6 +353,7 @@ namespace drgAccess.Components
             isBeaconActive = true;
             announcedCriticalProximity = false;
             announcedRampProximity = false;
+            announcedInteriorClose = false;
             NavMeshPathHelper.Reset();
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
         }
@@ -522,37 +525,68 @@ namespace drgAccess.Components
 
                 // Use direct distance for proximity thresholds (physical closeness to pod)
                 bool isCritical = directDistance < CRITICAL_DISTANCE;
-                bool isOnRamp = directDistance < RAMP_DISTANCE;
+                bool isInRampZone = directDistance < RAMP_DISTANCE;
+
+                // Compute distance to playerPoint (the actual departure trigger)
+                Vector3 interiorPos = GetPodInteriorPosition();
+                float interiorDistance = Vector3.Distance(playerTransform.position, interiorPos);
+
+                // Interior direction info (panning and facing toward playerPoint)
+                Vector3 toInterior = interiorPos - playerTransform.position;
+                toInterior.y = 0;
+                toInterior.Normalize();
+                Vector3 camForward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+                camForward.y = 0;
+                camForward.Normalize();
+                Vector3 camRight = new Vector3(camForward.z, 0, -camForward.x);
+                float interiorPan = Mathf.Clamp(Vector3.Dot(toInterior, camRight), -1f, 1f);
+                float interiorFacingDot = Vector3.Dot(camForward, toInterior);
+
+                // Interior-specific pitch/volume modulation
+                float interiorVertical = (interiorFacingDot + 1f) / 2f;
+                float interiorPitchMul = 0.4f + interiorVertical * 0.6f;
+                float interiorVolMul = 0.7f + interiorVertical * 0.3f;
 
                 beepPanProvider.Pan = pan;
 
-                // Ramp proximity: continuous tone guides player INTO the pod
-                if (isOnRamp)
+                // Ramp zone: continuous tone guides player toward playerPoint
+                if (isInRampZone)
                 {
-                    float rampFactor = 1f - Mathf.Clamp01(directDistance / RAMP_DISTANCE);
-                    rampToneGenerator.Frequency = 1200f + rampFactor * 400f;
-                    rampToneGenerator.Volume = 0.15f + rampFactor * 0.20f;
+                    // Use distance to playerPoint for ramp tone intensity (not distance to ramp)
+                    float interiorFactor = 1f - Mathf.Clamp01(interiorDistance / RAMP_DISTANCE);
+                    bool isVeryClose = interiorDistance < INTERIOR_CLOSE_DISTANCE;
+
+                    if (isVeryClose)
+                    {
+                        // Very close to playerPoint: peak intensity
+                        float closeFactor = 1f - Mathf.Clamp01(interiorDistance / INTERIOR_CLOSE_DISTANCE);
+                        rampToneGenerator.Frequency = (1800f + closeFactor * 400f) * interiorPitchMul;
+                        rampToneGenerator.Volume = (0.40f + closeFactor * 0.15f) * interiorVolMul;
+                    }
+                    else
+                    {
+                        // Approaching playerPoint: frequency and volume ramp up
+                        rampToneGenerator.Frequency = (900f + interiorFactor * 900f) * interiorPitchMul;
+                        rampToneGenerator.Volume = (0.12f + interiorFactor * 0.30f) * interiorVolMul;
+                    }
                     rampToneVolumeProvider.Volume = 1.0f;
 
-                    // Pan toward pod interior so the player knows which direction enters the pod
-                    Vector3 interiorPos = GetPodInteriorPosition();
-                    Vector3 toInterior = interiorPos - playerTransform.position;
-                    toInterior.y = 0;
-                    toInterior.Normalize();
-                    Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                    forward.y = 0;
-                    forward.Normalize();
-                    Vector3 right = new Vector3(forward.z, 0, -forward.x);
-                    float interiorPan = Mathf.Clamp(Vector3.Dot(toInterior, right), -1f, 1f);
+                    // Pan ramp tone toward playerPoint
                     rampTonePanProvider.Pan = interiorPan;
 
-                    // Also steer the beacon beeps toward the interior
+                    // Steer beacon beeps toward playerPoint too
                     beepPanProvider.Pan = interiorPan;
+
+                    if (isVeryClose && !announcedInteriorClose)
+                    {
+                        announcedInteriorClose = true;
+                        ScreenReader.Interrupt("Almost inside, keep going");
+                    }
 
                     if (!announcedRampProximity)
                     {
                         announcedRampProximity = true;
-                        ScreenReader.Interrupt("On the ramp, follow the tone inside");
+                        ScreenReader.Interrupt("Near the pod, follow the tone inside");
                     }
                 }
                 else
@@ -565,9 +599,20 @@ namespace drgAccess.Components
                     // Critical proximity: double-beep pattern, high pitch, louder
                     float criticalFactor = 1f - Mathf.Clamp01(directDistance / CRITICAL_DISTANCE);
 
-                    beepGenerator.Frequency = (1200 + criticalFactor * 400) * pitchMultiplier;
-                    beepGenerator.Volume = (0.4f + criticalFactor * 0.15f) * facingVolumeMultiplier;
-                    beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
+                    if (isInRampZone)
+                    {
+                        // In ramp zone: beeps also target playerPoint with interior-based modulation
+                        float intFactor = 1f - Mathf.Clamp01(interiorDistance / RAMP_DISTANCE);
+                        beepGenerator.Frequency = (1200 + intFactor * 600) * interiorPitchMul;
+                        beepGenerator.Volume = (0.35f + intFactor * 0.20f) * interiorVolMul;
+                        beepGenerator.Interval = Mathf.Lerp(0.10f, 0.04f, intFactor);
+                    }
+                    else
+                    {
+                        beepGenerator.Frequency = (1200 + criticalFactor * 400) * pitchMultiplier;
+                        beepGenerator.Volume = (0.4f + criticalFactor * 0.15f) * facingVolumeMultiplier;
+                        beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
+                    }
                     beepGenerator.DoubleBeep = true;
                     beepGenerator.Active = true;
 
@@ -610,15 +655,58 @@ namespace drgAccess.Components
                 Vector3 podPos = GetBeaconTargetPosition();
                 if (podPos == Vector3.zero) return;
 
-                // Use path distance if available, otherwise direct distance
-                float distance = currentPathResult.IsValid
-                    ? currentPathResult.TotalPathDistance
-                    : Vector3.Distance(playerTransform.position, podPos);
+                float directDistance = Vector3.Distance(playerTransform.position, podPos);
 
-                string direction = GetScreenDirection();
-                int meters = Mathf.RoundToInt(distance);
+                // When in the ramp zone, report distance to playerPoint for precision
+                if (directDistance < RAMP_DISTANCE)
+                {
+                    Vector3 interiorPos = GetPodInteriorPosition();
+                    float interiorDist = Vector3.Distance(playerTransform.position, interiorPos);
 
-                ScreenReader.Interrupt($"Drop pod: {direction}, {meters} meters");
+                    // Direction toward playerPoint
+                    Vector3 toInterior = interiorPos - playerTransform.position;
+                    toInterior.y = 0;
+                    toInterior.Normalize();
+                    Vector3 screenUp = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+                    screenUp.y = 0;
+                    screenUp.Normalize();
+                    Vector3 screenRight = new Vector3(screenUp.z, 0, -screenUp.x);
+                    float upDot = Vector3.Dot(toInterior, screenUp);
+                    float rightDot = Vector3.Dot(toInterior, screenRight);
+
+                    bool isUp = upDot > 0.38f;
+                    bool isDown = upDot < -0.38f;
+                    bool isRight = rightDot > 0.38f;
+                    bool isLeft = rightDot < -0.38f;
+
+                    string dir = "here";
+                    if (isUp && isRight) dir = "up-right";
+                    else if (isUp && isLeft) dir = "up-left";
+                    else if (isDown && isRight) dir = "down-right";
+                    else if (isDown && isLeft) dir = "down-left";
+                    else if (isUp) dir = "up";
+                    else if (isDown) dir = "down";
+                    else if (isRight) dir = "right";
+                    else if (isLeft) dir = "left";
+
+                    string distText = interiorDist < 1f
+                        ? $"{interiorDist:0.#} meters"
+                        : $"{Mathf.RoundToInt(interiorDist)} meters";
+
+                    ScreenReader.Interrupt($"Pod entrance: {dir}, {distText}");
+                }
+                else
+                {
+                    // Use path distance if available, otherwise direct distance
+                    float distance = currentPathResult.IsValid
+                        ? currentPathResult.TotalPathDistance
+                        : directDistance;
+
+                    string direction = GetScreenDirection();
+                    int meters = Mathf.RoundToInt(distance);
+
+                    ScreenReader.Interrupt($"Drop pod: {direction}, {meters} meters");
+                }
             }
             catch (Exception e)
             {
@@ -638,6 +726,7 @@ namespace drgAccess.Components
                     activePod = null;
                     announcedCriticalProximity = false;
                     announcedRampProximity = false;
+                    announcedInteriorClose = false;
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;

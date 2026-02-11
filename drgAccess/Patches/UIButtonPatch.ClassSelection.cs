@@ -29,6 +29,13 @@ public static partial class UIButtonPatch
                     if (isLocked)
                     {
                         result += ", Locked";
+
+                        // Find unlock rank requirement from the page
+                        int unlockRank = GetClassUnlockRank(classButton.dwarf);
+                        if (unlockRank > 0)
+                        {
+                            result += $". Unlocks at player rank {unlockRank}";
+                        }
                     }
                     else
                     {
@@ -56,6 +63,39 @@ public static partial class UIButtonPatch
         }
 
         return null;
+    }
+
+    private static UIClassSelectPage cachedClassPage;
+    private static bool classPageSearched = false;
+
+    private static int GetClassUnlockRank(EDwarf dwarf)
+    {
+        try
+        {
+            if (cachedClassPage == null && !classPageSearched)
+            {
+                classPageSearched = true;
+                var pages = UnityEngine.Resources.FindObjectsOfTypeAll<UIClassSelectPage>();
+                if (pages != null && pages.Count > 0)
+                    cachedClassPage = pages[0];
+            }
+
+            if (cachedClassPage == null)
+                return 0;
+
+            return dwarf switch
+            {
+                EDwarf.DRILLER => cachedClassPage.drillerUnlocksAtRank,
+                EDwarf.ENGINEER => cachedClassPage.engineerUnlocksAtRank,
+                EDwarf.GUNNER => cachedClassPage.gunnerUnlocksAtRank,
+                _ => 0
+            };
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogDebug($"UIButtonPatch.GetClassUnlockRank error: {ex.Message}");
+            return 0;
+        }
     }
 
     private static string GetClassArtifactButtonText(UIClassArtifactButton artifactButton)

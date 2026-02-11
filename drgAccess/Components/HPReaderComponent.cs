@@ -35,7 +35,7 @@ public class HPReaderComponent : MonoBehaviour
     {
         try
         {
-            if (!IsInActiveGameplay()) return;
+            if (!IsInActiveGameplay() && !Patches.WalletReader.ShopFormOpen) return;
 
             var kb = Keyboard.current;
             if (kb == null) return;
