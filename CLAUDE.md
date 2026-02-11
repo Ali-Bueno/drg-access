@@ -36,13 +36,13 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Mutators**: Reads mutator name and description
 - **Shop Screen (Inter-Level)**: Full accessibility for the between-levels shop after extraction
   - Form announcement ("Shop") when opened
-  - Shop buttons read: weapon name (if weapon-specific), skill name, rarity, stats, description, price, affordability
+  - Shop buttons read: weapon name (if weapon-specific), skill name, rarity, stats, description, price with currency name (e.g. "50 Gold"), affordability
   - Empty slots announce "Empty"
   - Purchase feedback: "Purchased [name]" / "Cannot afford"
   - Reroll feedback: "Rerolled" / "Cannot afford reroll"
   - Heal feedback: "Healed" / "Cannot afford heal"
   - G key reads wallet balance (same as stat upgrades)
-- **Toggle Settings**: Announces On/Off state when clicked
+- **Toggle Settings**: Announces label + On/Off state when clicked (finds label from children/siblings)
 - **Tooltips**: Tooltip reading with rich text and serial number cleanup
 - **Splash Screen (Press Any Key)**: Announces the "press any key" prompt only after intro videos finish (patches `UISplashForm.AdvanceFlow`, checks `flow == SPLASH`)
 - **Brightness Adjustment (First Launch)**: Full accessibility for the GammaAdjuster screen
@@ -72,7 +72,8 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Gear: "Equipped [name]" / "Unequipped [name]"
   - Shop: "Purchased [name]" / "Cannot afford" / "Rerolled" / "Cannot afford reroll" / "Healed" / "Cannot afford heal"
 - **Wallet Reading**: Press G in the stat upgrades menu or shop screen to hear all currency balances (Gold, Credits, minerals, special currencies)
-- **Localized Game Data**: Stat names, rarity names, and gear slot types use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
+- **HP Reading**: Press H during gameplay to hear current and max HP (e.g. "HP: 85 / 120")
+- **Localized Game Data**: Stat names, rarity names, gear slot types, and currency names use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
 - **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
 - **Gameplay Audio - Wall Navigation**: Continuous tones for wall detection in 4 directions (forward, back, left, right) with volume based on proximity
   - Forward: 500 Hz (medium tone)
@@ -179,6 +180,7 @@ drgAccess/
 │   ├── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
 │   ├── AudioCueMenu.cs            # Audio cue preview menu (Backspace to open/close)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
+│   ├── HPReaderComponent.cs       # H key HP reading during gameplay
 │   ├── EndScreenReaderComponent.cs # Arrow-key navigable end screen stats reader
 │   └── MilestoneReaderComponent.cs # W/S navigable milestone reader
 ├── Patches/

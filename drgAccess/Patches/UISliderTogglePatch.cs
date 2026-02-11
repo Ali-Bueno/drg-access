@@ -4,7 +4,7 @@ using DRS.UI;
 namespace drgAccess.Patches;
 
 /// <summary>
-/// Patches for UISliderToggle to announce toggle state when clicked.
+/// Patches for UISliderToggle to announce toggle label and state when clicked.
 /// </summary>
 [HarmonyPatch(typeof(UISliderToggle))]
 public static class UISliderTogglePatch
@@ -15,10 +15,13 @@ public static class UISliderTogglePatch
     {
         try
         {
-            // After the click, read the new toggle state
             bool isToggled = __instance.IsToggled;
             string state = isToggled ? "On" : "Off";
-            ScreenReader.Interrupt(state);
+            string label = UISettingsPatch.GetControlLabel(__instance.transform);
+            string msg = !string.IsNullOrEmpty(label)
+                ? $"{label}: {state}"
+                : state;
+            ScreenReader.Interrupt(msg);
         }
         catch (System.Exception ex)
         {

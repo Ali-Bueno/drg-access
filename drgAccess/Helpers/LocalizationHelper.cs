@@ -234,6 +234,69 @@ public static class LocalizationHelper
         };
     }
 
+    // === Currency names ===
+
+    public static string GetCurrencyName(ECurrency currency)
+    {
+        try
+        {
+            var locRes = GetLocalizedResources();
+            if (locRes != null)
+            {
+                LocalizedString locStr = currency switch
+                {
+                    ECurrency.GOLD => locRes.LocGold,
+                    ECurrency.CREDITS => locRes.LocCredits,
+                    ECurrency.MORKITE => locRes.LocMorkite,
+                    ECurrency.NITRA => locRes.LocNitra,
+                    ECurrency.RED_SUGAR => locRes.LocRedSugar,
+                    ECurrency.BISMOR => locRes.LocBismor,
+                    ECurrency.CROPPA => locRes.LocCroppa,
+                    ECurrency.ENOR_PEARL => locRes.LocEnorPearl,
+                    ECurrency.JADIZ => locRes.LocJadiz,
+                    ECurrency.MAGNITE => locRes.LocMagnite,
+                    ECurrency.UMANITE => locRes.LocUmanite,
+                    ECurrency.POWER_CORE => locRes.LocPowerCore,
+                    ECurrency.ARTIFACT_REROLL => locRes.LocArtifactReroll,
+                    ECurrency.MUTATOR_REROLL => locRes.LocMutatorReroll,
+                    ECurrency.OMMORAN_CORE => locRes.LocOmmoranCore,
+                    ECurrency.BOBBY_FUEL => locRes.LocBobbyFuel,
+                    ECurrency.BOBBY_PART => locRes.LocBobbyPart,
+                    _ => null
+                };
+                if (locStr != null)
+                {
+                    string name = locStr.GetLocalizedString();
+                    if (!string.IsNullOrEmpty(name))
+                        return TextHelper.CleanText(name);
+                }
+            }
+        }
+        catch { /* Fall back to English */ }
+
+        return currency switch
+        {
+            ECurrency.GOLD => "Gold",
+            ECurrency.CREDITS => "Credits",
+            ECurrency.MORKITE => "Morkite",
+            ECurrency.NITRA => "Nitra",
+            ECurrency.RED_SUGAR => "Red Sugar",
+            ECurrency.BISMOR => "Bismor",
+            ECurrency.CROPPA => "Croppa",
+            ECurrency.ENOR_PEARL => "Enor Pearl",
+            ECurrency.JADIZ => "Jadiz",
+            ECurrency.MAGNITE => "Magnite",
+            ECurrency.UMANITE => "Umanite",
+            ECurrency.POWER_CORE => "Power Core",
+            ECurrency.ARTIFACT_REROLL => "Artifact Reroll",
+            ECurrency.MUTATOR_REROLL => "Mutator Reroll",
+            ECurrency.OMMORAN_CORE => "Ommoran Core",
+            ECurrency.BOBBY_FUEL => "Bobby Fuel",
+            ECurrency.BOBBY_PART => "Bobby Part",
+            _ => currency.ToString()
+        };
+    }
+
     // === Projectile target type ===
 
     public static string GetTargetTypeText(EProjectileTargetType targetType)

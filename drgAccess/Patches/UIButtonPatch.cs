@@ -329,10 +329,25 @@ public static partial class UIButtonPatch
                     if (!string.IsNullOrEmpty(description))
                         sb.Append(". " + TextHelper.CleanText(description));
 
-                    // Price
+                    // Price with currency name
                     var priceText = shopButton.priceText;
                     if (priceText != null && !string.IsNullOrEmpty(priceText.text))
-                        sb.Append(". Price: " + TextHelper.CleanText(priceText.text));
+                    {
+                        string priceAmount = TextHelper.CleanText(priceText.text);
+                        string currencyName = null;
+                        try
+                        {
+                            var priceValue = shopButton.price;
+                            if (priceValue != null)
+                                currencyName = LocalizationHelper.GetCurrencyName(priceValue.type);
+                        }
+                        catch { }
+
+                        if (!string.IsNullOrEmpty(currencyName))
+                            sb.Append($". Price: {priceAmount} {currencyName}");
+                        else
+                            sb.Append(". Price: " + priceAmount);
+                    }
 
                     // Affordability
                     if (!shopButton.canAfford)
