@@ -69,6 +69,7 @@ namespace drgAccess.Components
             try
             {
                 beepGenerator = new BeaconBeepGenerator();
+                beepGenerator.Mode = BeaconMode.SupplyDrop;
                 panProvider = new PanningSampleProvider(beepGenerator) { Pan = 0f };
                 volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 1.0f };
 

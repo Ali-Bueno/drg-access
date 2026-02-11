@@ -34,6 +34,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.DropPodAudio>();
         AddComponent<Components.ActivationZoneAudio>();
         AddComponent<Components.HazardWarningAudio>();
+        AddComponent<Components.CollectibleAudioSystem>();
         AddComponent<Components.AudioCueMenu>();
         AddComponent<Components.WalletReaderComponent>();
         AddComponent<Components.EndScreenReaderComponent>();

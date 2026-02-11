@@ -155,20 +155,62 @@ namespace drgAccess.Components
                 new AudioCueItem
                 {
                     Name = "Drop Pod Beacon",
-                    Description = "Guides you to the extraction pod. Higher pitch when facing it, lower when facing away. Press F for compass direction.",
-                    PlayPreview = () => PreviewBeacon(1100, 0.15f)
+                    Description = "Guides you to the extraction pod. Metallic sonar ping with reverberant ring. Press F for compass direction.",
+                    PlayPreview = () => PreviewBeacon(1100, 0.15f, BeaconMode.DropPod)
                 },
                 new AudioCueItem
                 {
                     Name = "Supply Pod Beacon",
-                    Description = "Guides you to supply pod zones. Lower chirp, distinct from drop pod.",
-                    PlayPreview = () => PreviewBeacon(500, 0.18f)
+                    Description = "Guides you to supply pod zones. Warbling trill with mechanical buzz, distinct from drop pod.",
+                    PlayPreview = () => PreviewBeacon(500, 0.18f, BeaconMode.SupplyDrop)
                 },
                 new AudioCueItem
                 {
                     Name = "Hazard Warning",
                     Description = "Danger nearby, like exploders or ground spikes. Siren alarm that speeds up.",
                     PlayPreview = () => PreviewAlarm()
+                },
+                new AudioCueItem
+                {
+                    Name = "Collectible: Red Sugar",
+                    Description = "Health pickup nearby. Water-drop bloop sound, gets faster as you approach.",
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.RedSugar, 500f, 0.18f)
+                },
+                new AudioCueItem
+                {
+                    Name = "Collectible: Gear Drop",
+                    Description = "Weapon or equipment drop nearby. Rich two-tone chord beep.",
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.GearDrop, 1000f, 0.2f)
+                },
+                new AudioCueItem
+                {
+                    Name = "Collectible: Buff Pickup",
+                    Description = "Buff pickup nearby, like magnet or speed boost. Electric buzzy tone.",
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.BuffPickup, 1200f, 0.15f)
+                },
+                new AudioCueItem
+                {
+                    Name = "Collectible: Currency",
+                    Description = "Gold or mineral drop nearby. Short crystalline chime.",
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.CurrencyPickup, 750f, 0.15f)
+                },
+                new AudioCueItem
+                {
+                    Name = "Collectible: Mineral Vein",
+                    Description = "Mineable mineral vein nearby. Metallic clink like a pickaxe on rock.",
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.MineralVein, 400f, 0.25f)
+                },
+                new AudioCueItem
+                {
+                    Name = "Collectible: Loot Crate",
+                    Description = "Loot crate nearby from an elite or Huuli Hoarder. Shimmering sparkle beep.",
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.LootCrate, 1500f, 0.18f)
+                },
+                new AudioCueItem
+                {
+                    Name = "Collectible: XP Nearby",
+                    Description = "XP orbs on the ground. Soft continuous tone. Higher pitch means XP is closer.",
+                    PlayPreview = () => PreviewCollectibleContinuous(CollectibleSoundType.XpNearby, 500f)
                 }
             };
         }
@@ -461,11 +503,12 @@ namespace drgAccess.Components
             }
         }
 
-        private void PreviewBeacon(float frequency, float interval)
+        private void PreviewBeacon(float frequency, float interval, BeaconMode mode)
         {
             try
             {
                 var generator = new BeaconBeepGenerator();
+                generator.Mode = mode;
                 generator.Frequency = frequency;
                 generator.Volume = 0.35f;
                 generator.Interval = interval;
@@ -492,6 +535,45 @@ namespace drgAccess.Components
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[AudioCueMenu] PreviewAlarm error: {e.Message}");
+            }
+        }
+
+        private void PreviewCollectible(CollectibleSoundType type, float frequency, float interval)
+        {
+            try
+            {
+                var generator = new CollectibleSoundGenerator();
+                generator.SoundType = type;
+                generator.Frequency = frequency;
+                generator.Volume = 0.30f;
+                generator.Interval = interval;
+                generator.Active = true;
+
+                AddToMixer(generator);
+                previewEndTime = Time.unscaledTime + 1.5f;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[AudioCueMenu] PreviewCollectible error: {e.Message}");
+            }
+        }
+
+        private void PreviewCollectibleContinuous(CollectibleSoundType type, float frequency)
+        {
+            try
+            {
+                var generator = new CollectibleSoundGenerator();
+                generator.SoundType = type;
+                generator.Frequency = frequency;
+                generator.Volume = 0.25f;
+                generator.Active = true;
+
+                AddToMixer(generator);
+                previewEndTime = Time.unscaledTime + 1.5f;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[AudioCueMenu] PreviewCollectibleContinuous error: {e.Message}");
             }
         }
 

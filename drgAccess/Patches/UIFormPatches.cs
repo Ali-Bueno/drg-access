@@ -278,9 +278,9 @@ public static class UIFormPatches
         }
     }
 
-    // Unlock Form - patched via Show
-    [HarmonyPatch(typeof(UIUnlockForm), nameof(UIUnlockForm.Show))]
-    public static class UIUnlockForm_Show
+    // Unlock Form - patched via ShowMilestone (fires for each individual unlock after text is set)
+    [HarmonyPatch(typeof(UIUnlockForm), nameof(UIUnlockForm.ShowMilestone))]
+    public static class UIUnlockForm_ShowMilestone
     {
         [HarmonyPostfix]
         public static void Postfix(UIUnlockForm __instance)
@@ -307,8 +307,38 @@ public static class UIFormPatches
             }
             catch (System.Exception ex)
             {
-                Plugin.Log?.LogError($"UIUnlockForm announce error: {ex.Message}");
+                Plugin.Log?.LogError($"UIUnlockForm ShowMilestone announce error: {ex.Message}");
                 ScreenReader.Interrupt("Unlock");
+            }
+        }
+    }
+
+    // Unlock Form - Mastery unlocks (weapons, biomes, etc. with separate UI group)
+    [HarmonyPatch(typeof(UIUnlockForm), nameof(UIUnlockForm.ShowMastery))]
+    public static class UIUnlockForm_ShowMastery
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIUnlockForm __instance)
+        {
+            try
+            {
+                var sb = new StringBuilder("Mastery Unlock");
+                var itemName = __instance.masteryItemName;
+                if (itemName != null && !string.IsNullOrEmpty(itemName.text))
+                {
+                    sb.Append(": " + TextHelper.CleanText(itemName.text));
+                }
+                var stats = __instance.masteryStats;
+                if (stats != null && !string.IsNullOrEmpty(stats.text))
+                {
+                    sb.Append(". " + TextHelper.CleanText(stats.text));
+                }
+                ScreenReader.Interrupt(sb.ToString());
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UIUnlockForm ShowMastery announce error: {ex.Message}");
+                ScreenReader.Interrupt("Mastery Unlock");
             }
         }
     }

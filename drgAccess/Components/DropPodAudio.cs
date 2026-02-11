@@ -8,15 +8,25 @@ using Il2CppInterop.Runtime.Injection;
 namespace drgAccess.Components
 {
     /// <summary>
-    /// Beep generator that handles timing internally in the audio thread.
-    /// Produces short chirp beeps (descending frequency) distinct from enemy sine beeps.
-    /// Set Frequency, Volume, and Interval from Update(); audio thread does the rest.
+    /// Beacon mode determines the waveform character.
+    /// </summary>
+    public enum BeaconMode
+    {
+        DropPod,    // Sonar ping: metallic ringing with slow decay
+        SupplyDrop  // Warble/trill: rapid frequency oscillation, mechanical buzz
+    }
+
+    /// <summary>
+    /// Beacon beep generator with distinct modes for drop pod and supply drop.
+    /// DropPod: sonar-like metallic ping with reverberant ring.
+    /// SupplyDrop: warbling trill with rapid frequency oscillation.
     /// </summary>
     public class BeaconBeepGenerator : ISampleProvider
     {
         private readonly WaveFormat waveFormat;
         private readonly int sampleRate;
         private double phase;
+        private double phase2; // Second oscillator for detuned ring / warble
 
         // Beep parameters (set from main thread)
         private volatile float targetFrequency = 600f;
@@ -24,11 +34,10 @@ namespace drgAccess.Components
         private volatile int targetIntervalSamples;
         private volatile bool active = false;
         private volatile bool doubleBeep = false;
+        private volatile int modeInt = 0;
 
         // Internal state (audio thread only)
         private int sampleCounter = 0;
-        private int beepDurationSamples;
-        private int gapSamples;
         private int intervalSamples;
         private float currentFrequency = 600f;
         private float currentVolume = 0f;
@@ -45,9 +54,6 @@ namespace drgAccess.Components
             set => targetVolume = Math.Max(0, Math.Min(1, value));
         }
 
-        /// <summary>
-        /// Set beep interval in seconds. Beeps repeat at this rate.
-        /// </summary>
         public float Interval
         {
             set => targetIntervalSamples = (int)(sampleRate * Math.Max(0.02f, Math.Min(2f, value)));
@@ -58,35 +64,39 @@ namespace drgAccess.Components
             set => active = value;
         }
 
-        /// <summary>
-        /// When true, plays two quick beeps per cycle instead of one (dit-dit pattern).
-        /// </summary>
         public bool DoubleBeep
         {
             set => doubleBeep = value;
+        }
+
+        public BeaconMode Mode
+        {
+            set => modeInt = (int)value;
         }
 
         public BeaconBeepGenerator(int sampleRate = 44100)
         {
             this.sampleRate = sampleRate;
             waveFormat = WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, 1);
-            beepDurationSamples = (int)(sampleRate * 0.05); // 50ms beep
-            gapSamples = (int)(sampleRate * 0.03); // 30ms gap between double beeps
-            intervalSamples = (int)(sampleRate * 0.25); // 250ms default
+            intervalSamples = (int)(sampleRate * 0.25);
             targetIntervalSamples = intervalSamples;
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
-            // Sync parameters from main thread
             currentFrequency = targetFrequency;
             currentVolume = targetVolume;
             intervalSamples = targetIntervalSamples;
             bool isDouble = doubleBeep;
+            var mode = (BeaconMode)modeInt;
 
-            // Double beep layout: [beep1][gap][beep2][silence...]
-            int secondBeepStart = beepDurationSamples + gapSamples;
-            int secondBeepEnd = secondBeepStart + beepDurationSamples;
+            // Duration depends on mode
+            int beepDuration = mode == BeaconMode.DropPod
+                ? (int)(sampleRate * 0.10) // 100ms sonar ping (longer ring)
+                : (int)(sampleRate * 0.07); // 70ms warble trill
+            int gapSamples = (int)(sampleRate * 0.03);
+            int secondBeepStart = beepDuration + gapSamples;
+            int secondBeepEnd = secondBeepStart + beepDuration;
 
             for (int i = 0; i < count; i++)
             {
@@ -96,42 +106,29 @@ namespace drgAccess.Components
                     continue;
                 }
 
-                // Determine if we're in a beep region
-                bool isInFirstBeep = sampleCounter < beepDurationSamples;
+                bool isInFirstBeep = sampleCounter < beepDuration;
                 bool isInSecondBeep = isDouble &&
                     sampleCounter >= secondBeepStart &&
                     sampleCounter < secondBeepEnd;
 
                 if (isInFirstBeep || isInSecondBeep)
                 {
-                    // Progress within the current beep (0-1)
                     int beepOffset = isInFirstBeep ? sampleCounter : (sampleCounter - secondBeepStart);
-                    float progress = (float)beepOffset / beepDurationSamples;
+                    float progress = (float)beepOffset / beepDuration;
 
-                    // Sharp attack (5%), exponential decay
-                    float envelope;
-                    if (progress < 0.05f)
-                        envelope = progress / 0.05f;
+                    float sample;
+                    if (mode == BeaconMode.DropPod)
+                        sample = GenerateDropPodSample(progress, isInSecondBeep);
                     else
-                        envelope = (float)Math.Exp(-(progress - 0.05) * 5.0);
+                        sample = GenerateSupplyDropSample(progress);
 
-                    // Chirp: frequency descends 25% during beep (distinct from enemy flat beeps)
-                    // Second beep starts slightly higher for a "dit-DIT" effect
-                    double freqBase = isInSecondBeep ? currentFrequency * 1.15 : currentFrequency;
-                    double chirpFreq = freqBase * (1.0 - progress * 0.25);
-
-                    // Pure sine wave
-                    double sample = Math.Sin(2.0 * Math.PI * phase);
-
-                    buffer[offset + i] = (float)(currentVolume * envelope * sample);
-
-                    phase += chirpFreq / sampleRate;
-                    if (phase >= 1.0) phase -= 1.0;
+                    buffer[offset + i] = currentVolume * sample;
                 }
                 else
                 {
                     buffer[offset + i] = 0;
-                    phase = 0; // Reset phase for clean attack on next beep
+                    phase = 0;
+                    phase2 = 0;
                 }
 
                 sampleCounter++;
@@ -140,13 +137,70 @@ namespace drgAccess.Components
             }
             return count;
         }
+
+        /// <summary>
+        /// Sonar ping: sharp attack, slow reverberant decay, metallic ring from detuned oscillators.
+        /// Sounds like a submarine sonar — nothing like enemy beeps.
+        /// </summary>
+        private float GenerateDropPodSample(float progress, bool isSecondBeep)
+        {
+            // Slow, smooth decay (reverberant ring)
+            float envelope = (float)Math.Exp(-progress * 3.5);
+
+            // Second beep pitched up (ascending "PING-ping")
+            double freqBase = isSecondBeep ? currentFrequency * 1.25 : currentFrequency;
+
+            // Main tone + slightly detuned copy = metallic beating/ringing
+            double detuneRatio = 1.008; // ~14 cents sharp = audible beating
+            double s1 = Math.Sin(2.0 * Math.PI * phase);
+            double s2 = Math.Sin(2.0 * Math.PI * phase2) * 0.7;
+            // Add 5th harmonic for metallic ring quality
+            double s3 = Math.Sin(2.0 * Math.PI * phase * 5.0) * 0.08 * (1.0 - progress);
+
+            phase += freqBase / sampleRate;
+            phase2 += (freqBase * detuneRatio) / sampleRate;
+            if (phase >= 1.0) phase -= 1.0;
+            if (phase2 >= 1.0) phase2 -= 1.0;
+
+            return envelope * (float)((s1 + s2 + s3) * 0.55);
+        }
+
+        /// <summary>
+        /// Warble/trill: rapid frequency oscillation creates a mechanical buzzing trill.
+        /// Completely different texture from sonar ping and enemy sine beeps.
+        /// </summary>
+        private float GenerateSupplyDropSample(float progress)
+        {
+            // Quick attack, medium decay
+            float envelope = progress < 0.05f
+                ? progress / 0.05f
+                : (float)Math.Exp(-(progress - 0.05) * 5.0);
+
+            // Rapid frequency warble: 18 Hz oscillation ±15% of base frequency
+            double warble = Math.Sin(2.0 * Math.PI * 18.0 * progress) * 0.15;
+            double freq = currentFrequency * (1.0 + warble);
+
+            // Sawtooth-ish wave (gives mechanical/buzzy quality)
+            double sawPhase = (phase * 2.0) % 2.0 - 1.0; // -1 to 1 sawtooth
+            double sine = Math.Sin(2.0 * Math.PI * phase);
+            double sample = sine * 0.6 + sawPhase * 0.3;
+
+            // Add octave below for body
+            double sub = Math.Sin(2.0 * Math.PI * phase2) * 0.2;
+
+            phase += freq / sampleRate;
+            phase2 += (freq * 0.5) / sampleRate;
+            if (phase >= 1.0) phase -= 1.0;
+            if (phase2 >= 1.0) phase2 -= 1.0;
+
+            return envelope * (float)(sample + sub);
+        }
     }
 
     /// <summary>
-    /// Audio beacon for the Drop Pod using short chirp beeps.
-    /// Beeps accelerate as the player approaches the pod.
-    /// At very close range (< 3m), switches to a distinct continuous pulsing tone
-    /// on the ramp position so the player knows exactly where to walk.
+    /// Audio beacon for the Drop Pod using percussive chirp beeps.
+    /// Beeps accelerate as the player approaches the pod ramp.
+    /// At very close range (< 2.5m), adds a continuous ramp tone for precise guidance.
     /// </summary>
     public class DropPodAudio : MonoBehaviour
     {
@@ -178,8 +232,9 @@ namespace drgAccess.Components
         private bool isInitialized = false;
         private float maxDistance = 150f;
         private const float CRITICAL_DISTANCE = 8f;
+        private const float RAMP_DISTANCE = 2.5f;
         private bool announcedCriticalProximity = false;
-        private bool insidePodTonePlaying = false;
+        private bool announcedRampProximity = false;
 
         // Game state
         private IGameStateProvider gameStateProvider;
@@ -214,8 +269,9 @@ namespace drgAccess.Components
                 var format = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
                 mixer = new MixingSampleProvider(format) { ReadFully = true };
 
-                // Beacon chirp beeps (normal navigation)
+                // Beacon sonar pings (normal navigation)
                 beepGenerator = new BeaconBeepGenerator();
+                beepGenerator.Mode = BeaconMode.DropPod;
                 beepPanProvider = new PanningSampleProvider(beepGenerator) { Pan = 0f };
                 var beepVolumeProvider = new VolumeSampleProvider(beepPanProvider) { Volume = 1.0f };
                 mixer.AddMixerInput(beepVolumeProvider);
@@ -251,15 +307,6 @@ namespace drgAccess.Components
                 {
                     beepGenerator.Active = false;
                     rampToneGenerator.Volume = 0f;
-                    insidePodTonePlaying = false;
-                    return;
-                }
-
-                // Update pulsing effect for inside-pod confirmation tone
-                if (insidePodTonePlaying)
-                {
-                    float pulse = Mathf.Sin(Time.time * 8f);
-                    rampToneGenerator.Frequency = 1400f + pulse * 200f;
                     return;
                 }
 
@@ -298,7 +345,7 @@ namespace drgAccess.Components
             activePod = pod;
             isBeaconActive = true;
             announcedCriticalProximity = false;
-            insidePodTonePlaying = false;
+            announcedRampProximity = false;
             Plugin.Log.LogInfo("[DropPodAudio] Beacon activated - extraction pod landed!");
         }
 
@@ -306,16 +353,10 @@ namespace drgAccess.Components
         {
             isBeaconActive = false;
             beepGenerator.Active = false;
-
-            // Play continuous pulsing tone to confirm player is inside the pod
-            insidePodTonePlaying = true;
-            rampToneGenerator.Frequency = 1400f;
-            rampToneGenerator.Volume = 0.35f;
-            rampToneVolumeProvider.Volume = 1.0f;
-            rampTonePanProvider.Pan = 0f;
+            rampToneGenerator.Volume = 0f;
 
             ScreenReader.Interrupt("Inside the pod");
-            Plugin.Log.LogInfo("[DropPodAudio] Player entered pod - confirmation tone active");
+            Plugin.Log.LogInfo("[DropPodAudio] Player entered pod - beacon stopped");
         }
 
         /// <summary>
@@ -417,17 +458,34 @@ namespace drgAccess.Components
                 }
 
                 // Top-down game: facingDot tells us if pod is "up" or "down" on screen
-                // +1 = pod is toward top of screen (W direction), -1 = toward bottom (S direction)
-                // Higher pitch = pod is above, lower pitch = pod is below
-                // Combined with stereo panning (left/right), gives full 2D direction
                 float verticalFactor = (facingDot + 1f) / 2f; // 0 = bottom, 1 = top
                 float pitchMultiplier = 0.6f + verticalFactor * 0.4f;
                 float facingVolumeMultiplier = 0.8f + verticalFactor * 0.2f;
 
                 bool isCritical = distance < CRITICAL_DISTANCE;
+                bool isOnRamp = distance < RAMP_DISTANCE;
 
-                // Set panning for beacon chirps
                 beepPanProvider.Pan = pan;
+
+                // Ramp proximity: continuous tone guides player onto the exact ramp spot
+                if (isOnRamp)
+                {
+                    float rampFactor = 1f - Mathf.Clamp01(distance / RAMP_DISTANCE);
+                    rampToneGenerator.Frequency = 1200f + rampFactor * 400f;
+                    rampToneGenerator.Volume = 0.15f + rampFactor * 0.20f;
+                    rampToneVolumeProvider.Volume = 1.0f;
+                    rampTonePanProvider.Pan = pan;
+
+                    if (!announcedRampProximity)
+                    {
+                        announcedRampProximity = true;
+                        ScreenReader.Interrupt("On the ramp");
+                    }
+                }
+                else
+                {
+                    rampToneGenerator.Volume = 0f;
+                }
 
                 if (isCritical)
                 {
@@ -502,7 +560,7 @@ namespace drgAccess.Components
                     isBeaconActive = false;
                     activePod = null;
                     announcedCriticalProximity = false;
-                    insidePodTonePlaying = false;
+                    announcedRampProximity = false;
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;

@@ -12,9 +12,11 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release (permanent link)**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.1.0
-- **Release folder**: `DRGAccess release full/` — contains everything the user needs (BepInEx, NAudio, Tolk, the mod DLL). User just copies all files into the game directory.
-- **Release process**: Create a zip from `DRGAccess release full/`, then `gh release create vX.Y.Z file.zip --title "..." --notes "..."`. The `/releases/latest` link always points to the newest release automatically.
+- **Current version**: v0.2.0
+- **Release folders**:
+  - `DRGAccess release full/` — contains everything (BepInEx, NAudio, Tolk, the mod DLL). For first-time install.
+  - `DRGAccess release plugin only/` — contains only BepInEx/plugins, README, and CHANGELOG. For users updating an existing install.
+- **Release process**: Create zips from both release folders, then `gh release create vX.Y.Z full.zip plugin-only.zip --title "..." --notes "..."`. The `/releases/latest` link always points to the newest release automatically.
 
 ---
 
@@ -82,22 +84,22 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - 8-directional detection with stereo panning
   - Enemy name announcements via screen reader: new enemy types announced when first detected, cooldown of 3 seconds between announcements
   - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
-- **Gameplay Audio - Drop Pod Beacon**: Chirp beeps guiding to extraction pod ramp
+- **Gameplay Audio - Drop Pod Beacon**: Metallic sonar ping guiding to extraction pod ramp
   - Targets the pod's **ramp position** (`rampDetector` Transform) — the specific entry side, not pod center
-  - Uses MixingSampleProvider with BeaconBeepGenerator (chirps) + SineWaveGenerator (inside-pod confirmation tone)
+  - Uses MixingSampleProvider with BeaconBeepGenerator (sonar ping: detuned oscillators with 5th harmonic, reverberant decay) + SineWaveGenerator (ramp proximity tone)
   - Accelerating interval: 250ms (far) → 30ms (very close)
   - 3D positional audio with distance-based volume (0.25-0.45) and frequency (800-1400 Hz)
   - **Top-down pitch modulation**: Higher pitch when pod is above on screen (W direction), lower when below (S direction)
   - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (1200-1600 Hz), louder, screen reader announces "Drop pod very close"
-  - Chirps continue all the way to the ramp (no cutoff at close range)
-  - **Inside pod confirmation**: When player enters the pod, chirps stop and continuous pulsing tone plays (1400 Hz base, 8 Hz oscillation). Screen reader announces "Inside the pod"
+  - **Ramp proximity (< 2.5m)**: Continuous tone (1200-1600 Hz) guides player onto the exact ramp position, screen reader announces "On the ramp"
+  - **Inside pod**: All audio stops, screen reader announces "Inside the pod"
   - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
   - Only activates for extraction pod (not initial drop pod)
-- **Gameplay Audio - Supply Pod Beacon**: Chirp beeps for ActivationZone (supply pod zones)
-  - Uses BeaconBeepGenerator with descending-frequency chirp
+- **Gameplay Audio - Supply Pod Beacon**: Warbling trill for ActivationZone (supply pod zones)
+  - Uses BeaconBeepGenerator (warble: 18 Hz frequency oscillation, sawtooth+sine mix with sub-octave)
   - Accelerating interval: 250ms (far) → 30ms (very close)
   - 3D positional audio with distance-based volume (0.2-0.38) and frequency (350-650 Hz)
-  - Clearly distinct from drop pod beacon (lower frequency range)
+  - Clearly distinct from drop pod beacon (different waveform and frequency range)
   - Stops when player is inside zone or zone is activating
   - Detects nearest active zone within 100m
 - **Gameplay Audio - Hazard Warning**: Siren alarm for nearby dangers
@@ -106,10 +108,23 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Alarm uses oscillating frequency (siren effect) clearly distinct from enemy beeps
   - Alarm rate increases with proximity (5-25 Hz oscillation)
   - Stereo panning toward the hazard direction
+- **Gameplay Audio - Collectible Items**: 3D positional audio for pickups, mineral veins, and loot crates
+  - 7 distinct sound categories, each with unique synthesis: Red Sugar (water-drop bloop 500-750 Hz), Gear Drop (two-tone chord 800-1200 Hz), Buff Pickup (FM synthesis buzz 1000-1500 Hz), Currency (crystalline chime 600-900 Hz), Mineral Vein (metallic clink 300-500 Hz), Loot Crate (shimmering sparkle 1200-1800 Hz), XP Nearby (triangle wave + tremolo 350-700 Hz)
+  - Detection distances: 8-18m depending on importance (gear/crates 18m, buffs 12m, XP 8m)
+  - Only the nearest item per category gets audio (max 7 simultaneous sounds)
+  - Beacon-style accelerating beeps for all pickups/crates/minerals, continuous tone for XP only
+  - XP uses triangle wave with 6 Hz tremolo to distinguish from wall detection sine tones
+  - Stereo panning toward the target, volume and frequency increase with proximity
+  - Uses 1 WaveOutEvent + 1 MixingSampleProvider with 7 CollectibleSoundGenerator channels
+- **Objective Announcements**: Mission objectives announced via screen reader
+  - Objective text announced when it first appears (Show)
+  - Progress updates announced with 3-second throttle to avoid spam (OnProgress)
+  - Objective completion announced with interrupt priority (OnObjectiveComplete)
+- **Unlock Screen Accessibility**: Weapon/artifact/mastery unlock details announced when unlocked (patches ShowMilestone and ShowMastery)
 - **Audio Cue Preview Menu**: Standalone menu to preview all audio cues outside gameplay
   - Opens with Backspace (only when NOT in active gameplay), closes with Backspace/Escape
   - Navigate with W/S or Up/Down arrows, preview with Enter
-  - 10 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning
+  - 17 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Deactivates EventSystem while open to block game UI input, toggles InputSystemUIInputModule on close to restore navigation
   - Uses shared WaveOutEvent + MixingSampleProvider, created on menu open, disposed on close
@@ -150,8 +165,10 @@ drgAccess/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones (1 shared WaveOutEvent)
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies (1 shared WaveOutEvent)
 │   ├── EnemyTracker.cs            # Tracks active enemies in scene
-│   ├── DropPodAudio.cs            # Drop pod beacon + BeaconBeepGenerator (chirp beeps)
-│   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (chirp beeps)
+│   ├── DropPodAudio.cs            # Drop pod beacon + BeaconBeepGenerator (sonar ping / warble trill)
+│   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (warble trill)
+│   ├── CollectibleAudioSystem.cs  # Collectible items/minerals/crates positional audio
+│   ├── CollectibleSoundGenerator.cs # ISampleProvider for 7 collectible sound types
 │   ├── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
 │   ├── AudioCueMenu.cs            # Audio cue preview menu (Backspace to open/close)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
@@ -170,6 +187,7 @@ drgAccess/
 │   ├── UIButtonPatch.Pause.cs     # Pause menu weapon/artifact button text (partial)
 │   ├── UICorePausePatch.cs        # Pause menu detail panels (weapon stats, artifact desc, player stats)
 │   ├── UIActionFeedbackPatch.cs   # Action results (buy/sell, upgrade, equip/unequip, wallet reader)
+│   ├── UIObjectivePatches.cs      # Objective announcements (show, progress, completion)
 │   ├── EnemyPatches.cs            # Enemy registration for audio system
 │   ├── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
 │   └── HazardPatches.cs           # Ground spike detection for hazard warnings

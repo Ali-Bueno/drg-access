@@ -14,8 +14,9 @@ drg code/
 # Claude session data
 .claude/
 
-# Release folder (releases are created separately on GitHub)
+# Release folders (releases are created separately on GitHub)
 DRGAccess release full/
+DRGAccess release plugin only/
 
 # OS files
 Thumbs.db

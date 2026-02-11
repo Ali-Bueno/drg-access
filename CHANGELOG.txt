@@ -1,0 +1,57 @@
+CHANGELOG
+=========
+
+
+v0.2.0 - February 11, 2026
+---------------------------
+
+New Features:
+
+  - Collectible Audio Cues: 3D positional audio for 7 categories of collectible
+    items during gameplay. Each category has a distinct sound and beeps faster as
+    you get closer:
+      * Red Sugar (health): Water-drop "bloop" with descending frequency sweep
+      * Gear Drops (weapons/equipment): Rich two-tone chord
+      * Buff Pickups (magnet, speed, berserk, etc.): Electric FM synthesis buzz
+      * Currency (gold/minerals): Crystalline chime
+      * Mineral Veins (mineable blocks): Metallic clink like a pickaxe on rock
+      * Loot Crates (from elites/Huuli Hoarders): Shimmering sparkle
+      * XP Orbs: Soft continuous triangle wave with tremolo (pitch = distance)
+
+  - Objective Announcements: Mission objectives are now announced via screen reader.
+    Objective text when it appears, progress updates (throttled to avoid spam), and
+    completion announced with interrupt priority.
+
+  - Unlock Screen Accessibility: When unlocking new weapons, artifacts, or masteries,
+    the unlock name, stats, and description are now announced via screen reader.
+
+  - Audio Cue Preview: 7 new collectible audio previews added to the Audio Cue
+    Preview menu (Backspace).
+
+Improvements:
+
+  - Drop Pod Beacon: Completely redesigned sound. Now a metallic sonar ping with
+    reverberant ring, clearly distinct from enemy beeps.
+
+  - Supply Pod Beacon: Completely redesigned sound. Now a warbling trill with
+    mechanical buzz, clearly distinct from both the drop pod and enemies.
+
+  - XP Nearby Sound: Changed from pure sine wave to triangle wave with 6 Hz
+    tremolo, so it no longer sounds like wall detection tones.
+
+  - Sound Distinctiveness: All collectible, beacon, and enemy sounds now use
+    fundamentally different synthesis techniques (FM synthesis, frequency sweeps,
+    inharmonic overtones, detuned oscillators) to be easily distinguishable.
+
+Bug Fixes:
+
+  - Fixed unlock screen not reading unlock details (was patching Show() which fires
+    before text is populated; now patches ShowMilestone() and ShowMastery() which
+    fire after text is set).
+
+
+v0.1.0 - February 10, 2026
+---------------------------
+
+Initial release with full menu accessibility, gameplay audio cues (walls, enemies,
+beacons, hazards), and screen reader support for all game screens.
