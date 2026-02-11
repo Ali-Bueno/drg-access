@@ -160,6 +160,18 @@ namespace drgAccess.Components
                 },
                 new AudioCueItem
                 {
+                    Name = "Drop Pod: Critical",
+                    Description = "Very close to the pod, under 8 meters. Fast double-beep pattern, higher pitch.",
+                    PlayPreview = () => PreviewBeaconDouble(1400, 0.08f)
+                },
+                new AudioCueItem
+                {
+                    Name = "Drop Pod: Ramp Tone",
+                    Description = "On the ramp, under 2.5 meters. Continuous tone that pans toward the pod entrance. Follow it inside.",
+                    PlayPreview = () => PreviewContinuousTone(1400, 0f)
+                },
+                new AudioCueItem
+                {
                     Name = "Supply Pod Beacon",
                     Description = "Guides you to supply pod zones. Warbling trill with mechanical buzz, distinct from drop pod.",
                     PlayPreview = () => PreviewBeacon(500, 0.18f, BeaconMode.SupplyDrop)
@@ -520,6 +532,27 @@ namespace drgAccess.Components
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[AudioCueMenu] PreviewBeacon error: {e.Message}");
+            }
+        }
+
+        private void PreviewBeaconDouble(float frequency, float interval)
+        {
+            try
+            {
+                var generator = new BeaconBeepGenerator();
+                generator.Mode = BeaconMode.DropPod;
+                generator.Frequency = frequency;
+                generator.Volume = 0.40f;
+                generator.Interval = interval;
+                generator.DoubleBeep = true;
+                generator.Active = true;
+
+                AddToMixer(generator);
+                previewEndTime = Time.unscaledTime + 1.5f;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[AudioCueMenu] PreviewBeaconDouble error: {e.Message}");
             }
         }
 

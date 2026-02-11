@@ -386,6 +386,35 @@ namespace drgAccess.Components
             return podTransform != null ? podTransform.position : Vector3.zero;
         }
 
+        /// <summary>
+        /// Gets the pod interior target position.
+        /// playerPoint is the exact spot that triggers pod departure.
+        /// Used to guide the player FROM the ramp INTO the pod.
+        /// </summary>
+        private Vector3 GetPodInteriorPosition()
+        {
+            try
+            {
+                // playerPoint is where the player must stand to trigger departure
+                var point = activePod.playerPoint;
+                if (point != null)
+                    return point.position;
+            }
+            catch { }
+
+            try
+            {
+                var center = activePod.podCenter;
+                if (center != null)
+                    return center.position;
+            }
+            catch { }
+
+            // Fall back to pod transform
+            var podTransform = activePod.podTransform;
+            return podTransform != null ? podTransform.position : Vector3.zero;
+        }
+
         private (float pathDistance, float directDistance, float pan, float facingDot) GetPodDirectionInfo()
         {
             Vector3 podPos = GetBeaconTargetPosition();
@@ -497,19 +526,33 @@ namespace drgAccess.Components
 
                 beepPanProvider.Pan = pan;
 
-                // Ramp proximity: continuous tone guides player onto the exact ramp spot
+                // Ramp proximity: continuous tone guides player INTO the pod
                 if (isOnRamp)
                 {
                     float rampFactor = 1f - Mathf.Clamp01(directDistance / RAMP_DISTANCE);
                     rampToneGenerator.Frequency = 1200f + rampFactor * 400f;
                     rampToneGenerator.Volume = 0.15f + rampFactor * 0.20f;
                     rampToneVolumeProvider.Volume = 1.0f;
-                    rampTonePanProvider.Pan = pan;
+
+                    // Pan toward pod interior so the player knows which direction enters the pod
+                    Vector3 interiorPos = GetPodInteriorPosition();
+                    Vector3 toInterior = interiorPos - playerTransform.position;
+                    toInterior.y = 0;
+                    toInterior.Normalize();
+                    Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+                    forward.y = 0;
+                    forward.Normalize();
+                    Vector3 right = new Vector3(forward.z, 0, -forward.x);
+                    float interiorPan = Mathf.Clamp(Vector3.Dot(toInterior, right), -1f, 1f);
+                    rampTonePanProvider.Pan = interiorPan;
+
+                    // Also steer the beacon beeps toward the interior
+                    beepPanProvider.Pan = interiorPan;
 
                     if (!announcedRampProximity)
                     {
                         announcedRampProximity = true;
-                        ScreenReader.Interrupt("On the ramp");
+                        ScreenReader.Interrupt("On the ramp, follow the tone inside");
                     }
                 }
                 else

@@ -96,7 +96,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - 3D positional audio with distance-based volume (0.25-0.45) and frequency (800-1400 Hz)
   - **Top-down pitch modulation**: Higher pitch when pod is above on screen (W direction), lower when below (S direction)
   - Critical proximity (< 8m): Double-beep pattern ("dit-DIT"), higher pitch (1200-1600 Hz), louder, screen reader announces "Drop pod very close"
-  - **Ramp proximity (< 2.5m)**: Continuous tone (1200-1600 Hz) guides player onto the exact ramp position, screen reader announces "On the ramp"
+  - **Ramp proximity (< 2.5m)**: Continuous tone (1200-1600 Hz) pans toward pod interior (`playerPoint` — the exact spot that triggers departure), screen reader announces "On the ramp, follow the tone inside"
   - **Inside pod**: All audio stops, screen reader announces "Inside the pod"
   - **NavMesh pathfinding**: Uses Unity's NavMesh to calculate paths around walls/obstacles instead of pointing in a straight line. Beacon guides toward next path waypoint. Falls back to direct targeting if path fails or within 8m of pod. Path recalculated every 0.5s via `NavMeshPathHelper`
   - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + path distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
@@ -130,7 +130,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Audio Cue Preview Menu**: Standalone menu to preview all audio cues outside gameplay
   - Opens with Backspace (only when NOT in active gameplay), closes with Backspace/Escape
   - Navigate with W/S or Up/Down arrows, preview with Enter
-  - 17 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
+  - 19 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Hazard Warning, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Deactivates EventSystem while open to block game UI input, toggles InputSystemUIInputModule on close to restore navigation
   - Uses shared WaveOutEvent + MixingSampleProvider, created on menu open, disposed on close
