@@ -23,17 +23,15 @@ public static class PickupAnnouncementPatches
         {
             if (args == null) return;
 
-            // Skip REGEN — it fires continuously and would spam
+            // Only announce direct heals (red sugar, etc.)
+            // Skip REGEN (continuous, spammy) and MAX_HP (fires on stat setup/game start)
             var healType = args.Type;
-            if (healType == EHealType.REGEN) return;
+            if (healType != EHealType.HEAL) return;
 
             int healed = args.ActualHeal;
             if (healed <= 0) return;
 
-            if (healType == EHealType.MAX_HP)
-                ScreenReader.Say($"Max HP increased by {healed}");
-            else
-                ScreenReader.Say($"Healed {healed} HP");
+            ScreenReader.Say($"Healed {healed} HP");
         }
         catch (System.Exception e)
         {

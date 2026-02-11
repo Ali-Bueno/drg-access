@@ -431,17 +431,25 @@ public static partial class UIButtonPatch
         {
             string labelText = "";
 
+            // 1. Check buttonText field
             TextMeshProUGUI textComponent = sliderToggle.buttonText;
             if (textComponent != null && !string.IsNullOrEmpty(textComponent.text))
             {
                 labelText = TextHelper.CleanText(textComponent.text);
             }
-            else
+
+            // 2. Search hierarchy for a TMP label
+            if (string.IsNullOrEmpty(labelText))
             {
-                // Search children, siblings, and parent hierarchy for a label
                 string controlLabel = UISettingsPatch.GetControlLabel(sliderToggle.transform);
                 if (!string.IsNullOrEmpty(controlLabel))
                     labelText = controlLabel;
+            }
+
+            // 3. Fallback: derive name from parent/grandparent GO name
+            if (string.IsNullOrEmpty(labelText))
+            {
+                labelText = GetCleanGameObjectName(sliderToggle.transform);
             }
 
             bool isToggled = sliderToggle.IsToggled;
@@ -456,6 +464,38 @@ public static partial class UIButtonPatch
             Plugin.Log?.LogError($"UIButtonPatch.GetSliderToggleText error: {ex.Message}");
         }
 
+        return null;
+    }
+
+    /// <summary>
+    /// Tries to derive a human-readable name from the GameObject hierarchy.
+    /// Checks self, parent, and grandparent names, skipping generic ones.
+    /// </summary>
+    private static string GetCleanGameObjectName(UnityEngine.Transform transform)
+    {
+        string[] genericNames = { "UISliderToggle", "Toggle", "Button", "Slider", "Content", "Panel", "Container" };
+
+        for (var t = transform; t != null && t.parent != null; t = t.parent)
+        {
+            string name = t.gameObject.name;
+            if (string.IsNullOrEmpty(name)) continue;
+
+            bool isGeneric = false;
+            foreach (var g in genericNames)
+            {
+                if (name.Equals(g, System.StringComparison.OrdinalIgnoreCase))
+                { isGeneric = true; break; }
+            }
+            if (isGeneric) continue;
+
+            // Clean up: add spaces before capitals, remove UI prefix
+            name = System.Text.RegularExpressions.Regex.Replace(name, "([a-z])([A-Z])", "$1 $2");
+            name = System.Text.RegularExpressions.Regex.Replace(name, "_", " ");
+            if (name.StartsWith("UI ")) name = name.Substring(3);
+            name = name.Trim();
+            if (!string.IsNullOrEmpty(name))
+                return name;
+        }
         return null;
     }
 
