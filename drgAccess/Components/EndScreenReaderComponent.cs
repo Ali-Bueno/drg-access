@@ -5,7 +5,6 @@ using DRS.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using Il2CppInterop.Runtime.Injection;
 using drgAccess.Helpers;
@@ -103,11 +102,11 @@ public class EndScreenReaderComponent : MonoBehaviour
             if (!isActive || items == null || items.Count == 0) return;
 
             // Navigation
-            if (KeyPressed(Key.UpArrow))
+            if (InputHelper.NavigateUp())
                 Navigate(-1);
-            else if (KeyPressed(Key.DownArrow))
+            else if (InputHelper.NavigateDown())
                 Navigate(1);
-            else if (KeyPressed(Key.Enter) || KeyPressed(Key.NumpadEnter))
+            else if (InputHelper.Confirm())
                 ActivateCurrent();
         }
         catch (Exception e)
@@ -116,15 +115,6 @@ public class EndScreenReaderComponent : MonoBehaviour
         }
     }
 
-    private static bool KeyPressed(Key key)
-    {
-        try
-        {
-            var kb = Keyboard.current;
-            return kb != null && kb[key].wasPressedThisFrame;
-        }
-        catch { return false; }
-    }
 
     private void Navigate(int direction)
     {

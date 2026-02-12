@@ -4,7 +4,6 @@ using System.Text;
 using DRS.UI;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Il2CppInterop.Runtime.Injection;
 using drgAccess.Helpers;
 
@@ -88,10 +87,10 @@ public class MilestoneReaderComponent : MonoBehaviour
 
             if (!isActive || items == null || items.Count == 0) return;
 
-            // Navigation with W/S
-            if (KeyPressed(Key.W) || KeyPressed(Key.UpArrow))
+            // Navigation with W/S or D-Pad
+            if (InputHelper.NavigateUp())
                 Navigate(-1);
-            else if (KeyPressed(Key.S) || KeyPressed(Key.DownArrow))
+            else if (InputHelper.NavigateDown())
                 Navigate(1);
         }
         catch (Exception e)
@@ -100,15 +99,6 @@ public class MilestoneReaderComponent : MonoBehaviour
         }
     }
 
-    private static bool KeyPressed(Key key)
-    {
-        try
-        {
-            var kb = Keyboard.current;
-            return kb != null && kb[key].wasPressedThisFrame;
-        }
-        catch { return false; }
-    }
 
     private void Navigate(int direction)
     {

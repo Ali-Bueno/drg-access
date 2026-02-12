@@ -5,8 +5,8 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using drgAccess.Helpers;
 using UnityEngine.UI;
 using Il2CppInterop.Runtime.Injection;
 
@@ -227,17 +227,6 @@ namespace drgAccess.Components
             };
         }
 
-        private static bool KeyPressed(Key key)
-        {
-            try
-            {
-                var kb = Keyboard.current;
-                if (kb == null) return false;
-                return kb[key].wasPressedThisFrame;
-            }
-            catch { return false; }
-        }
-
         void Update()
         {
             try
@@ -275,8 +264,8 @@ namespace drgAccess.Components
                         ClearPreview();
                 }
 
-                // Toggle menu with Backspace
-                if (KeyPressed(Key.Backspace))
+                // Toggle menu with Backspace / Y button
+                if (InputHelper.ToggleAudioMenu())
                 {
                     if (isMenuOpen)
                         CloseMenu();
@@ -285,8 +274,8 @@ namespace drgAccess.Components
                     return;
                 }
 
-                // Escape also closes
-                if (isMenuOpen && KeyPressed(Key.Escape))
+                // Escape / B button also closes
+                if (isMenuOpen && InputHelper.Cancel())
                 {
                     CloseMenu();
                     return;
@@ -295,13 +284,13 @@ namespace drgAccess.Components
                 if (!isMenuOpen) return;
 
                 // Navigation
-                if (KeyPressed(Key.W) || KeyPressed(Key.UpArrow))
+                if (InputHelper.NavigateUp())
                     NavigateMenu(-1);
-                else if (KeyPressed(Key.S) || KeyPressed(Key.DownArrow))
+                else if (InputHelper.NavigateDown())
                     NavigateMenu(1);
 
                 // Preview
-                if (KeyPressed(Key.Enter) || KeyPressed(Key.NumpadEnter))
+                if (InputHelper.Confirm())
                     PlayCurrentPreview();
             }
             catch (Exception e)

@@ -21,6 +21,12 @@ namespace drgAccess.Patches;
 [HarmonyPatch(typeof(UIButton))]
 public static partial class UIButtonPatch
 {
+    /// <summary>
+    /// When set to a future time, OnSelect uses Say (queue) instead of Interrupt,
+    /// so action feedback (e.g. "Equipped X") finishes before the new button text.
+    /// </summary>
+    internal static float QueueUntilTime;
+
     [HarmonyPatch(nameof(UIButton.OnSelect))]
     [HarmonyPostfix]
     public static void OnSelect_Postfix(UIButton __instance, BaseEventData bed)
@@ -34,7 +40,10 @@ public static partial class UIButtonPatch
             if (!string.IsNullOrEmpty(buttonText))
             {
                 Plugin.Log?.LogInfo($"UIButton.OnSelect - Announcing: '{buttonText}'");
-                ScreenReader.Interrupt(buttonText);
+                if (UnityEngine.Time.unscaledTime < QueueUntilTime)
+                    ScreenReader.Say(buttonText);
+                else
+                    ScreenReader.Interrupt(buttonText);
             }
             else
             {

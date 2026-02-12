@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Il2CppInterop.Runtime.Injection;
+using drgAccess.Helpers;
 
 namespace drgAccess.Components;
 
@@ -36,10 +36,7 @@ public class HPReaderComponent : MonoBehaviour
         try
         {
             if (!IsInActiveGameplay() && !Patches.WalletReader.ShopFormOpen) return;
-
-            var kb = Keyboard.current;
-            if (kb == null) return;
-            if (!kb[Key.H].wasPressedThisFrame) return;
+            if (!InputHelper.ReadHP()) return;
 
             ReadHP();
         }

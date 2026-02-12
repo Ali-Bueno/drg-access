@@ -2,7 +2,6 @@ using System;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Il2CppInterop.Runtime.Injection;
 using drgAccess.Helpers;
 
@@ -647,9 +646,7 @@ namespace drgAccess.Components
         {
             try
             {
-                var kb = Keyboard.current;
-                if (kb == null) return;
-                if (!kb[Key.F].wasPressedThisFrame) return;
+                if (!InputHelper.Compass()) return;
                 if (playerTransform == null) return;
 
                 Vector3 podPos = GetBeaconTargetPosition();

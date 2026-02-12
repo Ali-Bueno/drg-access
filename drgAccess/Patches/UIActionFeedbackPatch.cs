@@ -248,6 +248,7 @@ public static class GearEquipPatch
             }
             catch { }
 
+            UIButtonPatch.QueueUntilTime = UnityEngine.Time.unscaledTime + 0.5f;
             ScreenReader.Interrupt($"Equipped {gearName}");
         }
         catch (System.Exception ex)
@@ -286,11 +287,74 @@ public static class GearUnequipPatch
             }
             catch { }
 
+            UIButtonPatch.QueueUntilTime = UnityEngine.Time.unscaledTime + 0.5f;
             ScreenReader.Interrupt($"Unequipped {gearName}");
         }
         catch (System.Exception ex)
         {
             Plugin.Log?.LogError($"GearUnequipPatch error: {ex.Message}");
+        }
+    }
+}
+
+// Gear Upgrade: announce when gear is upgraded
+[HarmonyPatch(typeof(GearManager), nameof(GearManager.UpgradeGear))]
+public static class GearUpgradePatch
+{
+    public static void Postfix(GearView gearView)
+    {
+        try
+        {
+            string gearName = "gear";
+            try
+            {
+                var data = gearView?.Data;
+                if (data != null)
+                {
+                    string title = data.GetTitle();
+                    if (!string.IsNullOrEmpty(title))
+                        gearName = TextHelper.CleanText(title);
+                }
+            }
+            catch { }
+
+            UIButtonPatch.QueueUntilTime = UnityEngine.Time.unscaledTime + 0.5f;
+            ScreenReader.Interrupt($"Upgraded {gearName}");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"GearUpgradePatch error: {ex.Message}");
+        }
+    }
+}
+
+// Gear Salvage: announce when gear is salvaged/sold
+[HarmonyPatch(typeof(GearManager), nameof(GearManager.SalvageGear))]
+public static class GearSalvagePatch
+{
+    public static void Postfix(GearView gv)
+    {
+        try
+        {
+            string gearName = "gear";
+            try
+            {
+                var data = gv?.Data;
+                if (data != null)
+                {
+                    string title = data.GetTitle();
+                    if (!string.IsNullOrEmpty(title))
+                        gearName = TextHelper.CleanText(title);
+                }
+            }
+            catch { }
+
+            UIButtonPatch.QueueUntilTime = UnityEngine.Time.unscaledTime + 0.5f;
+            ScreenReader.Interrupt($"Salvaged {gearName}");
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"GearSalvagePatch error: {ex.Message}");
         }
     }
 }

@@ -205,7 +205,7 @@ public static class UISettingsPatch
         public static void Postfix(UISettingsPageVideo __instance)
         {
             if (!SettingsOpen) return;
-            AnnounceSelector(null, __instance.antiAliasingSelector?.transform);
+            AnnounceSelector(__instance.currentSelectedAntiAliasingMode, __instance.antiAliasingSelector?.transform);
         }
     }
 

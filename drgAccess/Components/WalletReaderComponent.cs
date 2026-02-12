@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
+using drgAccess.Helpers;
 
 namespace drgAccess.Components;
 
@@ -14,10 +14,7 @@ public class WalletReaderComponent : MonoBehaviour
         try
         {
             if (!Patches.WalletReader.IsWalletReadable) return;
-
-            var kb = Keyboard.current;
-            if (kb == null) return;
-            if (!kb[Key.G].wasPressedThisFrame) return;
+            if (!InputHelper.ReadWallet()) return;
 
             Patches.WalletReader.ReadWallet();
         }

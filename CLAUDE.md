@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.3.1
+- **Current version**: v0.3.2
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -69,7 +69,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Action Feedback**: Screen reader announces results when pressing Enter on actionable buttons:
   - Mineral market: "Bought" / "Cannot afford" / "Sold" / "Nothing to sell"
   - Stat upgrades: "Upgraded to level X/Y" / "Max level reached" / "Cannot afford"
-  - Gear: "Equipped [name]" / "Unequipped [name]"
+  - Gear: "Equipped [name]" / "Unequipped [name]" / "Upgraded [name]" / "Salvaged [name]"
   - Shop: "Purchased [name]" / "Cannot afford" / "Rerolled" / "Cannot afford reroll" / "Healed" / "Cannot afford heal"
 - **Wallet Reading**: Press G in the stat upgrades menu or shop screen to hear all currency balances (Gold, Credits, minerals, special currencies)
 - **HP Reading**: Press H during gameplay to hear current and max HP (e.g. "HP: 85 / 120")
@@ -134,9 +134,17 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Progress updates announced with 3-second throttle to avoid spam (OnProgress)
   - Objective completion announced with interrupt priority (OnObjectiveComplete)
 - **Unlock Screen Accessibility**: Weapon/artifact/mastery unlock details announced when unlocked (patches ShowMilestone and ShowMastery)
+- **Gamepad Support**: All mod-specific inputs support both keyboard and gamepad via shared `InputHelper`
+  - D-Pad Up/Down: navigate custom menus (end screen, milestones, audio cue menu)
+  - A (buttonSouth): confirm/activate
+  - B (buttonEast): close/back
+  - Y (buttonNorth): toggle audio cue preview menu
+  - LB (leftShoulder): read HP
+  - RB (rightShoulder): read wallet balance
+  - L3 (leftStickButton): compass direction to drop pod
 - **Audio Cue Preview Menu**: Standalone menu to preview all audio cues outside gameplay
-  - Opens with Backspace (only when NOT in active gameplay), closes with Backspace/Escape
-  - Navigate with W/S or Up/Down arrows, preview with Enter
+  - Opens with Backspace / Y button (only when NOT in active gameplay), closes with Backspace/Escape / B button
+  - Navigate with W/S or Up/Down arrows or D-Pad, preview with Enter / A button
   - 19 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Hazard Warning, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Deactivates EventSystem while open to block game UI input, toggles InputSystemUIInputModule on close to restore navigation
@@ -182,7 +190,8 @@ drgAccess/
 │   ├── TextHelper.cs              # Shared text cleaning (CleanText, IsJustNumber)
 │   ├── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
 │   ├── NavMeshPathHelper.cs       # NavMesh pathfinding for beacon guidance around obstacles
-│   └── AudioDirectionHelper.cs    # Shared forward/behind pitch modulation for all audio cues
+│   ├── AudioDirectionHelper.cs    # Shared forward/behind pitch modulation for all audio cues
+│   └── InputHelper.cs             # Shared keyboard + gamepad input checking
 ├── Components/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones (1 shared WaveOutEvent)
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies (1 shared WaveOutEvent)
@@ -247,7 +256,7 @@ references/tolk/                   # Tolk DLL references
 | `UIMutatorView` / `UIMutatorButton` | Hazard modifiers |
 | `UIStatUpgradeButton` | Stat upgrade menu (localized title/desc, stat values, cost) |
 | `UIMineralMarketButton` | Mineral market (reads localized TMP children, buy/sell feedback) |
-| `GearManager` | Gear equip/unequip action feedback |
+| `GearManager` | Gear equip/unequip/upgrade/salvage action feedback |
 | `UIGearViewCompact` | Gear inventory (name, rarity, stats, quirks) |
 | `UIShopScreen` | Inter-level shop (purchase, reroll, heal, wallet reading, pin toggle matching) |
 | `UIButtonPrice` | Price buttons (shop heal/reroll — label, price, affordability) |

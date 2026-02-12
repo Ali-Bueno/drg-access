@@ -2,6 +2,37 @@ CHANGELOG
 =========
 
 
+v0.3.2 - February 12, 2026
+---------------------------
+
+New Features:
+
+  - Gamepad Support: All mod-specific inputs now support both keyboard and gamepad.
+      * D-Pad Up/Down: navigate custom menus (end screen, milestones, audio cues)
+      * A button: confirm/activate
+      * B button: close/back
+      * Y button: toggle audio cue preview menu
+      * LB: read HP
+      * RB: read wallet balance
+      * L3 (left stick press): compass direction to drop pod
+
+  - Gear Upgrade Feedback: Screen reader now announces "Upgraded [gear name]"
+    when upgrading gear in the gear inventory.
+
+  - Gear Salvage Feedback: Screen reader now announces "Salvaged [gear name]"
+    when salvaging/selling gear.
+
+Bug Fixes:
+
+  - Fixed antialiasing setting not announcing its value when changed in the
+    video settings menu. Was passing null instead of the display text field.
+
+  - Fixed gear equip/unequip feedback ("Equipped X" / "Unequipped X") being
+    immediately overwritten by the next button's announcement when the UI
+    shifts focus after the action. Action feedback now queues the following
+    button announcement instead of letting it interrupt.
+
+
 v0.3.1 - February 11, 2026
 ---------------------------
 
