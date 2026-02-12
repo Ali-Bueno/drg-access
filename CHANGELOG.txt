@@ -2,6 +2,31 @@ CHANGELOG
 =========
 
 
+v0.4.1 (unreleased)
+---------------------------
+
+New Features:
+
+  - Gear Inventory Tabs: Tab changes in the gear inventory menu are now
+    announced via screen reader (e.g. "Equip", "Upgrade", "Salvage").
+
+Bug Fixes:
+
+  - Fixed settings selectors (display, screen mode, resolution, language,
+    anti-aliasing) not announcing their new values when changed with
+    left/right arrows. Replaced per-selector patches with generic
+    StepSelectorBase.IncreaseIndex/DecreaseIndex patches that work
+    reliably in IL2CPP.
+
+  - Fixed VSync and Target Framerate toggles not announcing their On/Off
+    state when pressed. These plain Unity Toggles can't be patched
+    directly, so the SettingsFocusTracker now detects toggle value changes
+    by comparing isOn state each frame.
+
+  - Fixed "Equipped" being announced at game startup when the gear
+    inventory form briefly initializes its default tab.
+
+
 v0.4.0 - February 12, 2026
 ---------------------------
 

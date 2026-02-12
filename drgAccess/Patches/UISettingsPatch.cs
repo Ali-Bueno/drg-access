@@ -1,5 +1,6 @@
 using HarmonyLib;
 using DRS.UI;
+using Assets.Scripts.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -163,60 +164,101 @@ public static class UISettingsPatch
     // NOTE: OnToggleVsync CANNOT be patched — crashes the game.
     // Vsync toggle state is announced via FocusTracker when navigating to it.
 
-    // === Selectors ===
+    // === Selectors (generic: handles all StepSelectorBase value changes in settings) ===
+    // NOTE: SetIndex can't be patched — IncreaseIndex/DecreaseIndex call it natively
+    // in IL2CPP, bypassing the managed wrapper. Patch the entry points instead.
 
-    [HarmonyPatch(typeof(UISettingsPageGameplay), nameof(UISettingsPageGameplay.UpdateSelectedElement))]
-    public static class Gameplay_LanguageSelector
+    [HarmonyPatch(typeof(StepSelectorBase), nameof(StepSelectorBase.IncreaseIndex))]
+    public static class StepSelector_IncreaseIndex
     {
         [HarmonyPostfix]
-        public static void Postfix(UISettingsPageGameplay __instance)
+        public static void Postfix(StepSelectorBase __instance) => AnnounceSelectorValue(__instance);
+    }
+
+    [HarmonyPatch(typeof(StepSelectorBase), nameof(StepSelectorBase.DecreaseIndex))]
+    public static class StepSelector_DecreaseIndex
+    {
+        [HarmonyPostfix]
+        public static void Postfix(StepSelectorBase __instance) => AnnounceSelectorValue(__instance);
+    }
+
+    private static void AnnounceSelectorValue(StepSelectorBase selector)
+    {
+        if (!SettingsOpen) return;
+        try
         {
-            if (!SettingsOpen) return;
-            AnnounceSelector(__instance.currentSelectedLocale, __instance.languageSelector?.transform);
+            // Find label first, then find value skipping the label TMP
+            string label = GetControlLabel(selector.transform);
+            string value = GetSelectorValue(selector, label);
+            string msg = !string.IsNullOrEmpty(label) && !string.IsNullOrEmpty(value)
+                ? $"{label}: {value}"
+                : value ?? label ?? "";
+            if (!string.IsNullOrEmpty(msg))
+                ScreenReader.Interrupt(msg);
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"AnnounceSelectorValue error: {ex.Message}");
         }
     }
 
-    [HarmonyPatch(typeof(UISettingsPageVideo), nameof(UISettingsPageVideo.UpdateSelectedFullScreenMode))]
-    public static class Video_FullscreenMode
+    // === Tab group changes (handles gear inventory tabs and other non-settings tabs) ===
+
+    private static int _lastTabAnnouncedFrame = -1;
+
+    [HarmonyPatch(typeof(UITabGroup), nameof(UITabGroup.SetActiveTab), new System.Type[] { typeof(UITab) })]
+    public static class UITabGroup_SetActiveTab_Tab
     {
         [HarmonyPostfix]
-        public static void Postfix(UISettingsPageVideo __instance)
+        public static void Postfix(UITabGroup __instance, UITab uiTab)
         {
-            if (!SettingsOpen) return;
-            AnnounceSelector(null, __instance.fullscreenModeSelector?.transform);
+            if (SettingsOpen) return;
+            if (!UIFormPatches.GearInventoryOpen) return;
+            // Suppress during form init (default tab set on open/startup)
+            if (Time.frameCount <= UIFormPatches.GearInventoryOpenFrame + 5) return;
+            if (Time.frameCount == _lastTabAnnouncedFrame) return;
+            try
+            {
+                if (uiTab?.text != null && !string.IsNullOrEmpty(uiTab.text.text))
+                {
+                    _lastTabAnnouncedFrame = Time.frameCount;
+                    UIButtonPatch.QueueUntilTime = Time.unscaledTime + 0.5f;
+                    ScreenReader.Interrupt(TextHelper.CleanText(uiTab.text.text));
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UITabGroup_SetActiveTab error: {ex.Message}");
+            }
         }
     }
 
-    [HarmonyPatch(typeof(UISettingsPageVideo), nameof(UISettingsPageVideo.UpdateSelectedResolution))]
-    public static class Video_Resolution
+    [HarmonyPatch(typeof(UITabGroup), nameof(UITabGroup.SetActiveTab), new System.Type[] { typeof(int) })]
+    public static class UITabGroup_SetActiveTab_Index
     {
         [HarmonyPostfix]
-        public static void Postfix(UISettingsPageVideo __instance)
+        public static void Postfix(UITabGroup __instance, int index)
         {
-            if (!SettingsOpen) return;
-            AnnounceSelector(__instance.currentSelectedResolution, __instance.resolutionSelector?.transform);
-        }
-    }
-
-    [HarmonyPatch(typeof(UISettingsPageVideo), nameof(UISettingsPageVideo.UpdateSelectedAntiAliasing))]
-    public static class Video_AntiAliasing
-    {
-        [HarmonyPostfix]
-        public static void Postfix(UISettingsPageVideo __instance)
-        {
-            if (!SettingsOpen) return;
-            AnnounceSelector(__instance.currentSelectedAntiAliasingMode, __instance.antiAliasingSelector?.transform);
-        }
-    }
-
-    [HarmonyPatch(typeof(UISettingsPageVideo), nameof(UISettingsPageVideo.UpdateSelectedDisplay))]
-    public static class Video_Display
-    {
-        [HarmonyPostfix]
-        public static void Postfix(UISettingsPageVideo __instance)
-        {
-            if (!SettingsOpen) return;
-            AnnounceSelector(__instance.currentSelectedDisplay, __instance.displaySelector?.transform);
+            if (SettingsOpen) return;
+            if (!UIFormPatches.GearInventoryOpen) return;
+            if (Time.frameCount <= UIFormPatches.GearInventoryOpenFrame + 5) return;
+            if (Time.frameCount == _lastTabAnnouncedFrame) return;
+            try
+            {
+                var tabs = __instance.tabs;
+                if (tabs == null || index < 0 || index >= tabs.Count) return;
+                var tab = tabs[index];
+                if (tab?.text != null && !string.IsNullOrEmpty(tab.text.text))
+                {
+                    _lastTabAnnouncedFrame = Time.frameCount;
+                    UIButtonPatch.QueueUntilTime = Time.unscaledTime + 0.5f;
+                    ScreenReader.Interrupt(TextHelper.CleanText(tab.text.text));
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"UITabGroup_SetActiveTab_Index error: {ex.Message}");
+            }
         }
     }
 
@@ -232,6 +274,8 @@ public static class UISettingsPatch
             string msg = !string.IsNullOrEmpty(label)
                 ? $"{label}: {stateText}"
                 : stateText;
+            // Prevent FocusTracker from double-announcing this toggle change
+            SettingsFocusTracker.LastToggleAnnouncedFrame = Time.frameCount;
             ScreenReader.Interrupt(msg);
         }
         catch (System.Exception ex)
@@ -240,35 +284,33 @@ public static class UISettingsPatch
         }
     }
 
-    private static void AnnounceSelector(TextMeshProUGUI displayText, Transform selectorTransform)
+    /// <summary>
+    /// Read display value from a StepSelectorBase by finding the TMP child
+    /// that isn't inside the left or right buttons and isn't the label.
+    /// </summary>
+    private static string GetSelectorValue(StepSelectorBase selector, string labelToSkip = null)
     {
-        try
+        for (int i = 0; i < selector.transform.childCount; i++)
         {
-            string value = displayText != null ? TextHelper.CleanText(displayText.text) : null;
-            if (string.IsNullOrEmpty(value) && selectorTransform != null)
-            {
-                var texts = selectorTransform.GetComponentsInChildren<TextMeshProUGUI>();
-                foreach (var t in texts)
-                {
-                    if (!string.IsNullOrEmpty(t.text))
-                    {
-                        value = TextHelper.CleanText(t.text);
-                        break;
-                    }
-                }
-            }
+            var child = selector.transform.GetChild(i);
+            if (selector.leftButton != null && child.gameObject == selector.leftButton.gameObject)
+                continue;
+            if (selector.rightButton != null && child.gameObject == selector.rightButton.gameObject)
+                continue;
 
-            string label = selectorTransform != null ? GetControlLabel(selectorTransform) : null;
-            string msg = !string.IsNullOrEmpty(label) && !string.IsNullOrEmpty(value)
-                ? $"{label}: {value}"
-                : value ?? label ?? "";
-            if (!string.IsNullOrEmpty(msg))
-                ScreenReader.Interrupt(msg);
+            var tmp = child.GetComponent<TextMeshProUGUI>();
+            if (tmp == null)
+                tmp = child.GetComponentInChildren<TextMeshProUGUI>();
+            if (tmp != null && !string.IsNullOrEmpty(tmp.text))
+            {
+                string text = TextHelper.CleanText(tmp.text);
+                // Skip if this matches the label text
+                if (!string.IsNullOrEmpty(labelToSkip) && text == labelToSkip)
+                    continue;
+                return text;
+            }
         }
-        catch (System.Exception ex)
-        {
-            Plugin.Log?.LogError($"UISettingsPatch.AnnounceSelector error: {ex.Message}");
-        }
+        return null;
     }
 
     /// <summary>

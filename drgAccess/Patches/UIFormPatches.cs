@@ -64,6 +64,17 @@ public static class UIFormPatches
         }
     }
 
+    /// <summary>
+    /// True while the gear inventory form is visible. Used by tab patches.
+    /// </summary>
+    internal static bool GearInventoryOpen;
+
+    /// <summary>
+    /// Frame when gear inventory opened. Tab announcements suppressed for a few
+    /// frames to avoid announcing the default tab during form init/startup.
+    /// </summary>
+    internal static int GearInventoryOpenFrame = -1;
+
     // Gear Inventory Form
     [HarmonyPatch(typeof(UIGearInventoryForm), nameof(UIGearInventoryForm.SetVisibility))]
     public static class UIGearInventoryForm_SetVisibility
@@ -71,6 +82,9 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix(UIGearInventoryForm __instance, bool visible)
         {
+            if (visible && !GearInventoryOpen)
+                GearInventoryOpenFrame = Time.frameCount;
+            GearInventoryOpen = visible;
             if (visible)
             {
                 ScreenReader.Interrupt("Gear Inventory");

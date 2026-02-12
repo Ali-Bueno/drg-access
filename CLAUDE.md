@@ -59,9 +59,10 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Form Announcements**: Announces when forms/menus open (splash, play, settings, gear, stats, milestones, skins, pause, end screen, loading, popups, level up, overclock, unlock, progression summary, mutator, gear found/inspect, score, shop, save slot selector)
 - **Page Descriptions**: Reads description panels when selecting game modes, masteries, anomalies, and missions
 - **Biome Selection**: Reads biome name, lore/description, and high score when selecting mission nodes (biomes)
-- **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value + direction), tab navigation (PageLeft/PageRight)
-- **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables). Coordinates with SetValueText patch via frame counter to avoid double announcements. Also active during GammaAdjuster screen. Supports `SuppressUntilFrame` to avoid interrupting screen open announcements
-- **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next)
+- **Settings Menu**: Sliders (label + value on focus, value-only on change), toggles (label + On/Off state), selectors (label + value on change via IncreaseIndex/DecreaseIndex), tab navigation (PageLeft/PageRight)
+- **Settings Focus Tracking**: MonoBehaviour polls EventSystem for focus changes on non-button controls (sliders, toggles, generic selectables). Coordinates with SetValueText patch via frame counter to avoid double announcements. Also active during GammaAdjuster screen. Supports `SuppressUntilFrame` to avoid interrupting screen open announcements. Detects toggle value changes (for VSync and Target Framerate toggles that can't be patched directly) by comparing `isOn` state each frame
+- **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next). Value changes announced via generic `StepSelectorBase.IncreaseIndex`/`DecreaseIndex` patches (all selectors: language, display, resolution, screen mode, anti-aliasing)
+- **Gear Inventory Tabs**: Tab changes in gear inventory announced via `UITabGroup.SetActiveTab` patches, with frame delay to suppress default tab on form init. Button announcements queued after tab name to prevent cutoff
 - **Stat Upgrades**: Reads localized title, description, stat type + correctly formatted value (percentage stats ×100), level, cost, and affordability
 - **Gear Inventory**: Reads gear name, slot type, rarity, tier, correctly formatted stat mods, and quirk descriptions
 - **Level-Up Skill Selection**: Reads weapon name (if weapon-specific), skill name, rarity (Common/Uncommon/Rare/Epic/Legendary), stats, and description
@@ -275,9 +276,9 @@ references/tolk/                   # Tolk DLL references
 | `UITooltip` | Tooltips |
 | `UISettingsSlider` | Settings sliders (label + value) |
 | `UISettingsPageGameplay` | Gameplay toggle callbacks |
-| `UISettingsPageVideo` | Video selector callbacks |
 | `UISettingsForm` | Settings tabs (PageLeft/PageRight) |
-| `StepSelectorBase` | Left/right selector buttons |
+| `StepSelectorBase` | Left/right selector value changes (IncreaseIndex/DecreaseIndex) |
+| `UITabGroup` | Tab changes in gear inventory (SetActiveTab) |
 | `UICorePauseForm` | Pause menu (weapon/artifact select, player stats) |
 | `UIPauseWeapon` / `UIPauseArtifact` | Pause menu weapon/artifact buttons |
 | `UIEndScreen` | End screen stats reader (arrow-key navigable) |
@@ -306,6 +307,8 @@ references/tolk/                   # Tolk DLL references
 **Overloaded methods** need `TargetMethod()` approach to disambiguate. Use `GetMethods()` and filter by parameter count.
 
 **Some native method detours crash the game** even with empty postfixes. Known: `UISettingsPageVideo.OnToggleVsync` — the native detour itself corrupts something. No workaround except avoiding the patch entirely. The Vsync toggle is handled by `SettingsFocusTracker` instead.
+
+**IL2CPP native-to-native calls bypass Harmony patches.** When method A calls method B internally in native IL2CPP code, patching B's managed wrapper won't fire. Must patch the managed entry point (A) instead. Example: `StepSelectorBase.IncreaseIndex` calls `SetIndex` natively — patching `SetIndex` doesn't work, must patch `IncreaseIndex`/`DecreaseIndex`.
 
 **Slider labels are grandchildren** of UISettingsSlider: `UISettingsSlider → MasterSlider → NameText (TMP)`. Use `GetComponentsInChildren<TMP>()` skipping `valueText`, not sibling searches.
 

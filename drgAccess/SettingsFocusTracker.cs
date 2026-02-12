@@ -14,12 +14,19 @@ namespace drgAccess;
 public class SettingsFocusTracker : MonoBehaviour
 {
     private GameObject _lastSelected;
+    private bool _lastToggleState;
 
     /// <summary>
     /// Frame number when a slider received focus. Used by SetValueText patch
     /// to avoid interrupting the focus announcement with just the value.
     /// </summary>
     internal static int LastSliderFocusFrame = -1;
+
+    /// <summary>
+    /// Frame number when a toggle was announced by a specific patch (e.g. gameplay toggles).
+    /// Prevents this tracker from double-announcing the same change.
+    /// </summary>
+    internal static int LastToggleAnnouncedFrame = -1;
 
     /// <summary>
     /// Suppress all focus announcements until this frame. Used by screens
@@ -37,8 +44,33 @@ public class SettingsFocusTracker : MonoBehaviour
             return;
 
         var current = es.currentSelectedGameObject;
-        if (current == _lastSelected)
+
+        // Same object still selected — check for toggle value changes
+        // (handles VSync and Target Framerate toggles that can't be patched directly)
+        if (current == _lastSelected && current != null)
+        {
+            try
+            {
+                if (current.GetComponent<UIButton>() != null) return;
+                var toggle = current.GetComponent<Toggle>();
+                if (toggle != null && toggle.isOn != _lastToggleState)
+                {
+                    _lastToggleState = toggle.isOn;
+                    // Skip if a specific patch already announced this toggle change
+                    if (Time.frameCount <= LastToggleAnnouncedFrame + 1) return;
+
+                    string label = Patches.UISettingsPatch.GetControlLabel(toggle.transform);
+                    string state = toggle.isOn ? "On" : "Off";
+                    string msg = !string.IsNullOrEmpty(label) ? $"{label}: {state}" : state;
+                    ScreenReader.Interrupt(msg);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"FocusTracker toggle change error: {ex.Message}");
+            }
             return;
+        }
 
         _lastSelected = current;
         if (current == null)
@@ -76,6 +108,7 @@ public class SettingsFocusTracker : MonoBehaviour
             var toggle = current.GetComponent<Toggle>();
             if (toggle != null)
             {
+                _lastToggleState = toggle.isOn;
                 string label = Patches.UISettingsPatch.GetControlLabel(toggle.transform);
                 string state = toggle.isOn ? "On" : "Off";
                 string msg = !string.IsNullOrEmpty(label)
