@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.4.0
+- **Current version**: v0.4.1
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -64,7 +64,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Step Selectors**: Left/right selector buttons announce label, current value, and direction (Previous/Next). Value changes announced via generic `StepSelectorBase.IncreaseIndex`/`DecreaseIndex` patches (all selectors: language, display, resolution, screen mode, anti-aliasing)
 - **Gear Inventory Tabs**: Tab changes in gear inventory announced via `UITabGroup.SetActiveTab` patches, with frame delay to suppress default tab on form init. Button announcements queued after tab name to prevent cutoff
 - **Stat Upgrades**: Reads localized title, description, stat type + correctly formatted value (percentage stats ×100), level, cost, and affordability
-- **Gear Inventory**: Reads gear name, slot type, rarity, tier, correctly formatted stat mods, and quirk descriptions
+- **Gear Inventory**: Reads gear name, slot type, rarity, tier, correctly formatted stat mods, and quirk descriptions. In upgrade tab: shows upgrade cost with currency names + affordability (via `GearEconomyConfig.TryGetUpgradeCost`). In sell tab: shows salvage value with currency names (via `GearEconomyConfig.TryGetSalvageValue`)
 - **Level-Up Skill Selection**: Reads weapon name (if weapon-specific), skill name, rarity (Common/Uncommon/Rare/Epic/Legendary), stats, and description
 - **Mineral Market**: Reads localized button text instead of raw enum names. Action feedback: "Bought"/"Sold" on success, "Cannot afford"/"Nothing to sell" on failure
 - **Action Feedback**: Screen reader announces results when pressing Enter on actionable buttons:
@@ -72,7 +72,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Stat upgrades: "Upgraded to level X/Y" / "Max level reached" / "Cannot afford"
   - Gear: "Equipped [name]" / "Unequipped [name]" / "Upgraded [name]" / "Salvaged [name]"
   - Shop: "Purchased [name]" / "Cannot afford" / "Rerolled" / "Cannot afford reroll" / "Healed" / "Cannot afford heal"
-- **Wallet Reading**: Press G in the stat upgrades menu or shop screen to hear all currency balances (Gold, Credits, minerals, special currencies)
+- **Wallet Reading**: Press G in the stat upgrades menu, shop screen, or gear inventory to hear all currency balances (Gold, Credits, minerals, special currencies)
 - **HP Reading**: Press H during gameplay to hear current and max HP (e.g. "HP: 85 / 120")
 - **Localized Game Data**: Stat names, rarity names, gear slot types, and currency names use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
 - **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
@@ -269,7 +269,8 @@ references/tolk/                   # Tolk DLL references
 | `UIStatUpgradeButton` | Stat upgrade menu (localized title/desc, stat values, cost) |
 | `UIMineralMarketButton` | Mineral market (reads localized TMP children, buy/sell feedback) |
 | `GearManager` | Gear equip/unequip/upgrade/salvage action feedback |
-| `UIGearViewCompact` | Gear inventory (name, rarity, stats, quirks) |
+| `UIGearViewCompact` | Gear inventory (name, rarity, stats, quirks, upgrade cost, salvage value) |
+| `GearEconomyConfig` | Gear upgrade cost and salvage value calculations |
 | `UIShopScreen` | Inter-level shop (purchase, reroll, heal, wallet reading, pin toggle matching) |
 | `UIButtonPrice` | Price buttons (shop heal/reroll — label, price, affordability) |
 | `UISliderToggle` | Toggle settings + shop pin toggles |

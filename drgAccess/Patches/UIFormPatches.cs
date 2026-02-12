@@ -85,9 +85,13 @@ public static class UIFormPatches
             if (visible && !GearInventoryOpen)
                 GearInventoryOpenFrame = Time.frameCount;
             GearInventoryOpen = visible;
+            WalletReader.GearInventoryOpen = visible;
             if (visible)
             {
                 ScreenReader.Interrupt("Gear Inventory");
+                try { WalletReader.CachedWallet = __instance.wallet; } catch { }
+                try { UIButtonPatch.CachedGearEconomy = __instance.gearEconomy; } catch { }
+                try { UIButtonPatch.CachedGearWallet = __instance.wallet; } catch { }
             }
         }
     }

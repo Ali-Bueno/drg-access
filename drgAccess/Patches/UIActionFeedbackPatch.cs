@@ -368,8 +368,9 @@ public static class WalletReader
     internal static Wallet CachedWallet;
     internal static bool UpgradeFormOpen;
     internal static bool ShopFormOpen;
+    internal static bool GearInventoryOpen;
 
-    internal static bool IsWalletReadable => UpgradeFormOpen || ShopFormOpen;
+    internal static bool IsWalletReadable => UpgradeFormOpen || ShopFormOpen || GearInventoryOpen;
 
     public static void ReadWallet()
     {

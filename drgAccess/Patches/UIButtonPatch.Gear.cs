@@ -1,5 +1,6 @@
 using Assets.Scripts.Data;
 using DRS.UI;
+using Il2CppSystem.Collections.Generic;
 using System.Text;
 using drgAccess.Helpers;
 
@@ -8,6 +9,10 @@ namespace drgAccess.Patches;
 // Gear inventory and stat upgrade button text extraction
 public static partial class UIButtonPatch
 {
+    // Cached from UIGearInventoryForm when it opens
+    internal static GearEconomyConfig CachedGearEconomy;
+    internal static Wallet CachedGearWallet;
+
     private static string GetGearViewCompactText(UIGearViewCompact button)
     {
         try
@@ -90,15 +95,46 @@ public static partial class UIButtonPatch
                 catch { /* Quirk description not available */ }
             }
 
-            // Indicators
+            // Upgrade cost (when in upgrade tab)
             if (button.upgradeIndicator != null && button.upgradeIndicator.activeSelf)
             {
-                sb.Append(", Upgrade available");
+                try
+                {
+                    if (CachedGearEconomy != null && gear != null
+                        && CachedGearEconomy.TryGetUpgradeCost(gear, out List<CurrencyValue> costs)
+                        && costs != null && costs.Count > 0)
+                    {
+                        sb.Append(". Upgrade cost: ");
+                        sb.Append(FormatCurrencyList(costs));
+                        if (CachedGearWallet != null && !CachedGearWallet.CanAfford(costs))
+                            sb.Append(", Cannot afford");
+                    }
+                    else
+                    {
+                        sb.Append(", Upgrade available");
+                    }
+                }
+                catch { sb.Append(", Upgrade available"); }
             }
 
+            // Salvage value (when in sell tab)
             if (button.sellIndicator != null && button.sellIndicator.activeSelf)
             {
-                sb.Append(", Sell available");
+                try
+                {
+                    if (CachedGearEconomy != null && gear != null
+                        && CachedGearEconomy.TryGetSalvageValue(gear, out List<CurrencyValue> values)
+                        && values != null && values.Count > 0)
+                    {
+                        sb.Append(". Sell value: ");
+                        sb.Append(FormatCurrencyList(values));
+                    }
+                    else
+                    {
+                        sb.Append(", Sell available");
+                    }
+                }
+                catch { sb.Append(", Sell available"); }
             }
 
             if (button.isFavorite != null && button.isFavorite.activeSelf)
@@ -213,5 +249,22 @@ public static partial class UIButtonPatch
             Plugin.Log?.LogError($"UIButtonPatch.GetStatUpgradeButtonText error: {ex.Message}");
             return null;
         }
+    }
+
+    /// <summary>
+    /// Format a list of CurrencyValue into "50 Credits, 10 Morkite" style string.
+    /// </summary>
+    private static string FormatCurrencyList(List<CurrencyValue> currencies)
+    {
+        var sb = new StringBuilder();
+        for (int i = 0; i < currencies.Count; i++)
+        {
+            var cv = currencies[i];
+            if (cv == null || cv.Value <= 0) continue;
+            if (sb.Length > 0) sb.Append(", ");
+            string name = LocalizationHelper.GetCurrencyName(cv.type);
+            sb.Append($"{cv.Value} {name}");
+        }
+        return sb.ToString();
     }
 }

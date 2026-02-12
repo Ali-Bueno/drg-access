@@ -2,10 +2,21 @@ CHANGELOG
 =========
 
 
-v0.4.1 (unreleased)
+v0.4.1 - February 12, 2026
 ---------------------------
 
 New Features:
+
+  - Gear Upgrade Costs: In the gear inventory upgrade tab, each gear item
+    now announces its upgrade cost with currency names and affordability
+    (e.g. "Upgrade cost: 50 Credits, 10 Morkite, Cannot afford").
+
+  - Gear Salvage Prices: In the gear inventory sell tab, each gear item
+    now announces its salvage value with currency names
+    (e.g. "Sell value: 25 Credits, 5 Morkite").
+
+  - Gear Inventory Wallet: Press G in the gear inventory to hear your
+    currency balances, just like in the stat upgrades and shop menus.
 
   - Gear Inventory Tabs: Tab changes in the gear inventory menu are now
     announced via screen reader (e.g. "Equip", "Upgrade", "Salvage").
