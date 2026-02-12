@@ -248,7 +248,7 @@ namespace drgAccess.Components
         public static EnemyAudioSystem Instance { get; private set; }
 
         // Configuration
-        private float maxDistance = 50f;
+        private float maxDistance = 35f;
         private float criticalProximityDistance = 3.5f; // Very close - imminent danger!
         // Normal: Fast frequent beeps
         private float normalBaseInterval = 0.4f;
@@ -267,7 +267,7 @@ namespace drgAccess.Components
         private float lootMinInterval = 0.2f;
         private float lootCriticalInterval = 0.1f;
 
-        // 8 directions for better precision
+        // 8 directions for better precision (supports diagonal movement)
         private const int NUM_DIRECTIONS = 8;
         private DirectionalEnemyGroup[] directionGroups = new DirectionalEnemyGroup[NUM_DIRECTIONS];
 
@@ -301,6 +301,22 @@ namespace drgAccess.Components
         private const float NAME_ANNOUNCEMENT_INTERVAL = 3f;
         private LocalizedEnemyResources localizedEnemyResources;
         private bool searchedEnemyResources = false;
+
+        // Proximity announcements
+        private const float NEARBY_THRESHOLD = 20f;
+        private const float VERY_CLOSE_THRESHOLD = 8f;
+        private const float GENERAL_ANNOUNCE_COOLDOWN = 8f;
+        private const float SPECIAL_ANNOUNCE_COOLDOWN = 5f;
+        private const float VERY_CLOSE_ANNOUNCE_COOLDOWN = 3f;
+        private float nextGeneralAnnounceTime = 0f;
+        private float nextSpecialAnnounceTime = 0f;
+        private float nextVeryCloseAnnounceTime = 0f;
+        private bool wasEnemyNearby = false;
+        // Per-update proximity tracking (populated in UpdateEnemyGroups)
+        private int nearbyEnemyCount = 0;
+        private float closestExploderDistance = float.MaxValue;
+        private float closestEliteDistance = float.MaxValue;
+        private float closestBossDistance = float.MaxValue;
 
         static EnemyAudioSystem()
         {
@@ -436,6 +452,7 @@ namespace drgAccess.Components
                 {
                     UpdateEnemyGroups();
                     AnnounceEnemyNames();
+                    AnnounceEnemyProximity();
                     nextUpdateTime = Time.time + updateInterval;
                 }
 
@@ -460,6 +477,10 @@ namespace drgAccess.Components
                     directionGroups[i].Reset();
                 }
                 currentNearbyTypes.Clear();
+                nearbyEnemyCount = 0;
+                closestExploderDistance = float.MaxValue;
+                closestEliteDistance = float.MaxValue;
+                closestBossDistance = float.MaxValue;
 
                 if (Time.frameCount % 60 == 0)
                     Plugin.Log.LogInfo("[EnemyAudio] Groups reset, getting player position");
@@ -526,6 +547,9 @@ namespace drgAccess.Components
 
                     if (distance > maxDistance) continue;
 
+                    // Track proximity for announcements
+                    nearbyEnemyCount++;
+
                     // Calculate direction (8 directions)
                     Vector3 toEnemy = (enemyPos - playerPos);
                     float height = toEnemy.y; // Store height for pitch adjustment
@@ -550,6 +574,15 @@ namespace drgAccess.Components
                                   enemyId == EEnemy.HUUL_HOARDER;
                     bool isBoss = !isLoot && enemyType == EEnemyType.BOSS;
                     bool isElite = !isLoot && !isBoss && enemyType == EEnemyType.ELITE;
+                    bool isExploder = enemyId == EEnemy.EXPLODER || enemyId == EEnemy.EXPLODER_FAST;
+
+                    // Track closest special enemies for proximity announcements
+                    if (isExploder && distance < closestExploderDistance)
+                        closestExploderDistance = distance;
+                    if (isBoss && distance < closestBossDistance)
+                        closestBossDistance = distance;
+                    if (isElite && distance < closestEliteDistance)
+                        closestEliteDistance = distance;
 
                     var group = directionGroups[dirIndex];
 
@@ -671,6 +704,83 @@ namespace drgAccess.Components
             catch (Exception ex)
             {
                 Plugin.Log.LogDebug($"[EnemyAudio] AnnounceEnemyNames error: {ex.Message}");
+            }
+        }
+
+        private void AnnounceEnemyProximity()
+        {
+            try
+            {
+                float currentTime = Time.time;
+
+                // Priority 1: Explosive very close (interrupt)
+                if (closestExploderDistance < VERY_CLOSE_THRESHOLD && currentTime >= nextVeryCloseAnnounceTime)
+                {
+                    ScreenReader.Interrupt("Explosive very close!");
+                    nextVeryCloseAnnounceTime = currentTime + VERY_CLOSE_ANNOUNCE_COOLDOWN;
+                    nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
+                    return;
+                }
+
+                // Priority 2: Boss very close (interrupt)
+                if (closestBossDistance < VERY_CLOSE_THRESHOLD && currentTime >= nextVeryCloseAnnounceTime)
+                {
+                    ScreenReader.Interrupt("Boss very close!");
+                    nextVeryCloseAnnounceTime = currentTime + VERY_CLOSE_ANNOUNCE_COOLDOWN;
+                    nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
+                    return;
+                }
+
+                // Priority 3: Elite very close (interrupt)
+                if (closestEliteDistance < VERY_CLOSE_THRESHOLD && currentTime >= nextVeryCloseAnnounceTime)
+                {
+                    ScreenReader.Interrupt("Elite very close!");
+                    nextVeryCloseAnnounceTime = currentTime + VERY_CLOSE_ANNOUNCE_COOLDOWN;
+                    nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
+                    return;
+                }
+
+                // Priority 4: Special enemies nearby
+                if (currentTime >= nextSpecialAnnounceTime)
+                {
+                    if (closestExploderDistance < NEARBY_THRESHOLD)
+                    {
+                        ScreenReader.Say("Explosive nearby");
+                        nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
+                        return;
+                    }
+                    if (closestBossDistance < NEARBY_THRESHOLD)
+                    {
+                        ScreenReader.Say("Boss nearby");
+                        nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
+                        return;
+                    }
+                    if (closestEliteDistance < NEARBY_THRESHOLD)
+                    {
+                        ScreenReader.Say("Elite nearby");
+                        nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
+                        return;
+                    }
+                }
+
+                // Priority 5: General enemy count (only on transition from 0 → some, or significant changes)
+                if (currentTime >= nextGeneralAnnounceTime)
+                {
+                    if (nearbyEnemyCount > 0 && !wasEnemyNearby)
+                    {
+                        if (nearbyEnemyCount == 1)
+                            ScreenReader.Say("Enemy nearby");
+                        else
+                            ScreenReader.Say($"{nearbyEnemyCount} enemies nearby");
+                        nextGeneralAnnounceTime = currentTime + GENERAL_ANNOUNCE_COOLDOWN;
+                    }
+                }
+
+                wasEnemyNearby = nearbyEnemyCount > 0;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogDebug($"[EnemyAudio] AnnounceEnemyProximity error: {ex.Message}");
             }
         }
 
@@ -894,6 +1004,12 @@ namespace drgAccess.Components
                     nextNameAnnouncementTime = 0f;
                     searchedEnemyResources = false;
                     localizedEnemyResources = null;
+
+                    // Reset proximity announcements
+                    wasEnemyNearby = false;
+                    nextGeneralAnnounceTime = 0f;
+                    nextSpecialAnnounceTime = 0f;
+                    nextVeryCloseAnnounceTime = 0f;
 
                     // Reset game state provider
                     gameStateProvider = null;

@@ -2,6 +2,46 @@ CHANGELOG
 =========
 
 
+v0.4.0 - February 12, 2026
+---------------------------
+
+New Features:
+
+  - Enemy Proximity Announcements: Screen reader now announces dangerous enemies
+    with priority-based alerts:
+      * "Explosive very close!" / "Boss very close!" / "Elite very close!" at < 8m
+      * "Explosive nearby" / "Boss nearby" / "Elite nearby" at < 20m
+      * "Enemy nearby" / "X enemies nearby" when enemies first enter range
+
+  - Collectible Proximity Announcements: Screen reader announces items with
+    direction as you approach them, using distance-based zone transitions:
+      * "Red Sugar nearby up-right" → "Red Sugar closer left" → "Red Sugar very close down"
+      * 8 directions adapted for top-down perspective (up/down/left/right + diagonals)
+      * Announces on zone transitions (getting closer), resets when item is picked up
+
+Improvements:
+
+  - Collectible Detection Range: Significantly increased detection distances for
+    all collectible categories to help find items from further away:
+      * Red Sugar: 15m → 30m
+      * Gear Drop: 18m → 40m
+      * Buff Pickup: 12m → 25m
+      * Currency: 13m → 28m
+      * Mineral Vein: 13m → 28m
+      * Loot Crate: 18m → 40m
+
+  - Enemy Detection Range: Reduced from 50m to 35m for a more focused and less
+    cluttered audio experience.
+
+  - Drop Pod Pathfinding: Major improvements to close-range navigation:
+      * NavMesh pathfinding now stays active until 3m (was disabled at 8m)
+      * Direct targeting only used when line of sight is clear (raycast check)
+      * Prevents getting stuck near the pod with walls blocking the path
+      * Ramp tone frequency no longer goes flat when playerPoint is far from ramp
+      * Path recalculation interval reduced from 0.5s to 0.3s
+      * Waypoint selection minimum distance reduced from 2m to 1.5m
+
+
 v0.3.2 - February 12, 2026
 ---------------------------
 

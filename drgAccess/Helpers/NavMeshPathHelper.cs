@@ -20,15 +20,19 @@ namespace drgAccess.Helpers
 
         // Recalculation throttle
         private static float lastCalcTime = 0f;
-        private const float RECALC_INTERVAL = 0.5f;
+        private const float RECALC_INTERVAL = 0.3f;
 
         // NavMesh sampling parameters
         private const float SAMPLE_RADIUS = 5f;
         private const int ALL_AREAS = -1; // NavMesh.AllAreas
 
         // Waypoint selection
-        private const float WAYPOINT_MIN_DISTANCE = 2f;
-        private const float DIRECT_TARGET_DISTANCE = 8f;
+        private const float WAYPOINT_MIN_DISTANCE = 1.5f;
+        private const float DIRECT_TARGET_DISTANCE = 3f; // Only skip pathfinding when very close AND line of sight clear
+
+        // Line of sight obstacle check
+        private static int obstacleMask = -1;
+        private static bool obstacleMaskSearched = false;
 
         public struct PathResult
         {
@@ -48,8 +52,8 @@ namespace drgAccess.Helpers
         {
             float directDist = Vector3.Distance(playerPos, targetPos);
 
-            // Within close range, skip pathfinding for precision
-            if (directDist < DIRECT_TARGET_DISTANCE)
+            // Within very close range AND clear line of sight, skip pathfinding for precision
+            if (directDist < DIRECT_TARGET_DISTANCE && HasLineOfSight(playerPos, targetPos))
             {
                 return new PathResult
                 {
@@ -94,6 +98,41 @@ namespace drgAccess.Helpers
             lastPathValid = false;
             lastCalcTime = 0f;
             cachedPath = null;
+            obstacleMask = -1;
+            obstacleMaskSearched = false;
+        }
+
+        /// <summary>
+        /// Checks if there's a clear line of sight between player and target (no walls).
+        /// </summary>
+        private static bool HasLineOfSight(Vector3 from, Vector3 to)
+        {
+            try
+            {
+                if (obstacleMask == -1 && !obstacleMaskSearched)
+                {
+                    obstacleMaskSearched = true;
+                    try
+                    {
+                        var spawner = UnityEngine.Object.FindObjectOfType<EnemySpawner>();
+                        if (spawner != null && spawner.layerMaskLibrary != null)
+                            obstacleMask = spawner.layerMaskLibrary.obstacleMask;
+                    }
+                    catch { }
+                    if (obstacleMask == -1)
+                        obstacleMask = LayerMask.GetMask("Default", "Terrain", "Wall");
+                }
+
+                Vector3 origin = from + Vector3.up * 0.5f;
+                Vector3 direction = to - from;
+                float distance = direction.magnitude;
+
+                return !Physics.Raycast(origin, direction.normalized, distance, obstacleMask);
+            }
+            catch
+            {
+                return true; // Assume clear if check fails
+            }
         }
 
         private static void RecalculatePath(Vector3 from, Vector3 to)

@@ -47,12 +47,12 @@ namespace drgAccess.Components
         // Category config
         private static readonly CategoryConfig[] configs = new[]
         {
-            new CategoryConfig(CollectibleSoundType.RedSugar, 15f, 0.22f, 0.40f, 500f, 750f, 0.5f, 0.08f),
-            new CategoryConfig(CollectibleSoundType.GearDrop, 18f, 0.28f, 0.45f, 800f, 1200f, 0.6f, 0.10f),
-            new CategoryConfig(CollectibleSoundType.BuffPickup, 12f, 0.18f, 0.35f, 1000f, 1500f, 0.4f, 0.06f),
-            new CategoryConfig(CollectibleSoundType.CurrencyPickup, 13f, 0.16f, 0.30f, 600f, 900f, 0.45f, 0.07f),
-            new CategoryConfig(CollectibleSoundType.MineralVein, 13f, 0.22f, 0.40f, 300f, 500f, 0.7f, 0.10f),
-            new CategoryConfig(CollectibleSoundType.LootCrate, 18f, 0.25f, 0.42f, 1200f, 1800f, 0.5f, 0.08f),
+            new CategoryConfig(CollectibleSoundType.RedSugar, 30f, 0.22f, 0.40f, 500f, 750f, 0.5f, 0.08f),
+            new CategoryConfig(CollectibleSoundType.GearDrop, 40f, 0.28f, 0.45f, 800f, 1200f, 0.6f, 0.10f),
+            new CategoryConfig(CollectibleSoundType.BuffPickup, 25f, 0.18f, 0.35f, 1000f, 1500f, 0.4f, 0.06f),
+            new CategoryConfig(CollectibleSoundType.CurrencyPickup, 28f, 0.16f, 0.30f, 600f, 900f, 0.45f, 0.07f),
+            new CategoryConfig(CollectibleSoundType.MineralVein, 28f, 0.22f, 0.40f, 300f, 500f, 0.7f, 0.10f),
+            new CategoryConfig(CollectibleSoundType.LootCrate, 40f, 0.25f, 0.42f, 1200f, 1800f, 0.5f, 0.08f),
             new CategoryConfig(CollectibleSoundType.XpNearby, 8f, 0.05f, 0.14f, 350f, 700f, 0f, 0f),
         };
 
@@ -91,6 +91,13 @@ namespace drgAccess.Components
         }
         private NearestTarget[] nearestTargets;
 
+        // Item proximity announcements (zone-based like drop pod)
+        private int[] lastItemZone; // 0=none, 1=nearby, 2=closer, 3=very close
+        private static readonly string[] categoryNames =
+        {
+            "Red Sugar", "Gear", "Buff", "Currency", "Mineral Vein", "Loot Crate", "XP"
+        };
+
         static CollectibleAudioSystem()
         {
             ClassInjector.RegisterTypeInIl2Cpp<CollectibleAudioSystem>();
@@ -107,6 +114,7 @@ namespace drgAccess.Components
             DontDestroyOnLoad(gameObject);
 
             nearestTargets = new NearestTarget[configs.Length];
+            lastItemZone = new int[configs.Length];
             Plugin.Log.LogInfo("[CollectibleAudio] Initialized");
         }
 
@@ -199,6 +207,7 @@ namespace drgAccess.Components
                 }
 
                 UpdateAudio();
+                AnnounceItems();
             }
             catch (Exception e)
             {
@@ -436,6 +445,103 @@ namespace drgAccess.Components
             }
         }
 
+        private void AnnounceItems()
+        {
+            try
+            {
+                Vector3 playerPos = playerTransform.position;
+                Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
+                forward.y = 0;
+                forward.Normalize();
+
+                for (int i = 0; i < configs.Length; i++)
+                {
+                    // Skip XP — too common, not worth announcing
+                    if (configs[i].Type == CollectibleSoundType.XpNearby)
+                    {
+                        lastItemZone[i] = 0;
+                        continue;
+                    }
+
+                    int zone = 0; // none
+                    if (nearestTargets[i].Found)
+                    {
+                        float maxDist = configs[i].MaxDistance;
+                        float dist = nearestTargets[i].Distance;
+                        float ratio = dist / maxDist;
+
+                        if (ratio <= 0.25f)
+                            zone = 3; // very close
+                        else if (ratio <= 0.55f)
+                            zone = 2; // closer
+                        else
+                            zone = 1; // nearby
+                    }
+
+                    // Announce only on zone transitions (getting closer or first detection)
+                    if (zone > lastItemZone[i])
+                    {
+                        string direction = "";
+                        if (nearestTargets[i].Found)
+                        {
+                            Vector3 toTarget = nearestTargets[i].Position - playerPos;
+                            toTarget.y = 0;
+                            if (toTarget.sqrMagnitude > 0.01f)
+                            {
+                                toTarget.Normalize();
+                                direction = " " + GetDirectionLabel(forward, toTarget);
+                            }
+                        }
+
+                        string label = zone switch
+                        {
+                            1 => $"{categoryNames[i]} nearby{direction}",
+                            2 => $"{categoryNames[i]} closer{direction}",
+                            3 => $"{categoryNames[i]} very close{direction}",
+                            _ => null
+                        };
+                        if (label != null)
+                            ScreenReader.Say(label);
+                    }
+
+                    lastItemZone[i] = zone;
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogDebug($"[CollectibleAudio] AnnounceItems error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Returns a screen-relative direction label (up/down/left/right/diagonals)
+        /// adapted for top-down perspective (up=W, down=S, left=A, right=D).
+        /// </summary>
+        private string GetDirectionLabel(Vector3 forward, Vector3 toTarget)
+        {
+            Vector3 right = new Vector3(forward.z, 0, -forward.x);
+            float dotForward = Vector3.Dot(forward, toTarget);
+            float dotRight = Vector3.Dot(right, toTarget);
+
+            // Thresholds for diagonal detection
+            const float diagThreshold = 0.38f;
+
+            bool isForward = dotForward > diagThreshold;
+            bool isBack = dotForward < -diagThreshold;
+            bool isRight = dotRight > diagThreshold;
+            bool isLeft = dotRight < -diagThreshold;
+
+            if (isForward && isRight) return "up-right";
+            if (isForward && isLeft) return "up-left";
+            if (isBack && isRight) return "down-right";
+            if (isBack && isLeft) return "down-left";
+            if (isForward) return "up";
+            if (isBack) return "down";
+            if (isRight) return "right";
+            if (isLeft) return "left";
+            return "ahead";
+        }
+
         private void SilenceAll()
         {
             if (channels == null) return;
@@ -471,6 +577,8 @@ namespace drgAccess.Components
             sceneLoadTime = Time.time;
             for (int i = 0; i < nearestTargets.Length; i++)
                 nearestTargets[i] = default;
+            if (lastItemZone != null)
+                Array.Clear(lastItemZone, 0, lastItemZone.Length);
             SilenceAll();
         }
 

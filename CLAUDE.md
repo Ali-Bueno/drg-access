@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.3.2
+- **Current version**: v0.4.0
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -81,6 +81,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Left/Right: 300 Hz (medium-low tone) with stereo panning
   - Volume increases as walls get closer
 - **Gameplay Audio - Enemy Detection**: 3D positional beeps for enemies with type differentiation
+  - Detection range: 35m (fixed, balanced for all weapon types including turrets and Bosco)
   - Normal enemies (including MINI_ELITE): Pure sine wave, 700-1400 Hz, 50ms duration
   - Elite enemies (ELITE only): Triangle wave + 2nd harmonic, 200-400 Hz, 180ms, 15Hz vibrato
   - Boss enemies: Square wave + sub-bass, 40-100 Hz, 350ms, dramatic pitch descent
@@ -89,6 +90,11 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Critical proximity warning (< 3.5m): Faster beeps, boosted volume, higher pitch for urgency
   - 8-directional detection with stereo panning + **directional pitch modulation** (higher when enemy is ahead, lower when behind)
   - Enemy name announcements via screen reader: new enemy types announced when first detected, cooldown of 3 seconds between announcements
+  - **Proximity announcements**: Priority-based screen reader alerts for dangerous enemies
+    - "Explosive very close!" / "Boss very close!" / "Elite very close!" — interrupt, < 8m, 3s cooldown
+    - "Explosive nearby" / "Boss nearby" / "Elite nearby" — < 20m, 5s cooldown
+    - "Enemy nearby" / "X enemies nearby" — on transition from 0 to some, 8s cooldown
+    - Exploders detected by `EEnemy.EXPLODER` and `EEnemy.EXPLODER_FAST`
   - Note: MINI_ELITE classified as normal to avoid confusion (they're common)
 - **Gameplay Audio - Drop Pod Beacon**: Metallic sonar ping guiding to extraction pod ramp
   - Targets the pod's **ramp position** (`rampDetector` Transform) — the specific entry side, not pod center
@@ -101,7 +107,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - **Very close (< 1.5m from playerPoint)**: Peak intensity (1800-2200 Hz), screen reader announces "Almost inside, keep going"
   - Screen reader announces "Near the pod, follow the tone inside" at 5m
   - **Inside pod**: All audio stops, screen reader announces "Inside the pod"
-  - **NavMesh pathfinding**: Uses Unity's NavMesh to calculate paths around walls/obstacles instead of pointing in a straight line. Beacon guides toward next path waypoint. Falls back to direct targeting if path fails or within 8m of pod. Path recalculated every 0.5s via `NavMeshPathHelper`
+  - **NavMesh pathfinding**: Uses Unity's NavMesh to calculate paths around walls/obstacles instead of pointing in a straight line. Beacon guides toward next path waypoint. Falls back to direct targeting only within 3m AND with clear line of sight (raycast check). Path recalculated every 0.3s via `NavMeshPathHelper`
   - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + path distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
   - Only activates for extraction pod (not initial drop pod)
 - **Gameplay Audio - Supply Pod Beacon**: Warbling trill for ActivationZone (supply pod zones)
@@ -123,11 +129,16 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Stereo panning toward the hazard direction + **directional pitch modulation**
 - **Gameplay Audio - Collectible Items**: 3D positional audio for pickups, mineral veins, and loot crates
   - 7 distinct sound categories, each with unique synthesis: Red Sugar (water-drop bloop 500-750 Hz), Gear Drop (two-tone chord 800-1200 Hz), Buff Pickup (FM synthesis buzz 1000-1500 Hz), Currency (crystalline chime 600-900 Hz), Mineral Vein (metallic clink 300-500 Hz), Loot Crate (shimmering sparkle 1200-1800 Hz), XP Nearby (triangle wave + tremolo 350-700 Hz)
-  - Detection distances: 8-18m depending on importance (gear/crates 18m, buffs 12m, XP 8m)
+  - Detection distances: Red Sugar 30m, Gear/Loot Crate 40m, Buff 25m, Currency/Mineral Vein 28m, XP 8m
   - Only the nearest item per category gets audio (max 7 simultaneous sounds)
   - Beacon-style accelerating beeps for all pickups/crates/minerals, continuous tone for XP only
   - XP uses triangle wave with 6 Hz tremolo to distinguish from wall detection sine tones
   - Stereo panning toward the target, volume and frequency increase with proximity + **directional pitch modulation**
+  - **Proximity announcements with direction**: Zone-based screen reader alerts as player approaches items
+    - "Red Sugar nearby up-right" → "Red Sugar closer left" → "Red Sugar very close down"
+    - Zones based on distance ratio: nearby (100-55%), closer (55-25%), very close (< 25%)
+    - 8 directions adapted for top-down perspective (up/down/left/right + diagonals)
+    - XP excluded from announcements (too common)
   - Uses 1 WaveOutEvent + 1 MixingSampleProvider with 7 CollectibleSoundGenerator channels
 - **Objective Announcements**: Mission objectives announced via screen reader
   - Objective text announced when it first appears (Show)

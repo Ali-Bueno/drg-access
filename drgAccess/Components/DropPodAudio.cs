@@ -551,8 +551,9 @@ namespace drgAccess.Components
                 // Ramp zone: continuous tone guides player toward playerPoint
                 if (isInRampZone)
                 {
-                    // Use distance to playerPoint for ramp tone intensity (not distance to ramp)
-                    float interiorFactor = 1f - Mathf.Clamp01(interiorDistance / RAMP_DISTANCE);
+                    // Use distance to playerPoint, scaled by the larger of ramp/interior distance for correct mapping
+                    float rampScale = Mathf.Max(RAMP_DISTANCE, interiorDistance + 1f);
+                    float interiorFactor = 1f - Mathf.Clamp01(interiorDistance / rampScale);
                     bool isVeryClose = interiorDistance < INTERIOR_CLOSE_DISTANCE;
 
                     if (isVeryClose)
@@ -601,7 +602,8 @@ namespace drgAccess.Components
                     if (isInRampZone)
                     {
                         // In ramp zone: beeps also target playerPoint with interior-based modulation
-                        float intFactor = 1f - Mathf.Clamp01(interiorDistance / RAMP_DISTANCE);
+                        float intScale = Mathf.Max(RAMP_DISTANCE, interiorDistance + 1f);
+                        float intFactor = 1f - Mathf.Clamp01(interiorDistance / intScale);
                         beepGenerator.Frequency = (1200 + intFactor * 600) * interiorPitchMul;
                         beepGenerator.Volume = (0.35f + intFactor * 0.20f) * interiorVolMul;
                         beepGenerator.Interval = Mathf.Lerp(0.10f, 0.04f, intFactor);
