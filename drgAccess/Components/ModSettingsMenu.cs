@@ -74,6 +74,7 @@ namespace drgAccess.Components
         {
             VolumeSlider,
             SettingSlider,
+            Toggle,
             AudioCueSubmenu,
             SaveButton,
             CancelButton
@@ -154,6 +155,19 @@ namespace drgAccess.Components
                     DisplayName = "Collectibles",
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.RedSugar, 500f, 0.18f, ModConfig.COLLECTIBLES)
+                },
+                new MainMenuItem
+                {
+                    Category = ModConfig.FOOTSTEPS_ENABLED,
+                    DisplayName = "Footsteps",
+                    Type = MainItemType.Toggle
+                },
+                new MainMenuItem
+                {
+                    Category = ModConfig.FOOTSTEPS,
+                    DisplayName = "Footsteps Volume",
+                    Type = MainItemType.VolumeSlider,
+                    PlayPreview = () => FootstepAudio.Instance?.PreviewFootstep(GetPendingVolume(ModConfig.FOOTSTEPS))
                 },
                 // --- Detection Settings ---
                 new MainMenuItem
@@ -452,6 +466,11 @@ namespace drgAccess.Components
                 else if (InputHelper.NavigateRight())
                     AdjustSetting(item.Category, true);
             }
+            else if (item.Type == MainItemType.Toggle)
+            {
+                if (InputHelper.NavigateLeft() || InputHelper.NavigateRight())
+                    ToggleSetting(item.Category);
+            }
 
             if (InputHelper.Confirm())
                 HandleMainConfirm();
@@ -478,6 +497,10 @@ namespace drgAccess.Components
                 case MainItemType.SettingSlider:
                     SpeakDirect($"{item.DisplayName}. {FormatSetting(item.Category)}");
                     break;
+                case MainItemType.Toggle:
+                    bool isOn = GetPendingToggle(item.Category);
+                    SpeakDirect($"{item.DisplayName}. {(isOn ? "On" : "Off")}");
+                    break;
                 default:
                     SpeakDirect(item.DisplayName);
                     break;
@@ -492,6 +515,9 @@ namespace drgAccess.Components
                 case MainItemType.VolumeSlider:
                     ClearPreview();
                     item.PlayPreview?.Invoke();
+                    break;
+                case MainItemType.Toggle:
+                    ToggleSetting(item.Category);
                     break;
                 case MainItemType.AudioCueSubmenu:
                     EnterSubmenu();
@@ -598,6 +624,23 @@ namespace drgAccess.Components
                 return $"{val:F1}x";
             // No unit (count)
             return $"{val:F0}";
+        }
+
+        private void ToggleSetting(string key)
+        {
+            if (pendingVolumes == null) return;
+            bool current = GetPendingToggle(key);
+            pendingVolumes[key] = current ? 0f : 1f;
+            SpeakDirect(current ? "Off" : "On");
+        }
+
+        private bool GetPendingToggle(string key)
+        {
+            if (pendingVolumes != null && pendingVolumes.TryGetValue(key, out float val))
+                return val >= 0.5f;
+            if (ModConfig.SettingDefs.TryGetValue(key, out var def))
+                return def.Default >= 0.5f;
+            return true;
         }
 
         private float GetPendingVolume(string category)

@@ -2,6 +2,24 @@ CHANGELOG
 =========
 
 
+v0.5.1 - February 16, 2026
+---------------------------
+
+New Features:
+
+  - Footstep Audio: Material-based footstep sounds play during gameplay.
+    Stone footsteps during normal gameplay, metal footsteps when near the
+    drop pod ramp. Sounds play at a consistent rhythm based on movement,
+    and stop when the player is stationary or colliding with walls.
+    10 randomized sound variations per material for natural feel.
+
+  - Footsteps Toggle: New on/off toggle in the Mod Settings Menu (F1) to
+    enable or disable footstep sounds. Enabled by default.
+
+  - Footsteps Volume: New volume slider in the Mod Settings Menu to adjust
+    footstep volume independently from other audio cues.
+
+
 v0.5.0 - February 16, 2026
 ---------------------------
 

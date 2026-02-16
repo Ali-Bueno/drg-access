@@ -22,12 +22,16 @@ namespace drgAccess.Helpers
         public const string SUPPLY_POD_BEACON = "SupplyPodBeacon";
         public const string HAZARD_WARNING = "HazardWarning";
         public const string COLLECTIBLES = "Collectibles";
+        public const string FOOTSTEPS = "Footsteps";
 
         public static readonly string[] VolumeCategories = new[]
         {
             WALL_NAVIGATION, ENEMY_DETECTION, DROP_POD_BEACON,
-            SUPPLY_POD_BEACON, HAZARD_WARNING, COLLECTIBLES
+            SUPPLY_POD_BEACON, HAZARD_WARNING, COLLECTIBLES, FOOTSTEPS
         };
+
+        // --- Toggle settings ---
+        public const string FOOTSTEPS_ENABLED = "FootstepsEnabled";
 
         // --- Detection settings ---
         public const string ENEMY_RANGE = "EnemyRange";
@@ -47,6 +51,7 @@ namespace drgAccess.Helpers
 
         public static readonly Dictionary<string, SettingDef> SettingDefs = new()
         {
+            { FOOTSTEPS_ENABLED,   new SettingDef { Default = 1f,   Min = 0f,  Max = 1f,   Step = 1f,  DisplayName = "Footsteps",               Unit = "toggle" } },
             { ENEMY_RANGE,         new SettingDef { Default = 35f,  Min = 10f, Max = 60f,  Step = 5f,  DisplayName = "Enemy Detection Range",   Unit = "m" } },
             { HAZARD_RANGE,        new SettingDef { Default = 25f,  Min = 10f, Max = 50f,  Step = 5f,  DisplayName = "Hazard Warning Range",    Unit = "m" } },
             { COLLECTIBLE_RANGE,   new SettingDef { Default = 1.0f, Min = 0.5f, Max = 2.0f, Step = 0.1f, DisplayName = "Collectible Range",     Unit = "x" } },
@@ -56,7 +61,7 @@ namespace drgAccess.Helpers
 
         public static readonly string[] AllSettingKeys = new[]
         {
-            ENEMY_RANGE, HAZARD_RANGE, COLLECTIBLE_RANGE, WALL_RANGE, MAX_HAZARD_CHANNELS
+            FOOTSTEPS_ENABLED, ENEMY_RANGE, HAZARD_RANGE, COLLECTIBLE_RANGE, WALL_RANGE, MAX_HAZARD_CHANNELS
         };
 
         // --- State ---
@@ -167,6 +172,8 @@ namespace drgAccess.Helpers
         }
 
         public static int GetSettingInt(string key) => (int)Math.Round(GetSetting(key));
+
+        public static bool GetBool(string key) => GetSetting(key) >= 0.5f;
 
         // --- Snapshot for settings menu editing ---
 

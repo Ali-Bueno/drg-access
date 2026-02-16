@@ -107,4 +107,13 @@
     <Message Text="Copied plugin and dependencies to $(BepInExDir)\plugins\drgAccess" Importance="high" />
   </Target>
 
+  <!-- Copy sound files to plugins folder -->
+  <Target Name="CopySoundsToPlugins" AfterTargets="Build">
+    <ItemGroup>
+      <SoundFiles Include="sounds\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SoundFiles)" DestinationFiles="@(SoundFiles->'$(BepInExDir)\plugins\drgAccess\%(Identity)')" />
+    <Message Text="Copied sound files to $(BepInExDir)\plugins\drgAccess\sounds" Importance="high" />
+  </Target>
+
 </Project>

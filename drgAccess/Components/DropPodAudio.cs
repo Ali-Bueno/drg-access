@@ -346,6 +346,26 @@ namespace drgAccess.Components
             }
         }
 
+        /// <summary>
+        /// True when the player is within ramp distance of the extraction pod.
+        /// Used by FootstepAudio to switch to metal footstep sounds.
+        /// </summary>
+        public bool IsPlayerNearPod
+        {
+            get
+            {
+                if (activePod == null || playerTransform == null) return false;
+                try
+                {
+                    var ramp = activePod.rampDetector;
+                    if (ramp != null)
+                        return Vector3.Distance(playerTransform.position, ramp.position) < RAMP_DISTANCE;
+                }
+                catch { }
+                return false;
+            }
+        }
+
         public void OnPodLanded(DropPod pod)
         {
             activePod = pod;

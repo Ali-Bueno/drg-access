@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.5.0
+- **Current version**: v0.5.1
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -184,7 +184,8 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Mod Settings Menu**: Configurable mod settings accessible with F1 key (outside gameplay)
   - Opens with F1 / Y button, closes with Escape / B button or Save/Cancel
   - Navigate with Up/Down arrows or D-Pad, adjust values with Left/Right arrows or D-Pad
-  - **Volume Sliders**: 6 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles) — 0-100% in 5% steps
+  - **Volume Sliders**: 7 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles, Footsteps) — 0-100% in 5% steps
+  - **Toggle Settings**: Footsteps On/Off (enabled by default)
   - **Detection Settings**: Configurable ranges and limits:
     - Enemy Detection Range (10-60m, default 35m)
     - Hazard Warning Range (10-50m, default 25m)
@@ -201,6 +202,13 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Patches `AudioMastering.SetMasterVolume` (slider changes) and `OnSaveDataLoaded` (initial value from save)
   - Both patches needed because IL2CPP native-to-native calls bypass Harmony on the initial load
 - **Directional Pitch Modulation**: All spatial audio cues (drop pod, supply pod, enemies, hazards, collectibles) use forward/behind pitch modulation — higher pitch when target is ahead (W/up), lower when behind (S/down). Uses shared `AudioDirectionHelper` to avoid code duplication. Drop pod uses pronounced 0.4x–1.0x range; all others use 0.6x–1.0x
+- **Footstep Audio**: Material-based footstep sounds during gameplay
+  - Plays preloaded MP3 footstep sounds from `sounds/footsteps/` directory
+  - **Stone** sounds during normal gameplay, **Metal** sounds when near the drop pod ramp (< 5m)
+  - Fixed interval (~0.34s) with smoothed speed detection — stops when player is stationary or colliding
+  - Random sound selection without consecutive repeats for natural variation
+  - Toggleable via Mod Settings (Footsteps On/Off) with adjustable volume
+  - Sounds loaded at startup, resampled to 44100 Hz stereo, with 1.8x base volume boost
 - **Pickup Announcements**: Screen reader announces pickups during gameplay via CoreGameEvents patches
   - Heals: "Healed X HP" (only HEAL type — skips REGEN and MAX_HP to avoid spam on stat setup/game start)
   - Currency: "X [currency name]" with 2-second cooldown per currency type to avoid rapid-pickup spam
@@ -239,6 +247,7 @@ drgAccess/
 │   ├── CollectibleAudioSystem.cs  # Collectible items/minerals/crates positional audio
 │   ├── CollectibleSoundGenerator.cs # ISampleProvider for 7 collectible sound types
 │   ├── HazardWarningAudio.cs      # Multi-channel hazard warning siren (exploders, ground spikes)
+│   ├── FootstepAudio.cs           # Material-based footstep sounds (stone/metal MP3 playback)
 │   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
 │   ├── HPReaderComponent.cs       # H key HP reading during gameplay
@@ -263,6 +272,10 @@ drgAccess/
 │   ├── HazardPatches.cs           # Ground spike detection for hazard warnings
 │   ├── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
 │   └── AudioMasteringPatch.cs     # Master volume sync (SetMasterVolume + OnSaveDataLoaded)
+├── sounds/
+│   └── footsteps/
+│       ├── stone/                    # 10 stone footstep MP3s
+│       └── metal/                    # 10 metal footstep MP3s
 └── drgAccess.csproj               # Project file
 
 drg code/                          # Decompiled game code for reference (not included in repo)
