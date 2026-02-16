@@ -17,6 +17,9 @@ public class Plugin : BasePlugin
         Log = base.Log;
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loading...");
 
+        // Load mod configuration
+        Helpers.ModConfig.Load();
+
         // Initialize Tolk for screen reader support
         InitializeTolk();
 
@@ -35,7 +38,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.ActivationZoneAudio>();
         AddComponent<Components.HazardWarningAudio>();
         AddComponent<Components.CollectibleAudioSystem>();
-        AddComponent<Components.AudioCueMenu>();
+        AddComponent<Components.ModSettingsMenu>();
         AddComponent<Components.WalletReaderComponent>();
         AddComponent<Components.EndScreenReaderComponent>();
         AddComponent<Components.MilestoneReaderComponent>();

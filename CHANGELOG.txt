@@ -2,6 +2,47 @@ CHANGELOG
 =========
 
 
+v0.5.0 - February 16, 2026
+---------------------------
+
+New Features:
+
+  - Mod Settings Menu: Press F1 (or Y button on gamepad) outside gameplay to
+    open the mod settings menu with configurable options:
+      * Volume sliders for 6 audio cue categories (Wall Navigation, Enemy
+        Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning,
+        Collectibles) — adjustable 0-100% in 5% steps with Left/Right arrows
+      * Detection range settings: Enemy Range (10-60m), Hazard Range (10-50m),
+        Collectible Range Multiplier (0.5x-2.0x), Wall Range (5-25m)
+      * Max Hazard Warnings (1-5 simultaneous alarms)
+      * Audio Cue Preview submenu with all 19 audio cue previews
+      * Save and Cancel options — settings persist to config file next to mod DLL
+
+  - Master Volume Sync: All mod audio cues now scale with the game's master
+    volume setting. If you lower the game's master volume, audio cues lower
+    proportionally. Works both when adjusting the slider and on game load.
+
+  - Multi-Channel Hazard Warning: The hazard warning system now tracks multiple
+    simultaneous hazards (up to 5, configurable). Each hazard gets its own audio
+    channel with independent directional panning and frequency. Closest hazard
+    is loudest, secondary channels at 70% volume. Exploder detection range
+    increased from 8m to 12m.
+
+Improvements:
+
+  - Wall Navigation Volume: Increased base volume from 0.05 to 0.12 so walls
+    are more audible relative to other audio cues.
+
+  - Supply Pod Volume: Increased supply pod beacon volume range from 0.28-0.48
+    to 0.35-0.55 for better audibility.
+
+  - Audio Cue Preview: Now accessed as a submenu within the Mod Settings Menu
+    instead of a standalone menu (Backspace key no longer used).
+
+  - All detection distances are now configurable via the Mod Settings Menu
+    instead of being hardcoded values.
+
+
 v0.4.1 - February 12, 2026
 ---------------------------
 

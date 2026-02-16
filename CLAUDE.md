@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.4.1
+- **Current version**: v0.5.0
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -80,9 +80,10 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Forward: 500 Hz (medium tone)
   - Back: 180 Hz (low tone)
   - Left/Right: 300 Hz (medium-low tone) with stereo panning
-  - Volume increases as walls get closer
+  - Volume increases as walls get closer (base volume 0.12)
+  - Detection range: configurable 5-25m (default 12m, via Mod Settings)
 - **Gameplay Audio - Enemy Detection**: 3D positional beeps for enemies with type differentiation
-  - Detection range: 35m (fixed, balanced for all weapon types including turrets and Bosco)
+  - Detection range: configurable 10-60m (default 35m, via Mod Settings)
   - Normal enemies (including MINI_ELITE): Pure sine wave, 700-1400 Hz, 50ms duration
   - Elite enemies (ELITE only): Triangle wave + 2nd harmonic, 200-400 Hz, 180ms, 15Hz vibrato
   - Boss enemies: Square wave + sub-bass, 40-100 Hz, 350ms, dramatic pitch descent
@@ -114,7 +115,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Gameplay Audio - Supply Pod Beacon**: Warbling trill for ActivationZone (supply pod zones)
   - Uses BeaconBeepGenerator (warble: 18 Hz frequency oscillation, sawtooth+sine mix with sub-octave)
   - Accelerating interval: 250ms (far) → 30ms (very close)
-  - 3D positional audio with distance-based volume (0.2-0.38) and frequency (350-650 Hz) + **directional pitch modulation**
+  - 3D positional audio with distance-based volume (0.35-0.55) and frequency (350-650 Hz) + **directional pitch modulation**
   - Clearly distinct from drop pod beacon (different waveform and frequency range)
   - **Zone enter/exit announcements**: "Inside supply zone" / "Left supply zone" (+ "return to zone" if activating)
   - **Beacon stays active when ACTIVATING + player outside**: guides player back to zone
@@ -122,15 +123,20 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - **State announcements**: "Clearing zone, X rocks to mine" on activation start, "Supply zone complete" on done
   - **Progress feedback**: remaining rocks announced as they're mined, timer announced every 10 seconds
   - Detects nearest active zone within 100m
-- **Gameplay Audio - Hazard Warning**: Siren alarm for nearby dangers
-  - Exploders (horde enemies): Detected by name, alarm at 900-1400 Hz within 8m range
+- **Gameplay Audio - Hazard Warning**: Multi-channel siren alarm for nearby dangers
+  - Tracks up to 5 simultaneous hazards (configurable 1-5, default 3 via Mod Settings)
+  - Each hazard gets its own audio channel with independent panning and frequency
+  - Closest hazard is loudest, secondary channels at 70% volume
+  - Exploders (horde enemies): Detected via EnemyTracker, alarm at 900-1400 Hz within 12m
   - Ground Spikes (Dreadnought boss): Registered via patch on GroundSpike.OnSpawn, alarm at 600-1000 Hz
   - Alarm uses oscillating frequency (siren effect) clearly distinct from enemy beeps
   - Alarm rate increases with proximity (5-25 Hz oscillation)
+  - Warning range: configurable 10-50m (default 25m, via Mod Settings)
   - Stereo panning toward the hazard direction + **directional pitch modulation**
 - **Gameplay Audio - Collectible Items**: 3D positional audio for pickups, mineral veins, and loot crates
   - 7 distinct sound categories, each with unique synthesis: Red Sugar (water-drop bloop 500-750 Hz), Gear Drop (two-tone chord 800-1200 Hz), Buff Pickup (FM synthesis buzz 1000-1500 Hz), Currency (crystalline chime 600-900 Hz), Mineral Vein (metallic clink 300-500 Hz), Loot Crate (shimmering sparkle 1200-1800 Hz), XP Nearby (triangle wave + tremolo 350-700 Hz)
-  - Detection distances: Red Sugar 30m, Gear/Loot Crate 40m, Buff 25m, Currency/Mineral Vein 28m, XP 8m
+  - Base detection distances: Red Sugar 30m, Gear/Loot Crate 40m, Buff 25m, Currency/Mineral Vein 28m, XP 8m
+  - All distances multiplied by configurable range multiplier (0.5x-2.0x, default 1.0x via Mod Settings)
   - Only the nearest item per category gets audio (max 7 simultaneous sounds)
   - Beacon-style accelerating beeps for all pickups/crates/minerals, continuous tone for XP only
   - XP uses triangle wave with 6 Hz tremolo to distinguish from wall detection sine tones
@@ -147,20 +153,20 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Objective completion announced with interrupt priority (OnObjectiveComplete)
 - **Unlock Screen Accessibility**: Weapon/artifact/mastery unlock details announced when unlocked (patches ShowMilestone and ShowMastery)
 - **Gamepad Support**: All mod-specific inputs support both keyboard and gamepad via shared `InputHelper`
-  - D-Pad Up/Down: navigate custom menus (end screen, milestones, audio cue menu)
+  - D-Pad Up/Down: navigate custom menus (end screen, milestones, mod settings)
+  - D-Pad Left/Right: adjust values in mod settings menu
   - A (buttonSouth): confirm/activate
   - B (buttonEast): close/back
-  - Y (buttonNorth): toggle audio cue preview menu
+  - Y (buttonNorth): toggle mod settings menu
   - LB (leftShoulder): read HP
   - RB (rightShoulder): read wallet balance
   - L3 (leftStickButton): compass direction to drop pod
-- **Audio Cue Preview Menu**: Standalone menu to preview all audio cues outside gameplay
-  - Opens with Backspace / Y button (only when NOT in active gameplay), closes with Backspace/Escape / B button
-  - Navigate with W/S or Up/Down arrows or D-Pad, preview with Enter / A button
+- **Audio Cue Preview Menu**: Submenu within the Mod Settings Menu to preview all audio cues
+  - Access via "Audio Cue Preview" item in Mod Settings (F1), navigate with Up/Down, preview with Enter / A
   - 19 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Hazard Warning, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
-  - Deactivates EventSystem while open to block game UI input, toggles InputSystemUIInputModule on close to restore navigation
-  - Uses shared WaveOutEvent + MixingSampleProvider, created on menu open, disposed on close
+  - Escape / B button returns to main settings menu
+  - Previews use pending volume values (unsaved changes applied during preview)
 - **Milestones Menu**: Arrow-key navigable reader for milestone progress
   - Activates when milestone form opens, collects all visible milestones
   - Navigate with W/S or Up/Down arrows to browse milestones
@@ -175,6 +181,25 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Blocks EventSystem while active, restores on button activation
   - The "Continue" button has no field on UIEndScreen (connected via Inspector), calls OnMenuButton() directly
 - **HP Reader**: Press H during active gameplay or in the shop to hear current/max HP (e.g. "HP: 85 / 120"), falls back to percentage if MAX_HP stat unavailable
+- **Mod Settings Menu**: Configurable mod settings accessible with F1 key (outside gameplay)
+  - Opens with F1 / Y button, closes with Escape / B button or Save/Cancel
+  - Navigate with Up/Down arrows or D-Pad, adjust values with Left/Right arrows or D-Pad
+  - **Volume Sliders**: 6 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles) — 0-100% in 5% steps
+  - **Detection Settings**: Configurable ranges and limits:
+    - Enemy Detection Range (10-60m, default 35m)
+    - Hazard Warning Range (10-50m, default 25m)
+    - Collectible Range Multiplier (0.5x-2.0x, default 1.0x)
+    - Wall Detection Range (5-25m, default 12m)
+    - Max Hazard Warnings (1-5 simultaneous, default 3)
+  - **Audio Cue Preview submenu**: All 19 audio cue previews (moved from standalone menu), Enter to preview
+  - Save persists to `drgAccess_settings.cfg` next to the mod DLL
+  - Cancel restores previous values via snapshot system
+  - Previews respect pending (unsaved) volume values
+  - Blocks EventSystem while open to prevent game UI interaction
+- **Master Volume Sync**: Mod audio cue volumes automatically scale with the game's master volume setting
+  - All `ModConfig.GetVolume()` calls multiply category volume by game master volume
+  - Patches `AudioMastering.SetMasterVolume` (slider changes) and `OnSaveDataLoaded` (initial value from save)
+  - Both patches needed because IL2CPP native-to-native calls bypass Harmony on the initial load
 - **Directional Pitch Modulation**: All spatial audio cues (drop pod, supply pod, enemies, hazards, collectibles) use forward/behind pitch modulation — higher pitch when target is ahead (W/up), lower when behind (S/down). Uses shared `AudioDirectionHelper` to avoid code duplication. Drop pod uses pronounced 0.4x–1.0x range; all others use 0.6x–1.0x
 - **Pickup Announcements**: Screen reader announces pickups during gameplay via CoreGameEvents patches
   - Heals: "Healed X HP" (only HEAL type — skips REGEN and MAX_HP to avoid spam on stat setup/game start)
@@ -203,7 +228,8 @@ drgAccess/
 │   ├── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
 │   ├── NavMeshPathHelper.cs       # NavMesh pathfinding for beacon guidance around obstacles
 │   ├── AudioDirectionHelper.cs    # Shared forward/behind pitch modulation for all audio cues
-│   └── InputHelper.cs             # Shared keyboard + gamepad input checking
+│   ├── InputHelper.cs             # Shared keyboard + gamepad input checking
+│   └── ModConfig.cs               # Settings persistence (volumes, detection ranges, master volume sync)
 ├── Components/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones (1 shared WaveOutEvent)
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies (1 shared WaveOutEvent)
@@ -212,8 +238,8 @@ drgAccess/
 │   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (warble trill)
 │   ├── CollectibleAudioSystem.cs  # Collectible items/minerals/crates positional audio
 │   ├── CollectibleSoundGenerator.cs # ISampleProvider for 7 collectible sound types
-│   ├── HazardWarningAudio.cs      # Hazard warning siren (exploders, ground spikes)
-│   ├── AudioCueMenu.cs            # Audio cue preview menu (Backspace to open/close)
+│   ├── HazardWarningAudio.cs      # Multi-channel hazard warning siren (exploders, ground spikes)
+│   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
 │   ├── HPReaderComponent.cs       # H key HP reading during gameplay
 │   ├── EndScreenReaderComponent.cs # Arrow-key navigable end screen stats reader
@@ -235,7 +261,8 @@ drgAccess/
 │   ├── EnemyPatches.cs            # Enemy registration for audio system
 │   ├── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
 │   ├── HazardPatches.cs           # Ground spike detection for hazard warnings
-│   └── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
+│   ├── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
+│   └── AudioMasteringPatch.cs     # Master volume sync (SetMasterVolume + OnSaveDataLoaded)
 └── drgAccess.csproj               # Project file
 
 drg code/                          # Decompiled game code for reference (not included in repo)
@@ -292,6 +319,7 @@ references/tolk/                   # Tolk DLL references
 | Various `UIForm` subclasses | Menu/form announcements |
 | Various page classes | Description panel reading |
 | `GroundSpike` | Ground spike hazard detection (Dreadnought boss attack) |
+| `AudioMastering` | Master volume sync (SetMasterVolume, OnSaveDataLoaded) |
 
 ---
 

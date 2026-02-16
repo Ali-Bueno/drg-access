@@ -98,6 +98,14 @@ namespace drgAccess.Components
             "Red Sugar", "Gear", "Buff", "Currency", "Mineral Vein", "Loot Crate", "XP"
         };
 
+        /// <summary>
+        /// Returns the effective max distance for a category, scaled by the config multiplier.
+        /// </summary>
+        private float GetEffectiveMaxDistance(int categoryIndex)
+        {
+            return configs[categoryIndex].MaxDistance * ModConfig.GetSetting(ModConfig.COLLECTIBLE_RANGE);
+        }
+
         static CollectibleAudioSystem()
         {
             ClassInjector.RegisterTypeInIl2Cpp<CollectibleAudioSystem>();
@@ -258,7 +266,7 @@ namespace drgAccess.Components
 
                     Vector3 pos = pickup.transform.position;
                     float dist = Vector3.Distance(playerPos, pos);
-                    float maxDist = configs[categoryIndex].MaxDistance;
+                    float maxDist = GetEffectiveMaxDistance(categoryIndex);
 
                     if (dist > maxDist) continue;
 
@@ -307,7 +315,7 @@ namespace drgAccess.Components
                 if (cachedMaterialBlocks.Count == 0) return;
 
                 Vector3 playerPos = playerTransform.position;
-                float maxDist = configs[4].MaxDistance;
+                float maxDist = GetEffectiveMaxDistance(4);
                 float nearestDist = float.MaxValue;
                 Vector3 nearestPos = Vector3.zero;
 
@@ -362,7 +370,7 @@ namespace drgAccess.Components
                 if (crates == null) return;
 
                 Vector3 playerPos = playerTransform.position;
-                float maxDist = configs[5].MaxDistance;
+                float maxDist = GetEffectiveMaxDistance(5);
 
                 foreach (var crate in crates)
                 {
@@ -422,7 +430,7 @@ namespace drgAccess.Components
                 channel.Pan.Pan = pan;
 
                 // Proximity factor (0 = far, 1 = close)
-                float proximity = 1f - Mathf.Clamp01(target.Distance / config.MaxDistance);
+                float proximity = 1f - Mathf.Clamp01(target.Distance / GetEffectiveMaxDistance(i));
                 proximity *= proximity; // Squared for aggressive close-range emphasis
 
                 // Frequency: increases with proximity, modulated by direction
@@ -432,7 +440,7 @@ namespace drgAccess.Components
 
                 // Volume: increases with proximity
                 float volume = config.MinVolume + proximity * (config.MaxVolume - config.MinVolume);
-                channel.Generator.Volume = volume;
+                channel.Generator.Volume = volume * ModConfig.GetVolume(ModConfig.COLLECTIBLES);
 
                 // Interval (beacon types only, MineralVein is continuous)
                 if (config.MaxInterval > 0)
@@ -466,7 +474,7 @@ namespace drgAccess.Components
                     int zone = 0; // none
                     if (nearestTargets[i].Found)
                     {
-                        float maxDist = configs[i].MaxDistance;
+                        float maxDist = GetEffectiveMaxDistance(i);
                         float dist = nearestTargets[i].Distance;
                         float ratio = dist / maxDist;
 

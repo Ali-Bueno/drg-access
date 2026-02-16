@@ -267,7 +267,7 @@ namespace drgAccess.Components
 
             float pitchMultiplier = AudioDirectionHelper.GetDirectionalPitchMultiplier(forward, toZone);
             beepGenerator.Frequency = (350 + proximityFactor * 300) * pitchMultiplier; // 350-650 Hz * direction
-            beepGenerator.Volume = 0.28f + proximityFactor * 0.20f; // 0.28-0.48
+            beepGenerator.Volume = (0.35f + proximityFactor * 0.20f) * ModConfig.GetVolume(ModConfig.SUPPLY_POD_BEACON); // 0.35-0.55
             beepGenerator.Interval = interval;
             beepGenerator.Active = true;
         }

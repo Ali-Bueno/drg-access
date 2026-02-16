@@ -105,20 +105,24 @@ namespace drgAccess.Components
 
     /// <summary>
     /// Warning audio system for environmental hazards and exploders.
-    /// Plays a directional alarm siren when hazards are near the player.
-    /// - Ground Spikes (Dreadnought boss attack): registered via patch
-    /// - Falling Rocks (Salt Pits biome): registered via patch
-    /// - Exploders (horde enemies): detected by polling enemy names
+    /// Supports multiple simultaneous alarm channels (configurable via MaxHazardChannels).
+    /// Each channel tracks a separate hazard with its own directional panning.
     /// </summary>
     public class HazardWarningAudio : MonoBehaviour
     {
         public static HazardWarningAudio Instance { get; private set; }
 
-        // Audio
+        // Audio - shared mixer with multiple alarm channels
         private WaveOutEvent outputDevice;
-        private AlarmSoundGenerator alarmGenerator;
-        private PanningSampleProvider panProvider;
-        private VolumeSampleProvider volumeProvider;
+        private MixingSampleProvider mixer;
+        private const int MAX_CHANNELS = 5; // Hard cap matching ModConfig max
+        private HazardChannel[] channels;
+
+        private struct HazardChannel
+        {
+            public AlarmSoundGenerator Generator;
+            public PanningSampleProvider PanProvider;
+        }
 
         // Hazard tracking
         private List<HazardInfo> activeHazards = new List<HazardInfo>();
@@ -132,10 +136,9 @@ namespace drgAccess.Components
         // Exploder detection
         private float nextExploderCheckTime = 0f;
         private const float EXPLODER_CHECK_INTERVAL = 0.2f;
-        private const float EXPLODER_WARNING_DISTANCE = 8f;
+        private const float EXPLODER_WARNING_DISTANCE = 12f;
 
         // Configuration
-        private const float MAX_WARNING_DISTANCE = 25f;
         private const float CRITICAL_DISTANCE = 5f;
 
         // State
@@ -169,16 +172,24 @@ namespace drgAccess.Components
         {
             try
             {
-                alarmGenerator = new AlarmSoundGenerator(700, 0f);
-                panProvider = new PanningSampleProvider(alarmGenerator) { Pan = 0f };
-                volumeProvider = new VolumeSampleProvider(panProvider) { Volume = 1.0f };
+                var format = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
+                mixer = new MixingSampleProvider(format) { ReadFully = true };
+
+                channels = new HazardChannel[MAX_CHANNELS];
+                for (int i = 0; i < MAX_CHANNELS; i++)
+                {
+                    var gen = new AlarmSoundGenerator(700, 0f);
+                    var pan = new PanningSampleProvider(gen) { Pan = 0f };
+                    mixer.AddMixerInput(pan);
+                    channels[i] = new HazardChannel { Generator = gen, PanProvider = pan };
+                }
 
                 outputDevice = new WaveOutEvent();
-                outputDevice.Init(volumeProvider);
+                outputDevice.Init(mixer);
                 outputDevice.Play();
 
                 isInitialized = true;
-                Plugin.Log.LogInfo("[HazardAudio] Audio channel created");
+                Plugin.Log.LogInfo($"[HazardAudio] Audio initialized with {MAX_CHANNELS} channels");
             }
             catch (Exception e)
             {
@@ -188,7 +199,6 @@ namespace drgAccess.Components
 
         /// <summary>
         /// Register a ground spike hazard at a position.
-        /// Called from HazardPatches.
         /// </summary>
         public static void RegisterGroundSpike(Vector3 position, float lifetime)
         {
@@ -208,7 +218,6 @@ namespace drgAccess.Components
 
         /// <summary>
         /// Register a falling rock hazard at a position.
-        /// Called from HazardPatches.
         /// </summary>
         public static void RegisterFallingRock(Vector3 position, float lifetime = 3f)
         {
@@ -236,7 +245,7 @@ namespace drgAccess.Components
 
                 if (!IsInActiveGameplay())
                 {
-                    alarmGenerator.Volume = 0f;
+                    SilenceAll();
                     return;
                 }
 
@@ -248,7 +257,7 @@ namespace drgAccess.Components
 
                 if (playerTransform == null)
                 {
-                    alarmGenerator.Volume = 0f;
+                    SilenceAll();
                     return;
                 }
 
@@ -259,10 +268,7 @@ namespace drgAccess.Components
                     nextExploderCheckTime = Time.time + EXPLODER_CHECK_INTERVAL;
                 }
 
-                // Remove expired hazards
                 CleanExpiredHazards();
-
-                // Find closest hazard and play warning
                 UpdateWarningAudio();
             }
             catch (Exception e)
@@ -270,6 +276,13 @@ namespace drgAccess.Components
                 if (Time.frameCount % 300 == 0)
                     Plugin.Log.LogError($"[HazardAudio] Update error: {e.Message}");
             }
+        }
+
+        private void SilenceAll()
+        {
+            if (channels == null) return;
+            for (int i = 0; i < channels.Length; i++)
+                channels[i].Generator.Volume = 0f;
         }
 
         private void CheckExploders()
@@ -287,7 +300,6 @@ namespace drgAccess.Components
                     {
                         if (enemy == null || !enemy.isAlive) continue;
 
-                        // Check if this enemy is an Exploder by name
                         string name = enemy.name;
                         if (string.IsNullOrEmpty(name)) continue;
                         if (!name.Contains("Exploder", StringComparison.OrdinalIgnoreCase)) continue;
@@ -297,7 +309,6 @@ namespace drgAccess.Components
 
                         if (distance > EXPLODER_WARNING_DISTANCE) continue;
 
-                        // Register as a short-lived hazard (will be re-registered next check)
                         lock (hazardLock)
                         {
                             // Don't add duplicate exploders at nearly the same position
@@ -307,7 +318,6 @@ namespace drgAccess.Components
                                 if (activeHazards[i].Type == HazardType.Exploder &&
                                     Vector3.Distance(activeHazards[i].Position, enemyPos) < 1f)
                                 {
-                                    // Update position and extend expiry
                                     activeHazards[i] = new HazardInfo
                                     {
                                         Position = enemyPos,
@@ -353,9 +363,14 @@ namespace drgAccess.Components
         {
             lock (hazardLock)
             {
+                int maxChannels = ModConfig.GetSettingInt(ModConfig.MAX_HAZARD_CHANNELS);
+                maxChannels = Math.Min(maxChannels, MAX_CHANNELS);
+                float maxWarningDistance = ModConfig.GetSetting(ModConfig.HAZARD_RANGE);
+                float configVolume = ModConfig.GetVolume(ModConfig.HAZARD_WARNING);
+
                 if (activeHazards.Count == 0)
                 {
-                    alarmGenerator.Volume = 0f;
+                    SilenceAll();
                     return;
                 }
 
@@ -365,88 +380,93 @@ namespace drgAccess.Components
                 forward.Normalize();
                 Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
-                // Find closest hazard
-                float closestDistance = float.MaxValue;
-                Vector3 closestPos = Vector3.zero;
-                HazardType closestType = HazardType.GroundSpike;
-
-                for (int i = 0; i < activeHazards.Count; i++)
+                // Sort hazards by distance (closest first)
+                activeHazards.Sort((a, b) =>
                 {
-                    float dist = Vector3.Distance(playerPos, activeHazards[i].Position);
-                    if (dist < closestDistance)
+                    float distA = Vector3.Distance(playerPos, a.Position);
+                    float distB = Vector3.Distance(playerPos, b.Position);
+                    return distA.CompareTo(distB);
+                });
+
+                // Assign up to maxChannels hazards to audio channels
+                for (int ch = 0; ch < channels.Length; ch++)
+                {
+                    if (ch >= maxChannels || ch >= activeHazards.Count)
                     {
-                        closestDistance = dist;
-                        closestPos = activeHazards[i].Position;
-                        closestType = activeHazards[i].Type;
+                        channels[ch].Generator.Volume = 0f;
+                        continue;
                     }
+
+                    var hazard = activeHazards[ch];
+                    float distance = Vector3.Distance(playerPos, hazard.Position);
+
+                    if (distance > maxWarningDistance)
+                    {
+                        channels[ch].Generator.Volume = 0f;
+                        continue;
+                    }
+
+                    // Calculate stereo pan
+                    Vector3 toHazard = (hazard.Position - playerPos);
+                    toHazard.y = 0;
+                    toHazard.Normalize();
+                    float pan = Mathf.Clamp(Vector3.Dot(toHazard, right), -1f, 1f);
+
+                    // Proximity factor
+                    float proximityFactor = 1f - Mathf.Clamp01(distance / maxWarningDistance);
+                    proximityFactor *= proximityFactor;
+
+                    bool isCritical = distance < CRITICAL_DISTANCE;
+
+                    // Audio parameters based on hazard type
+                    double frequency;
+                    float volume;
+                    double alarmRate;
+
+                    switch (hazard.Type)
+                    {
+                        case HazardType.Exploder:
+                            frequency = 900 + proximityFactor * 500;
+                            volume = 0.15f + proximityFactor * 0.15f;
+                            alarmRate = 6 + proximityFactor * 14;
+                            if (isCritical)
+                            {
+                                volume *= 1.3f;
+                                alarmRate = 25;
+                            }
+                            break;
+
+                        case HazardType.FallingRock:
+                            frequency = 400 + proximityFactor * 300;
+                            volume = 0.2f + proximityFactor * 0.2f;
+                            alarmRate = 4 + proximityFactor * 8;
+                            if (isCritical) volume *= 1.4f;
+                            break;
+
+                        default: // GroundSpike
+                            frequency = 600 + proximityFactor * 400;
+                            volume = 0.2f + proximityFactor * 0.25f;
+                            alarmRate = 5 + proximityFactor * 10;
+                            if (isCritical)
+                            {
+                                volume *= 1.4f;
+                                alarmRate = 18;
+                            }
+                            break;
+                    }
+
+                    volume = Mathf.Clamp(volume, 0f, 0.7f);
+
+                    // Reduce volume for secondary channels to keep the closest prominent
+                    if (ch > 0)
+                        volume *= 0.7f;
+
+                    float pitchMultiplier = AudioDirectionHelper.GetDirectionalPitchMultiplier(forward, toHazard);
+                    channels[ch].PanProvider.Pan = pan;
+                    channels[ch].Generator.Frequency = frequency * pitchMultiplier;
+                    channels[ch].Generator.Volume = volume * configVolume;
+                    channels[ch].Generator.AlarmRate = alarmRate;
                 }
-
-                if (closestDistance > MAX_WARNING_DISTANCE)
-                {
-                    alarmGenerator.Volume = 0f;
-                    return;
-                }
-
-                // Calculate stereo pan
-                Vector3 toHazard = (closestPos - playerPos);
-                toHazard.y = 0;
-                toHazard.Normalize();
-                float pan = Vector3.Dot(toHazard, right);
-                pan = Mathf.Clamp(pan, -1f, 1f);
-
-                // Proximity factor (0 = far, 1 = close)
-                float proximityFactor = 1f - Mathf.Clamp01(closestDistance / MAX_WARNING_DISTANCE);
-                proximityFactor = proximityFactor * proximityFactor;
-
-                bool isCritical = closestDistance < CRITICAL_DISTANCE;
-
-                // Audio parameters based on hazard type
-                double frequency;
-                float volume;
-                double alarmRate;
-
-                switch (closestType)
-                {
-                    case HazardType.Exploder:
-                        // Exploders: fast ticking alarm, high pitch (lower volume)
-                        frequency = 900 + proximityFactor * 500; // 900-1400 Hz
-                        volume = 0.15f + proximityFactor * 0.15f; // 0.15-0.30
-                        alarmRate = 6 + proximityFactor * 14; // 6-20 Hz (faster as closer)
-                        if (isCritical)
-                        {
-                            volume *= 1.3f;
-                            alarmRate = 25; // Very fast ticking
-                        }
-                        break;
-
-                    case HazardType.FallingRock:
-                        // Falling rocks: deep alarm
-                        frequency = 400 + proximityFactor * 300; // 400-700 Hz
-                        volume = 0.2f + proximityFactor * 0.2f; // 0.2-0.4
-                        alarmRate = 4 + proximityFactor * 8; // 4-12 Hz
-                        if (isCritical) volume *= 1.4f;
-                        break;
-
-                    default: // GroundSpike
-                        // Ground spikes: medium alarm siren
-                        frequency = 600 + proximityFactor * 400; // 600-1000 Hz
-                        volume = 0.2f + proximityFactor * 0.25f; // 0.2-0.45
-                        alarmRate = 5 + proximityFactor * 10; // 5-15 Hz
-                        if (isCritical)
-                        {
-                            volume *= 1.4f;
-                            alarmRate = 18;
-                        }
-                        break;
-                }
-
-                volume = Mathf.Clamp(volume, 0f, 0.7f);
-
-                float pitchMultiplier = AudioDirectionHelper.GetDirectionalPitchMultiplier(forward, toHazard);
-                panProvider.Pan = pan;
-                alarmGenerator.Frequency = frequency * pitchMultiplier;
-                alarmGenerator.Volume = volume;
-                alarmGenerator.AlarmRate = alarmRate;
             }
         }
 

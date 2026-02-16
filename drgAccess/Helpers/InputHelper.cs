@@ -49,6 +49,21 @@ public static class InputHelper
         return KeyPressed(Key.F) || GamepadPressed(gp => gp.leftStickButton);
     }
 
+    public static bool ToggleSettingsMenu()
+    {
+        return KeyPressed(Key.F1);
+    }
+
+    public static bool NavigateLeft()
+    {
+        return KeyPressed(Key.LeftArrow) || DpadLeft();
+    }
+
+    public static bool NavigateRight()
+    {
+        return KeyPressed(Key.RightArrow) || DpadRight();
+    }
+
     private static bool KeyPressed(Key key)
     {
         try
@@ -75,6 +90,26 @@ public static class InputHelper
         {
             var gp = Gamepad.current;
             return gp != null && gp.dpad.down.wasPressedThisFrame;
+        }
+        catch { return false; }
+    }
+
+    private static bool DpadLeft()
+    {
+        try
+        {
+            var gp = Gamepad.current;
+            return gp != null && gp.dpad.left.wasPressedThisFrame;
+        }
+        catch { return false; }
+    }
+
+    private static bool DpadRight()
+    {
+        try
+        {
+            var gp = Gamepad.current;
+            return gp != null && gp.dpad.right.wasPressedThisFrame;
         }
         catch { return false; }
     }

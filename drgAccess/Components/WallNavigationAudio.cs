@@ -5,6 +5,7 @@ using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using UnityEngine.UI;
 using Il2CppInterop.Runtime.Injection;
+using drgAccess.Helpers;
 
 namespace drgAccess.Components
 {
@@ -112,9 +113,9 @@ namespace drgAccess.Components
         private const double FREQ_SIDES = 300;     // Medium-low - walls at sides
 
         // Detection configuration
-        private float maxWallDistance = 12f;
+        private float MaxWallDistance => ModConfig.GetSetting(ModConfig.WALL_RANGE);
         private float minVolumeDistance = 0.5f;
-        private float baseVolume = 0.05f;  // Reduced from 0.15 to 0.05 (much quieter)
+        private float baseVolume = 0.12f;
 
         // Shared audio output (single device for all directions)
         private WaveOutEvent outputDevice;
@@ -222,7 +223,7 @@ namespace drgAccess.Components
                 CreateAudioChannels();
 
                 isInitialized = true;
-                Plugin.Log.LogInfo($"[WallNav] Initialized with maxDistance={maxWallDistance}, baseVolume={baseVolume}");
+                Plugin.Log.LogInfo($"[WallNav] Initialized with maxDistance={MaxWallDistance}, baseVolume={baseVolume}");
             }
             catch (Exception e)
             {
@@ -498,14 +499,14 @@ namespace drgAccess.Components
                 // Raycast from player's waist height
                 Vector3 origin = playerPos + Vector3.up * 1.0f;
 
-                bool hasWall = Physics.Raycast(origin, dir, out RaycastHit hit, maxWallDistance, wallLayerMask);
+                bool hasWall = Physics.Raycast(origin, dir, out RaycastHit hit, MaxWallDistance, wallLayerMask);
 
                 if (hasWall)
                 {
                     float distance = hit.distance;
-                    float normalizedDist = Mathf.Clamp01((distance - minVolumeDistance) / (maxWallDistance - minVolumeDistance));
+                    float normalizedDist = Mathf.Clamp01((distance - minVolumeDistance) / (MaxWallDistance - minVolumeDistance));
                     float volumeMultiplier = 1f - (normalizedDist * normalizedDist);
-                    float finalVolume = baseVolume * volumeMultiplier;
+                    float finalVolume = baseVolume * volumeMultiplier * ModConfig.GetVolume(ModConfig.WALL_NAVIGATION);
 
                     channel.SineGenerator.Volume = finalVolume;
 
@@ -548,12 +549,6 @@ namespace drgAccess.Components
                 SilenceAllChannels();
             }
             Plugin.Log.LogInfo($"[WallNav] System {(enabled ? "enabled" : "disabled")}");
-        }
-
-        public void SetMaxDistance(float distance)
-        {
-            maxWallDistance = Mathf.Max(1f, distance);
-            Plugin.Log.LogInfo($"[WallNav] Max distance set to {maxWallDistance}");
         }
 
         public void SetBaseVolume(float volume)

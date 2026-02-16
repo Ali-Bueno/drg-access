@@ -248,7 +248,7 @@ namespace drgAccess.Components
         public static EnemyAudioSystem Instance { get; private set; }
 
         // Configuration
-        private float maxDistance = 35f;
+        private float MaxDistance => ModConfig.GetSetting(ModConfig.ENEMY_RANGE);
         private float criticalProximityDistance = 3.5f; // Very close - imminent danger!
         // Normal: Fast frequent beeps
         private float normalBaseInterval = 0.4f;
@@ -545,7 +545,7 @@ namespace drgAccess.Components
                     Vector3 enemyPos = enemy.position;
                     float distance = Vector3.Distance(playerPos, enemyPos);
 
-                    if (distance > maxDistance) continue;
+                    if (distance > MaxDistance) continue;
 
                     // Track proximity for announcements
                     nearbyEnemyCount++;
@@ -878,7 +878,7 @@ namespace drgAccess.Components
             bool isCritical = distance < criticalProximityDistance;
 
             // Calculate interval based on proximity
-            float proximityFactor = 1f - (distance / maxDistance);
+            float proximityFactor = 1f - (distance / MaxDistance);
             proximityFactor = Mathf.Clamp01(proximityFactor);
             proximityFactor = proximityFactor * proximityFactor;
 
@@ -956,7 +956,7 @@ namespace drgAccess.Components
                 volume = Mathf.Clamp(volume, 0.15f, 0.7f);  // Allow louder for critical warnings
 
                 channel.PanProvider.Pan = pan;
-                channel.VolumeProvider.Volume = volume;
+                channel.VolumeProvider.Volume = volume * ModConfig.GetVolume(ModConfig.ENEMY_DETECTION);
 
                 // Stagger beeps across directions at the audio buffer level.
                 // Without this, all directions fire in the same mixer Read() call

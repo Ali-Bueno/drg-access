@@ -561,13 +561,13 @@ namespace drgAccess.Components
                         // Very close to playerPoint: peak intensity
                         float closeFactor = 1f - Mathf.Clamp01(interiorDistance / INTERIOR_CLOSE_DISTANCE);
                         rampToneGenerator.Frequency = (1800f + closeFactor * 400f) * interiorPitchMul;
-                        rampToneGenerator.Volume = (0.40f + closeFactor * 0.15f) * interiorVolMul;
+                        rampToneGenerator.Volume = (0.40f + closeFactor * 0.15f) * interiorVolMul * ModConfig.GetVolume(ModConfig.DROP_POD_BEACON);
                     }
                     else
                     {
                         // Approaching playerPoint: frequency and volume ramp up
                         rampToneGenerator.Frequency = (900f + interiorFactor * 900f) * interiorPitchMul;
-                        rampToneGenerator.Volume = (0.12f + interiorFactor * 0.30f) * interiorVolMul;
+                        rampToneGenerator.Volume = (0.12f + interiorFactor * 0.30f) * interiorVolMul * ModConfig.GetVolume(ModConfig.DROP_POD_BEACON);
                     }
                     rampToneVolumeProvider.Volume = 1.0f;
 
@@ -605,13 +605,13 @@ namespace drgAccess.Components
                         float intScale = Mathf.Max(RAMP_DISTANCE, interiorDistance + 1f);
                         float intFactor = 1f - Mathf.Clamp01(interiorDistance / intScale);
                         beepGenerator.Frequency = (1200 + intFactor * 600) * interiorPitchMul;
-                        beepGenerator.Volume = (0.35f + intFactor * 0.20f) * interiorVolMul;
+                        beepGenerator.Volume = (0.35f + intFactor * 0.20f) * interiorVolMul * ModConfig.GetVolume(ModConfig.DROP_POD_BEACON);
                         beepGenerator.Interval = Mathf.Lerp(0.10f, 0.04f, intFactor);
                     }
                     else
                     {
                         beepGenerator.Frequency = (1200 + criticalFactor * 400) * pitchMultiplier;
-                        beepGenerator.Volume = (0.4f + criticalFactor * 0.15f) * facingVolumeMultiplier;
+                        beepGenerator.Volume = (0.4f + criticalFactor * 0.15f) * facingVolumeMultiplier * ModConfig.GetVolume(ModConfig.DROP_POD_BEACON);
                         beepGenerator.Interval = Mathf.Lerp(0.12f, 0.06f, criticalFactor);
                     }
                     beepGenerator.DoubleBeep = true;
@@ -632,7 +632,7 @@ namespace drgAccess.Components
                     float interval = Mathf.Lerp(0.25f, 0.03f, proximityFactor);
 
                     beepGenerator.Frequency = (800 + proximityFactor * 600) * pitchMultiplier;
-                    beepGenerator.Volume = (0.25f + proximityFactor * 0.2f) * facingVolumeMultiplier;
+                    beepGenerator.Volume = (0.25f + proximityFactor * 0.2f) * facingVolumeMultiplier * ModConfig.GetVolume(ModConfig.DROP_POD_BEACON);
                     beepGenerator.Interval = interval;
                     beepGenerator.DoubleBeep = false;
                     beepGenerator.Active = true;
