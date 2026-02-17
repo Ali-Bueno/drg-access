@@ -230,7 +230,10 @@ namespace drgAccess.Components
 
                 float distance = Vector3.Distance(currentPos, lastPosition);
                 float rawSpeed = distance / Mathf.Max(Time.deltaTime, 0.001f);
-                smoothedSpeed = Mathf.Lerp(smoothedSpeed, rawSpeed, SPEED_SMOOTHING);
+
+                // Fast decay when player stops, slow smoothing when accelerating
+                float lerpFactor = rawSpeed < MIN_SPEED ? 0.25f : SPEED_SMOOTHING;
+                smoothedSpeed = Mathf.Lerp(smoothedSpeed, rawSpeed, lerpFactor);
 
                 if (smoothedSpeed > MIN_SPEED)
                 {

@@ -2,6 +2,17 @@ CHANGELOG
 =========
 
 
+v0.5.2 - February 17, 2026
+---------------------------
+
+Bug Fixes:
+
+  - Fixed footstep sounds continuing to play after the player stops moving.
+    The speed smoothing was too slow to decay, causing 1-2 seconds of extra
+    footsteps after standing still. Now uses faster decay when the player
+    stops for near-instant silence.
+
+
 v0.5.1 - February 16, 2026
 ---------------------------
 
