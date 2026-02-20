@@ -169,6 +169,13 @@ namespace drgAccess.Components
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => FootstepAudio.Instance?.PreviewFootstep(GetPendingVolume(ModConfig.FOOTSTEPS))
                 },
+                new MainMenuItem
+                {
+                    Category = ModConfig.BOSS_ATTACKS,
+                    DisplayName = "Boss Attacks",
+                    Type = MainItemType.VolumeSlider,
+                    PlayPreview = () => PreviewBossAttack()
+                },
                 // --- Detection Settings ---
                 new MainMenuItem
                 {
@@ -336,6 +343,31 @@ namespace drgAccess.Components
                     Name = "Collectible: XP Nearby",
                     Description = "XP orbs on the ground. Soft continuous tone.",
                     PlayPreview = () => PreviewCollectibleContinuous(CollectibleSoundType.XpNearby, 500f, ModConfig.COLLECTIBLES)
+                },
+                // --- Boss Attack Cues ---
+                new AudioCueItem
+                {
+                    Name = "Boss: Charge",
+                    Description = "Boss charging at you. Rising aggressive alarm.",
+                    PlayPreview = () => PreviewBossAttackType(BossAttackType.Charge)
+                },
+                new AudioCueItem
+                {
+                    Name = "Boss: Spikes",
+                    Description = "Boss spawning ground spikes. Rumbling rising tone.",
+                    PlayPreview = () => PreviewBossAttackType(BossAttackType.Spikes)
+                },
+                new AudioCueItem
+                {
+                    Name = "Boss: Fireball",
+                    Description = "Boss firing projectiles. Sharp rising alarm.",
+                    PlayPreview = () => PreviewBossAttackType(BossAttackType.Fireball)
+                },
+                new AudioCueItem
+                {
+                    Name = "Boss: Heal",
+                    Description = "Boss healing itself. Low warbling tone.",
+                    PlayPreview = () => PreviewBossAttackType(BossAttackType.Heal)
                 }
             };
         }
@@ -942,6 +974,28 @@ namespace drgAccess.Components
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[ModSettingsMenu] PreviewCollectibleContinuous error: {e.Message}");
+            }
+        }
+
+        private void PreviewBossAttack()
+        {
+            PreviewBossAttackType(BossAttackType.Charge);
+        }
+
+        private void PreviewBossAttackType(BossAttackType type)
+        {
+            try
+            {
+                float vol = GetPendingVolume(ModConfig.BOSS_ATTACKS);
+                var generator = new ChargingSoundGenerator();
+                generator.Volume = 0.35f * vol;
+                generator.Play(type);
+                AddToMixer(generator);
+                previewEndTime = Time.unscaledTime + 1.5f;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[ModSettingsMenu] PreviewBossAttack error: {e.Message}");
             }
         }
 

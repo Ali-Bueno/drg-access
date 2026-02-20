@@ -23,11 +23,13 @@ namespace drgAccess.Helpers
         public const string HAZARD_WARNING = "HazardWarning";
         public const string COLLECTIBLES = "Collectibles";
         public const string FOOTSTEPS = "Footsteps";
+        public const string BOSS_ATTACKS = "BossAttacks";
 
         public static readonly string[] VolumeCategories = new[]
         {
             WALL_NAVIGATION, ENEMY_DETECTION, DROP_POD_BEACON,
-            SUPPLY_POD_BEACON, HAZARD_WARNING, COLLECTIBLES, FOOTSTEPS
+            SUPPLY_POD_BEACON, HAZARD_WARNING, COLLECTIBLES, FOOTSTEPS,
+            BOSS_ATTACKS
         };
 
         // --- Toggle settings ---

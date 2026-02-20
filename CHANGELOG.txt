@@ -2,6 +2,38 @@ CHANGELOG
 =========
 
 
+v0.5.4 - February 20, 2026
+---------------------------
+
+New Features:
+
+  - Boss Attack Telegraphs: Screen reader announces each boss attack type
+    before it happens: "Charge!", "Spikes!", "Fireball!", "Healing!".
+    Patches the Dreadnought's telegraph animation methods to give blind
+    players advance warning of incoming attacks.
+
+  - Boss Attack Charging Audio: Rising-pitch alarm sound plays when the
+    boss telegraphs an attack. Each attack type has a distinct frequency
+    range for differentiation:
+      * Charge: 400-1000 Hz (aggressive square+sine mix)
+      * Spikes: 300-800 Hz (rumbling rising tone)
+      * Fireball: 500-1200 Hz (sharp rising tone)
+      * Heal: 200-400 Hz (gentle warble with sine harmonics)
+    Audio is directionally panned toward the boss position.
+
+  - Boss HP Threshold Announcements: Boss health percentage is
+    automatically announced at key thresholds: 75%, 50%, 25%, 15%, 10%,
+    and 5%. "Boss!" announced when the boss health bar first appears.
+    "Boss defeated!" announced on boss death. "Boss healed" announced
+    with cooldown to avoid spam during heal ticks.
+
+  - Boss Attacks Volume: New volume slider in the Mod Settings Menu (F1)
+    to adjust boss attack audio independently from other audio cues.
+
+  - Boss Attack Audio Previews: 4 new audio cue previews in the Mod
+    Settings Menu — Boss Charge, Boss Spikes, Boss Fireball, Boss Heal.
+
+
 v0.5.3 - February 20, 2026
 ---------------------------
 

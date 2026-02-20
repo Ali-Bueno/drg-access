@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.5.3
+- **Current version**: v0.5.4
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -163,7 +163,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - L3 (leftStickButton): compass direction to drop pod
 - **Audio Cue Preview Menu**: Submenu within the Mod Settings Menu to preview all audio cues
   - Access via "Audio Cue Preview" item in Mod Settings (F1), navigate with Up/Down, preview with Enter / A
-  - 19 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Hazard Warning, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
+  - 23 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Hazard Warning, Boss Charge/Spikes/Fireball/Heal, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Escape / B button returns to main settings menu
   - Previews use pending volume values (unsaved changes applied during preview)
@@ -184,7 +184,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Mod Settings Menu**: Configurable mod settings accessible with F1 key (outside gameplay)
   - Opens with F1 / Y button, closes with Escape / B button or Save/Cancel
   - Navigate with Up/Down arrows or D-Pad, adjust values with Left/Right arrows or D-Pad
-  - **Volume Sliders**: 7 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles, Footsteps) — 0-100% in 5% steps
+  - **Volume Sliders**: 8 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles, Footsteps, Boss Attacks) — 0-100% in 5% steps
   - **Toggle Settings**: Footsteps On/Off (enabled by default)
   - **Detection Settings**: Configurable ranges and limits:
     - Enemy Detection Range (10-60m, default 35m)
@@ -192,7 +192,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
     - Collectible Range Multiplier (0.5x-2.0x, default 1.0x)
     - Wall Detection Range (5-25m, default 12m)
     - Max Hazard Warnings (1-5 simultaneous, default 3)
-  - **Audio Cue Preview submenu**: All 19 audio cue previews (moved from standalone menu), Enter to preview
+  - **Audio Cue Preview submenu**: All 23 audio cue previews (moved from standalone menu), Enter to preview
   - Save persists to `drgAccess_settings.cfg` next to the mod DLL
   - Cancel restores previous values via snapshot system
   - Previews respect pending (unsaved) volume values
@@ -214,6 +214,22 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Currency: "X [currency name]" with 2-second cooldown per currency type to avoid rapid-pickup spam
   - Gear: "Picked up [gear name]" via GearData.GetTitle()
   - Loot crates: "[rarity] loot crate"
+- **Boss Attack Telegraphs**: Screen reader + audio warnings for Dreadnought boss attack patterns
+  - Patches `DreadnoughtAnimator` telegraph methods (all declared directly, safe to patch)
+  - 4 attack types with distinct screen reader announcements: "Charge!", "Spikes!", "Fireball!", "Healing!"
+  - Rising-pitch charging audio with different frequency ranges per attack type:
+    - Charge: 400-1000 Hz (aggressive square+sine mix)
+    - Spikes: 300-800 Hz (rumbling rising)
+    - Fireball: 500-1200 Hz (sharp rising)
+    - Heal: 200-400 Hz (gentle warble with sine harmonics)
+  - Alarm rate accelerates during charge-up (siren effect)
+  - Directional stereo panning toward boss position
+  - Volume configurable via Boss Attacks slider in Mod Settings
+- **Boss HP Tracking**: Automatic boss health percentage announcements
+  - "Boss!" announced when boss health bar appears (`UIBossTopBar.Show`)
+  - HP threshold announcements at 75%, 50%, 25%, 15%, 10%, 5% (via `UpdateFill` patch)
+  - "Boss defeated!" on boss death (`OnOwnerDeath`)
+  - "Boss healed" with 3-second cooldown to avoid spam (`OnHealed`)
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
@@ -247,6 +263,7 @@ drgAccess/
 │   ├── CollectibleAudioSystem.cs  # Collectible items/minerals/crates positional audio
 │   ├── CollectibleSoundGenerator.cs # ISampleProvider for 7 collectible sound types
 │   ├── HazardWarningAudio.cs      # Multi-channel hazard warning siren (exploders, ground spikes)
+│   ├── BossAttackAudio.cs         # Boss attack telegraph charging sounds (rising-pitch alarm per type)
 │   ├── FootstepAudio.cs           # Material-based footstep sounds (stone/metal MP3 playback)
 │   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
@@ -270,6 +287,7 @@ drgAccess/
 │   ├── EnemyPatches.cs            # Enemy registration for audio system
 │   ├── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
 │   ├── HazardPatches.cs           # Ground spike detection for hazard warnings
+│   ├── BossAttackPatches.cs        # Boss attack telegraphs + HP threshold announcements
 │   ├── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
 │   └── AudioMasteringPatch.cs     # Master volume sync (SetMasterVolume + OnSaveDataLoaded)
 ├── sounds/
@@ -332,6 +350,8 @@ references/tolk/                   # Tolk DLL references
 | Various `UIForm` subclasses | Menu/form announcements |
 | Various page classes | Description panel reading |
 | `GroundSpike` | Ground spike hazard detection (Dreadnought boss attack) |
+| `DreadnoughtAnimator` | Boss attack telegraph detection (charge, spikes, fireball, heal) |
+| `UIBossTopBar` | Boss HP tracking (show, updateFill thresholds, death, heal) |
 | `AudioMastering` | Master volume sync (SetMasterVolume, OnSaveDataLoaded) |
 
 ---

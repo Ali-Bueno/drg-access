@@ -38,6 +38,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.ActivationZoneAudio>();
         AddComponent<Components.HazardWarningAudio>();
         AddComponent<Components.CollectibleAudioSystem>();
+        AddComponent<Components.BossAttackAudio>();
         AddComponent<Components.ModSettingsMenu>();
         AddComponent<Components.WalletReaderComponent>();
         AddComponent<Components.EndScreenReaderComponent>();
