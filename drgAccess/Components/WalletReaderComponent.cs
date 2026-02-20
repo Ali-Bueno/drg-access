@@ -1,11 +1,12 @@
 using UnityEngine;
 using drgAccess.Helpers;
+using drgAccess.Patches;
 
 namespace drgAccess.Components;
 
 /// <summary>
-/// Listens for G key to read wallet balance via screen reader.
-/// Only active when the stat upgrades form is open.
+/// Listens for G key to read wallet balance and T key to read equipped gear.
+/// Only active when relevant forms are open.
 /// </summary>
 public class WalletReaderComponent : MonoBehaviour
 {
@@ -13,10 +14,14 @@ public class WalletReaderComponent : MonoBehaviour
     {
         try
         {
-            if (!Patches.WalletReader.IsWalletReadable) return;
-            if (!InputHelper.ReadWallet()) return;
+            if (WalletReader.IsWalletReadable)
+            {
+                if (InputHelper.ReadWallet())
+                    WalletReader.ReadWallet();
+            }
 
-            Patches.WalletReader.ReadWallet();
+            if (UIFormPatches.GearInventoryOpen && InputHelper.ReadEquippedGear())
+                EquippedGearReader.ReadEquipped();
         }
         catch { }
     }

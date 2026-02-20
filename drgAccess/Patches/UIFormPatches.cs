@@ -70,6 +70,11 @@ public static class UIFormPatches
     internal static bool GearInventoryOpen;
 
     /// <summary>
+    /// Cached gear inventory form instance for reading equipped gear (T key).
+    /// </summary>
+    internal static UIGearInventoryForm CachedGearForm;
+
+    /// <summary>
     /// Frame when gear inventory opened. Tab announcements suppressed for a few
     /// frames to avoid announcing the default tab during form init/startup.
     /// </summary>
@@ -86,12 +91,14 @@ public static class UIFormPatches
                 GearInventoryOpenFrame = Time.frameCount;
             GearInventoryOpen = visible;
             WalletReader.GearInventoryOpen = visible;
+            CachedGearForm = visible ? __instance : null;
             if (visible)
             {
                 ScreenReader.Interrupt("Gear Inventory");
                 try { WalletReader.CachedWallet = __instance.wallet; } catch { }
                 try { UIButtonPatch.CachedGearEconomy = __instance.gearEconomy; } catch { }
                 try { UIButtonPatch.CachedGearWallet = __instance.wallet; } catch { }
+                try { UIButtonPatch.CachedGearManager = __instance.gearManager; } catch { }
             }
         }
     }

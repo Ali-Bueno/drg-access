@@ -424,3 +424,81 @@ public static class WalletReader
         sb.Append($"{name}: {amount}");
     }
 }
+
+/// <summary>
+/// Reads all equipped gear via T key when gear inventory is open.
+/// Iterates the UIGearEquipped panel's slot lists to build a summary.
+/// </summary>
+public static class EquippedGearReader
+{
+    public static void ReadEquipped()
+    {
+        try
+        {
+            var form = UIFormPatches.CachedGearForm;
+            if (form == null)
+            {
+                ScreenReader.Interrupt("No gear inventory");
+                return;
+            }
+
+            var equippedPanel = form.gearEquipped;
+            if (equippedPanel == null)
+            {
+                ScreenReader.Interrupt("No equipped gear panel");
+                return;
+            }
+
+            var sb = new StringBuilder("Equipped gear");
+            bool hasAny = false;
+
+            AppendSlotGear(sb, equippedPanel.armorSlots, "Armor", ref hasAny);
+            AppendSlotGear(sb, equippedPanel.companionSlots, "Companion", ref hasAny);
+            AppendSlotGear(sb, equippedPanel.grinderSlots, "Grinder", ref hasAny);
+            AppendSlotGear(sb, equippedPanel.tankSlots, "Tank", ref hasAny);
+            AppendSlotGear(sb, equippedPanel.toolSlots, "Tool", ref hasAny);
+            AppendSlotGear(sb, equippedPanel.weaponModSlots, "Weapon Mod", ref hasAny);
+
+            if (!hasAny)
+                sb.Append(": None");
+
+            ScreenReader.Interrupt(sb.ToString());
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogError($"EquippedGearReader error: {ex.Message}");
+            ScreenReader.Interrupt("Cannot read equipped gear");
+        }
+    }
+
+    private static void AppendSlotGear(
+        StringBuilder sb,
+        Il2CppSystem.Collections.Generic.List<DRS.UI.UIGearEquipSlot> slots,
+        string slotLabel,
+        ref bool hasAny)
+    {
+        if (slots == null) return;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            try
+            {
+                var slot = slots[i];
+                if (slot == null) continue;
+                var compact = slot.gearCompact;
+                if (compact == null) continue;
+                var gear = compact.gear;
+                if (gear == null) continue;
+                var data = gear.Data;
+                if (data == null) continue;
+
+                string title = data.GetTitle();
+                if (string.IsNullOrEmpty(title)) continue;
+
+                sb.Append(hasAny ? ". " : ": ");
+                sb.Append($"{slotLabel}: {Helpers.TextHelper.CleanText(title)}");
+                hasAny = true;
+            }
+            catch { }
+        }
+    }
+}

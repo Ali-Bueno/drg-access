@@ -2,6 +2,23 @@ CHANGELOG
 =========
 
 
+v0.5.3 - February 20, 2026
+---------------------------
+
+New Features:
+
+  - Gear Equipped Status: When browsing gear items in the inventory, each
+    item now announces whether it is equipped. "Equipped" is announced
+    early — right after the gear name and slot type — so the user
+    immediately knows the item's status before hearing stats, costs, etc.
+    Example: "Iron Plate, Armor, Equipped, Rare, Tier 3, Stats: ..."
+
+  - Equipped Gear Summary (T key): Press T in the gear inventory to hear
+    a summary of all currently equipped gear organized by slot type.
+    Example: "Equipped gear: Armor: Iron Plate. Tool: Pickaxe.
+    Weapon Mod: Overclock Module"
+
+
 v0.5.2 - February 17, 2026
 ---------------------------
 

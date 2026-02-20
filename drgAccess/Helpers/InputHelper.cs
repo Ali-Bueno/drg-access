@@ -49,6 +49,11 @@ public static class InputHelper
         return KeyPressed(Key.F) || GamepadPressed(gp => gp.leftStickButton);
     }
 
+    public static bool ReadEquippedGear()
+    {
+        return KeyPressed(Key.T);
+    }
+
     public static bool ToggleSettingsMenu()
     {
         return KeyPressed(Key.F1);

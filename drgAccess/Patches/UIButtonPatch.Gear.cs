@@ -12,6 +12,7 @@ public static partial class UIButtonPatch
     // Cached from UIGearInventoryForm when it opens
     internal static GearEconomyConfig CachedGearEconomy;
     internal static Wallet CachedGearWallet;
+    internal static GearManager CachedGearManager;
 
     private static string GetGearViewCompactText(UIGearViewCompact button)
     {
@@ -37,6 +38,13 @@ public static partial class UIButtonPatch
                         if (sb.Length > 0) sb.Append(", ");
                         sb.Append(slotType);
                     }
+                }
+
+                // Equipped status (announced early so user knows before stats/costs)
+                if (CachedGearManager != null)
+                {
+                    try { if (CachedGearManager.IsGearEquippedOnAny(gear)) sb.Append(", Equipped"); }
+                    catch { }
                 }
 
                 // Rarity
