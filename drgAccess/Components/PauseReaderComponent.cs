@@ -15,7 +15,10 @@ namespace drgAccess.Components;
 /// Arrow-key navigable reader for the pause menu.
 /// Collects weapons (with full stats), artifacts, player stats, and action buttons.
 /// Blocks EventSystem to prevent game UI conflicts (fixes first-level navigation bug).
-/// Up/Down navigates, Enter activates, Escape resumes.
+/// Up/Down navigates, Enter activates buttons.
+/// Escape is NOT handled here — the game's native Escape→unpause works with EventSystem
+/// blocked (it uses direct input polling). PauseFormHidePatch deactivates the reader
+/// when the game closes the pause form.
 /// </summary>
 public class PauseReaderComponent : MonoBehaviour
 {
@@ -39,7 +42,7 @@ public class PauseReaderComponent : MonoBehaviour
     {
         public string Text;
         public Action OnActivate;
-        public bool SuspendOnActivate; // true = suspend reader instead of deactivate
+        public bool SuspendOnActivate;
     }
 
     static PauseReaderComponent()
@@ -144,14 +147,7 @@ public class PauseReaderComponent : MonoBehaviour
 
             if (!isActive || items == null || items.Count == 0) return;
 
-            // Escape/B to resume
-            if (InputHelper.Cancel())
-            {
-                ResumeGame();
-                return;
-            }
-
-            // Navigation
+            // Navigation (no Escape — game handles unpause natively via PauseFormHidePatch)
             if (InputHelper.NavigateUp())
                 Navigate(-1);
             else if (InputHelper.NavigateDown())
@@ -177,28 +173,20 @@ public class PauseReaderComponent : MonoBehaviour
     private void ActivateCurrent()
     {
         var item = items[selectedIndex];
-        if (item.OnActivate != null)
-        {
-            var action = item.OnActivate;
-            if (item.SuspendOnActivate)
-                Suspend();
-            else
-                Deactivate();
-            action();
-        }
-    }
+        if (item.OnActivate == null) return;
 
-    private void ResumeGame()
-    {
-        var form = pauseForm;
-        Deactivate();
-        try
+        if (item.SuspendOnActivate)
         {
-            form?.SetVisibility(false, false);
+            // Settings: suspend reader (restore EventSystem), then open settings
+            Suspend();
+            item.OnActivate();
         }
-        catch (Exception e)
+        else
         {
-            Plugin.Log?.LogDebug($"PauseReader ResumeGame error: {e.Message}");
+            // Resume/Menu: call action directly.
+            // The action calls SetVisibility(false) or OnMenuButton(),
+            // which triggers PauseFormHidePatch → Deactivate() → EventSystem restored.
+            item.OnActivate();
         }
     }
 
