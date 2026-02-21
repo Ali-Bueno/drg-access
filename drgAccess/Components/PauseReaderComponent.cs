@@ -27,6 +27,10 @@ public class PauseReaderComponent : MonoBehaviour
     private int selectedIndex;
     private int collectDelay = -1;
 
+    // Suspended state (settings open, waiting to return)
+    private bool suspended;
+    private int suspendPollCounter;
+
     // EventSystem blocking
     private GameObject eventSystemObject;
     private int restoreStep = -1;
@@ -35,6 +39,7 @@ public class PauseReaderComponent : MonoBehaviour
     {
         public string Text;
         public Action OnActivate;
+        public bool SuspendOnActivate; // true = suspend reader instead of deactivate
     }
 
     static PauseReaderComponent()
@@ -56,6 +61,7 @@ public class PauseReaderComponent : MonoBehaviour
     {
         pauseForm = form;
         isActive = false;
+        suspended = false;
         items = null;
         selectedIndex = 0;
         collectDelay = 10;
@@ -63,11 +69,25 @@ public class PauseReaderComponent : MonoBehaviour
 
     public void Deactivate()
     {
-        if (!isActive && collectDelay < 0) return;
+        if (!isActive && collectDelay < 0 && !suspended) return;
         isActive = false;
+        suspended = false;
         collectDelay = -1;
         pauseForm = null;
         items = null;
+        RestoreEventSystem();
+    }
+
+    /// <summary>
+    /// Suspends the reader (restores EventSystem) but keeps state intact.
+    /// Used when opening settings from pause — reader resumes when settings closes.
+    /// </summary>
+    private void Suspend()
+    {
+        if (!isActive) return;
+        isActive = false;
+        suspended = true;
+        suspendPollCounter = 0;
         RestoreEventSystem();
     }
 
@@ -84,6 +104,29 @@ public class PauseReaderComponent : MonoBehaviour
             {
                 restoreStep = -1;
                 FinishRestore();
+            }
+
+            // Poll for settings return (check every ~30 frames / 0.5s)
+            if (suspended && pauseForm != null)
+            {
+                suspendPollCounter++;
+                if (suspendPollCounter % 30 == 0)
+                {
+                    try
+                    {
+                        var sf = UnityEngine.Object.FindObjectOfType<UISettingsForm>();
+                        bool settingsOpen = sf != null && sf.gameObject.activeInHierarchy;
+                        if (!settingsOpen)
+                        {
+                            suspended = false;
+                            BlockEventSystem();
+                            isActive = true;
+                            ScreenReader.Interrupt($"Game Paused. {items[selectedIndex].Text}");
+                        }
+                    }
+                    catch { suspended = false; }
+                }
+                return;
             }
 
             // Wait for UI to populate
@@ -137,7 +180,10 @@ public class PauseReaderComponent : MonoBehaviour
         if (item.OnActivate != null)
         {
             var action = item.OnActivate;
-            Deactivate();
+            if (item.SuspendOnActivate)
+                Suspend();
+            else
+                Deactivate();
             action();
         }
     }
@@ -383,10 +429,11 @@ public class PauseReaderComponent : MonoBehaviour
             catch { }
         });
 
-        AddItem("Settings", () =>
+        items.Add(new PauseItem
         {
-            try { form?.OnSettingsButton(); }
-            catch { }
+            Text = "Settings",
+            OnActivate = () => { try { form?.OnSettingsButton(); } catch { } },
+            SuspendOnActivate = true
         });
     }
 
@@ -455,7 +502,7 @@ public class PauseReaderComponent : MonoBehaviour
 
     void OnDestroy()
     {
-        if (isActive || collectDelay >= 0)
+        if (isActive || collectDelay >= 0 || suspended)
             RestoreEventSystem();
         Instance = null;
     }
