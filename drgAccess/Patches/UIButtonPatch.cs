@@ -33,6 +33,11 @@ public static partial class UIButtonPatch
     {
         try
         {
+            // Suppress stray focus announcements while pause reader is handling navigation
+            var pauseReader = Components.PauseReaderComponent.Instance;
+            if (pauseReader != null && pauseReader.IsHandlingPause)
+                return;
+
             string buttonType = __instance.GetType().Name;
             Plugin.Log?.LogInfo($"UIButton.OnSelect - Button type: {buttonType}, GameObject: {__instance.gameObject.name}");
 

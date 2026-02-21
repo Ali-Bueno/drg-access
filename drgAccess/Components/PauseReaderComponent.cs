@@ -16,9 +16,8 @@ namespace drgAccess.Components;
 /// Collects weapons (with full stats), artifacts, player stats, and action buttons.
 /// Blocks EventSystem to prevent game UI conflicts (fixes first-level navigation bug).
 /// Up/Down navigates, Enter activates buttons.
-/// Escape is NOT handled here — the game's native Escape→unpause works with EventSystem
-/// blocked (it uses direct input polling). PauseFormHidePatch deactivates the reader
-/// when the game closes the pause form.
+/// Escape is handled by the game natively — safety check in Update detects when the
+/// pause form disappears and deactivates the reader.
 /// </summary>
 public class PauseReaderComponent : MonoBehaviour
 {
@@ -36,7 +35,12 @@ public class PauseReaderComponent : MonoBehaviour
 
     // EventSystem blocking
     private GameObject eventSystemObject;
-    private int restoreStep = -1;
+
+    /// <summary>
+    /// True when the pause reader is involved (active, collecting, or suspended).
+    /// Used by UIButtonPatch to suppress stray focus announcements during transitions.
+    /// </summary>
+    public bool IsHandlingPause => isActive || suspended || collectDelay >= 0;
 
     private struct PauseItem
     {
@@ -98,22 +102,49 @@ public class PauseReaderComponent : MonoBehaviour
     {
         try
         {
-            // Restoration state machine
-            if (restoreStep > 0)
+            // Safety: if pause form disappeared (game unpaused via Escape or other),
+            // deactivate the reader to avoid leaving EventSystem blocked.
+            if ((isActive || collectDelay >= 0) && pauseForm != null)
             {
-                restoreStep--;
-            }
-            else if (restoreStep == 0)
-            {
-                restoreStep = -1;
-                FinishRestore();
+                try
+                {
+                    if (!pauseForm.gameObject.activeInHierarchy)
+                    {
+                        Deactivate();
+                        return;
+                    }
+                }
+                catch
+                {
+                    Deactivate();
+                    return;
+                }
             }
 
-            // Poll for settings return (check every ~30 frames / 0.5s)
+            // Poll for settings return (check every ~10 frames / ~0.17s)
             if (suspended && pauseForm != null)
             {
+                // Also check if pause form disappeared while suspended
+                try
+                {
+                    if (!pauseForm.gameObject.activeInHierarchy)
+                    {
+                        suspended = false;
+                        pauseForm = null;
+                        items = null;
+                        return;
+                    }
+                }
+                catch
+                {
+                    suspended = false;
+                    pauseForm = null;
+                    items = null;
+                    return;
+                }
+
                 suspendPollCounter++;
-                if (suspendPollCounter % 30 == 0)
+                if (suspendPollCounter % 10 == 0)
                 {
                     try
                     {
@@ -147,7 +178,7 @@ public class PauseReaderComponent : MonoBehaviour
 
             if (!isActive || items == null || items.Count == 0) return;
 
-            // Navigation (no Escape — game handles unpause natively via PauseFormHidePatch)
+            // Navigation (no Escape — game handles unpause, safety check handles cleanup)
             if (InputHelper.NavigateUp())
                 Navigate(-1);
             else if (InputHelper.NavigateDown())
@@ -184,8 +215,8 @@ public class PauseReaderComponent : MonoBehaviour
         else
         {
             // Resume/Menu: call action directly.
-            // The action calls SetVisibility(false) or OnMenuButton(),
-            // which triggers PauseFormHidePatch → Deactivate() → EventSystem restored.
+            // SetVisibility(false) triggers PauseFormHidePatch → Deactivate().
+            // If the form disappears without SetVisibility, the safety check handles it.
             item.OnActivate();
         }
     }
@@ -450,6 +481,10 @@ public class PauseReaderComponent : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Restores EventSystem immediately (no delayed steps).
+    /// Toggles InputModule to reset its internal state.
+    /// </summary>
     private void RestoreEventSystem()
     {
         try
@@ -458,33 +493,24 @@ public class PauseReaderComponent : MonoBehaviour
             {
                 eventSystemObject.SetActive(true);
                 eventSystemObject = null;
-                restoreStep = 5;
+
+                // Reset input module state immediately
+                var es = EventSystem.current;
+                if (es != null)
+                {
+                    var module = es.GetComponent<InputSystemUIInputModule>();
+                    if (module != null)
+                    {
+                        module.enabled = false;
+                        module.enabled = true;
+                    }
+                }
             }
         }
         catch (Exception e)
         {
             Plugin.Log?.LogDebug($"PauseReader RestoreEventSystem error: {e.Message}");
             eventSystemObject = null;
-        }
-    }
-
-    private void FinishRestore()
-    {
-        try
-        {
-            var es = EventSystem.current;
-            if (es == null) return;
-
-            var module = es.GetComponent<InputSystemUIInputModule>();
-            if (module != null)
-            {
-                module.enabled = false;
-                module.enabled = true;
-            }
-        }
-        catch (Exception e)
-        {
-            Plugin.Log?.LogDebug($"PauseReader FinishRestore error: {e.Message}");
         }
     }
 
