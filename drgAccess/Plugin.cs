@@ -42,6 +42,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.ModSettingsMenu>();
         AddComponent<Components.WalletReaderComponent>();
         AddComponent<Components.EndScreenReaderComponent>();
+        AddComponent<Components.PauseReaderComponent>();
         AddComponent<Components.MilestoneReaderComponent>();
         AddComponent<Components.HPReaderComponent>();
         AddComponent<Components.FootstepAudio>();

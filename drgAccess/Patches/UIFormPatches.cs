@@ -179,19 +179,7 @@ public static class UIFormPatches
         }
     }
 
-    // Pause Form (in-game)
-    [HarmonyPatch(typeof(UICorePauseForm), nameof(UICorePauseForm.SetVisibility))]
-    public static class UICorePauseForm_SetVisibility
-    {
-        [HarmonyPostfix]
-        public static void Postfix(UICorePauseForm __instance, bool visible)
-        {
-            if (visible)
-            {
-                ScreenReader.Interrupt("Game Paused");
-            }
-        }
-    }
+    // Pause Form announcement removed — PauseReaderComponent handles it
 
     // End Screen (game over / victory) - activates arrow-key navigable reader
     [HarmonyPatch(typeof(UIEndScreen), nameof(UIEndScreen.SetVisibility))]

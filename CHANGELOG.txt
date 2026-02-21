@@ -2,6 +2,26 @@ CHANGELOG
 =========
 
 
+v0.5.6 - February 21, 2026
+---------------------------
+
+New Features:
+
+  - Pause Menu Navigable Reader: Replaced the old stats dump with a full
+    arrow-key navigable reader (same pattern as the end screen reader).
+    Up/Down to browse, Enter to select, Escape to resume.
+    Sections: Weapons (name, level, stats, tags, upgrades), Artifacts
+    (name + description), Player Stats (individual items), and action
+    buttons (Resume, Menu, Settings).
+
+Bug Fixes:
+
+  - Fixed first-level pause navigation: On the first level, the pause
+    menu's stats overlay was blocking navigation, preventing players from
+    accessing the Menu button to exit the run. The new reader takes over
+    input and provides Menu/Resume buttons directly.
+
+
 v0.5.5 - February 21, 2026
 ---------------------------
 

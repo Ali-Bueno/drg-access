@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.5.5
+- **Current version**: v0.5.6
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -172,7 +172,11 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Navigate with W/S or Up/Down arrows to browse milestones
   - Reads: description, progress (X/Y), completion state, reward, requirements
   - Auto-refreshes when changing tabs (All, Weapons, Artifacts, Classes, Challenges, Gear)
-- **Pause Menu**: Reads weapon name/level on weapon select, artifact name on artifact select, all player stats (name + value) when pause form opens
+- **Pause Menu**: Arrow-key navigable reader for pause screen (similar to end screen reader)
+  - Activates when pause form opens, blocks EventSystem to prevent game UI conflicts
+  - Sections: Weapons (name, level, stats, tags, upgrades), Artifacts (name, description), Player Stats (individual items), Buttons (Resume, Menu, Settings)
+  - Navigate with Up/Down arrows, Enter to select, Escape/B to resume
+  - Fixes first-level navigation bug where stats overlay blocked pause menu buttons
 - **End Screen (Death/Victory Stats)**: Arrow-key navigable reader for post-run statistics
   - Activates when end screen opens, collects all visible text into ordered list
   - Navigate with Up/Down arrows, Enter to activate buttons
@@ -268,6 +272,7 @@ drgAccess/
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
 │   ├── HPReaderComponent.cs       # H key HP reading during gameplay
 │   ├── EndScreenReaderComponent.cs # Arrow-key navigable end screen stats reader
+│   ├── PauseReaderComponent.cs    # Arrow-key navigable pause menu reader
 │   └── MilestoneReaderComponent.cs # W/S navigable milestone reader
 ├── Patches/
 │   ├── UIButtonPatch.cs           # Core button dispatch + simple handlers (partial class)
@@ -280,7 +285,7 @@ drgAccess/
 │   ├── UITooltipPatch.cs          # Tooltip reading
 │   ├── UISliderTogglePatch.cs     # Toggle state announcements
 │   ├── UIButtonPatch.Pause.cs     # Pause menu weapon/artifact button text (partial)
-│   ├── UICorePausePatch.cs        # Pause menu detail panels (weapon stats, artifact desc, player stats)
+│   ├── UICorePausePatch.cs        # Pause menu reader activation/deactivation
 │   ├── UIActionFeedbackPatch.cs   # Action results (buy/sell, upgrade, equip/unequip, wallet reader)
 │   ├── UIObjectivePatches.cs      # Objective announcements (show, progress, completion)
 │   ├── EnemyPatches.cs            # Enemy registration for audio system
