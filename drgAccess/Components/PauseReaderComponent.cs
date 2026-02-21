@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DavyKager;
 using DRS.UI;
 using TMPro;
 using UnityEngine;
@@ -13,17 +14,15 @@ namespace drgAccess.Components;
 
 /// <summary>
 /// Arrow-key navigable reader for the pause menu.
-/// Collects weapons (with full stats), artifacts, player stats, and action buttons.
-/// Blocks EventSystem to prevent game UI conflicts (fixes first-level navigation bug).
-/// Up/Down navigates, Enter activates buttons.
-/// Escape is handled by the game natively — safety check in Update detects when the
-/// pause form disappears and deactivates the reader.
+/// Follows the same pattern as ModSettingsMenu: blocks EventSystem, suppresses
+/// ScreenReader, handles ALL input (including Escape), uses SpeakDirect for output.
+/// Fully self-contained lifecycle — no reliance on external patches for state management.
 /// </summary>
 public class PauseReaderComponent : MonoBehaviour
 {
     public static PauseReaderComponent Instance { get; private set; }
 
-    private bool isActive;
+    private bool isOpen;
     private UICorePauseForm pauseForm;
     private List<PauseItem> items;
     private int selectedIndex;
@@ -35,18 +34,18 @@ public class PauseReaderComponent : MonoBehaviour
 
     // EventSystem blocking
     private GameObject eventSystemObject;
+    private int restoreStep = -1;
 
     /// <summary>
-    /// True when the pause reader is involved (active, collecting, or suspended).
-    /// Used by UIButtonPatch to suppress stray focus announcements during transitions.
+    /// True when the pause reader is involved (open, collecting, or suspended).
+    /// Used by UIButtonPatch to suppress stray focus announcements.
     /// </summary>
-    public bool IsHandlingPause => isActive || suspended || collectDelay >= 0;
+    public bool IsHandlingPause => isOpen || suspended || collectDelay >= 0;
 
     private struct PauseItem
     {
         public string Text;
         public Action OnActivate;
-        public bool SuspendOnActivate;
     }
 
     static PauseReaderComponent()
@@ -64,84 +63,85 @@ public class PauseReaderComponent : MonoBehaviour
         Instance = this;
     }
 
+    /// <summary>
+    /// Called from PauseFormShowPatch when pause form opens.
+    /// Starts the collection delay, then opens the reader.
+    /// </summary>
     public void Activate(UICorePauseForm form)
     {
         pauseForm = form;
-        isActive = false;
+        isOpen = false;
         suspended = false;
         items = null;
         selectedIndex = 0;
         collectDelay = 10;
+        ScreenReader.Suppressed = true;
     }
 
-    public void Deactivate()
+    /// <summary>
+    /// Closes the reader and restores everything.
+    /// Safe to call multiple times.
+    /// </summary>
+    private void Close()
     {
-        if (!isActive && collectDelay < 0 && !suspended) return;
-        isActive = false;
+        if (!isOpen && collectDelay < 0 && !suspended) return;
+        isOpen = false;
         suspended = false;
         collectDelay = -1;
         pauseForm = null;
         items = null;
         RestoreEventSystem();
-    }
-
-    /// <summary>
-    /// Suspends the reader (restores EventSystem) but keeps state intact.
-    /// Used when opening settings from pause — reader resumes when settings closes.
-    /// </summary>
-    private void Suspend()
-    {
-        if (!isActive) return;
-        isActive = false;
-        suspended = true;
-        suspendPollCounter = 0;
-        RestoreEventSystem();
+        ScreenReader.Suppressed = false;
     }
 
     void Update()
     {
         try
         {
-            // Safety: if pause form disappeared (game unpaused via Escape or other),
-            // deactivate the reader to avoid leaving EventSystem blocked.
-            if ((isActive || collectDelay >= 0) && pauseForm != null)
+            // Restoration state machine (for after Close)
+            if (restoreStep > 0)
             {
-                try
-                {
-                    if (!pauseForm.gameObject.activeInHierarchy)
-                    {
-                        Deactivate();
-                        return;
-                    }
-                }
-                catch
-                {
-                    Deactivate();
-                    return;
-                }
+                restoreStep--;
+            }
+            else if (restoreStep == 0)
+            {
+                restoreStep = -1;
+                FinishRestore();
             }
 
-            // Poll for settings return (check every ~10 frames / ~0.17s)
-            if (suspended && pauseForm != null)
+            // Safety: if pause form disappeared, clean up
+            if ((isOpen || collectDelay >= 0) && pauseForm != null)
             {
-                // Also check if pause form disappeared while suspended
                 try
                 {
                     if (!pauseForm.gameObject.activeInHierarchy)
                     {
-                        suspended = false;
-                        pauseForm = null;
-                        items = null;
+                        Close();
                         return;
                     }
                 }
-                catch
+                catch { Close(); return; }
+            }
+
+            // Suspended: poll for settings return
+            if (suspended)
+            {
+                if (pauseForm == null)
                 {
-                    suspended = false;
-                    pauseForm = null;
-                    items = null;
+                    Close();
                     return;
                 }
+
+                // Check if pause form disappeared while suspended
+                try
+                {
+                    if (!pauseForm.gameObject.activeInHierarchy)
+                    {
+                        Close();
+                        return;
+                    }
+                }
+                catch { Close(); return; }
 
                 suspendPollCounter++;
                 if (suspendPollCounter % 10 == 0)
@@ -151,19 +151,14 @@ public class PauseReaderComponent : MonoBehaviour
                         var sf = UnityEngine.Object.FindObjectOfType<UISettingsForm>();
                         bool settingsOpen = sf != null && sf.gameObject.activeInHierarchy;
                         if (!settingsOpen)
-                        {
-                            suspended = false;
-                            BlockEventSystem();
-                            isActive = true;
-                            ScreenReader.Interrupt($"Game Paused. {items[selectedIndex].Text}");
-                        }
+                            ResumeFromSettings();
                     }
-                    catch { suspended = false; }
+                    catch { Close(); }
                 }
                 return;
             }
 
-            // Wait for UI to populate
+            // Collection delay
             if (collectDelay > 0)
             {
                 collectDelay--;
@@ -172,13 +167,19 @@ public class PauseReaderComponent : MonoBehaviour
             if (collectDelay == 0)
             {
                 collectDelay = -1;
-                CollectItems();
+                CollectAndOpen();
                 return;
             }
 
-            if (!isActive || items == null || items.Count == 0) return;
+            if (!isOpen || items == null || items.Count == 0) return;
 
-            // Navigation (no Escape — game handles unpause, safety check handles cleanup)
+            // Handle ALL input (self-contained, like ModSettingsMenu)
+            if (InputHelper.Cancel())
+            {
+                DoResume();
+                return;
+            }
+
             if (InputHelper.NavigateUp())
                 Navigate(-1);
             else if (InputHelper.NavigateDown())
@@ -198,32 +199,60 @@ public class PauseReaderComponent : MonoBehaviour
         if (selectedIndex < 0) selectedIndex = items.Count - 1;
         if (selectedIndex >= items.Count) selectedIndex = 0;
 
-        ScreenReader.Interrupt(items[selectedIndex].Text);
+        SpeakDirect(items[selectedIndex].Text);
     }
 
     private void ActivateCurrent()
     {
         var item = items[selectedIndex];
-        if (item.OnActivate == null) return;
+        if (item.OnActivate != null)
+            item.OnActivate();
+    }
 
-        if (item.SuspendOnActivate)
-        {
-            // Settings: suspend reader (restore EventSystem), then open settings
-            Suspend();
-            item.OnActivate();
-        }
-        else
-        {
-            // Resume/Menu: call action directly.
-            // SetVisibility(false) triggers PauseFormHidePatch → Deactivate().
-            // If the form disappears without SetVisibility, the safety check handles it.
-            item.OnActivate();
-        }
+    // ===== Actions =====
+
+    private void DoResume()
+    {
+        var form = pauseForm;
+        Close();
+        try { form?.SetVisibility(false, false); }
+        catch { }
+    }
+
+    private void DoMenu()
+    {
+        var form = pauseForm;
+        Close();
+        try { form?.OnMenuButton(); }
+        catch { }
+    }
+
+    private void DoSettings()
+    {
+        var form = pauseForm;
+
+        // Suspend: keep state, restore EventSystem so settings can work
+        isOpen = false;
+        suspended = true;
+        suspendPollCounter = 0;
+        RestoreEventSystem();
+        // Keep ScreenReader.Suppressed = true to avoid stray announcements
+
+        try { form?.OnSettingsButton(); }
+        catch { }
+    }
+
+    private void ResumeFromSettings()
+    {
+        suspended = false;
+        BlockEventSystem();
+        isOpen = true;
+        SpeakDirect($"Game Paused. {items[selectedIndex].Text}");
     }
 
     // ===== Data collection =====
 
-    private void CollectItems()
+    private void CollectAndOpen()
     {
         if (pauseForm == null) return;
 
@@ -246,12 +275,11 @@ public class PauseReaderComponent : MonoBehaviour
             items.Add(new PauseItem { Text = "No information available" });
 
         BlockEventSystem();
-
-        isActive = true;
+        isOpen = true;
         selectedIndex = 0;
 
-        ScreenReader.Interrupt(
-            $"Game Paused. Up and down to navigate, Enter to select. {items[0].Text}");
+        SpeakDirect(
+            $"Game Paused. Up and down to navigate, Enter to select, Escape to resume. {items[0].Text}");
     }
 
     private void CollectWeapons()
@@ -273,7 +301,6 @@ public class PauseReaderComponent : MonoBehaviour
 
                 var sb = new StringBuilder();
 
-                // Weapon name
                 var data = handler.Data;
                 if (data != null)
                 {
@@ -282,7 +309,6 @@ public class PauseReaderComponent : MonoBehaviour
                         sb.Append(TextHelper.CleanText(title));
                 }
 
-                // Level
                 int level = handler.weaponLevel;
                 if (level > 0)
                 {
@@ -290,7 +316,6 @@ public class PauseReaderComponent : MonoBehaviour
                     sb.Append($"Level {level}");
                 }
 
-                // Populate weapon details panel to read stats
                 if (details != null)
                 {
                     try
@@ -357,7 +382,6 @@ public class PauseReaderComponent : MonoBehaviour
                 if (!string.IsNullOrEmpty(title))
                     sb.Append(TextHelper.CleanText(title));
 
-                // Get description
                 try
                 {
                     string desc = data.GetDescription();
@@ -434,32 +458,27 @@ public class PauseReaderComponent : MonoBehaviour
 
     private void CollectButtons()
     {
-        var form = pauseForm;
-
-        AddItem("Resume", () =>
-        {
-            try { form?.SetVisibility(false, false); }
-            catch { }
-        });
-
-        AddItem("Menu", () =>
-        {
-            try { form?.OnMenuButton(); }
-            catch { }
-        });
-
-        items.Add(new PauseItem
-        {
-            Text = "Settings",
-            OnActivate = () => { try { form?.OnSettingsButton(); } catch { } },
-            SuspendOnActivate = true
-        });
+        AddItem("Resume", DoResume);
+        AddItem("Menu", DoMenu);
+        AddItem("Settings", DoSettings);
     }
 
     private void AddItem(string text, Action onActivate = null)
     {
         if (!string.IsNullOrEmpty(text))
             items.Add(new PauseItem { Text = text, OnActivate = onActivate });
+    }
+
+    // ===== Speech =====
+
+    /// <summary>
+    /// Speaks directly via Tolk, bypassing ScreenReader.Suppressed.
+    /// Same pattern as ModSettingsMenu.SpeakDirect.
+    /// </summary>
+    private void SpeakDirect(string text)
+    {
+        try { Tolk.Speak(text, true); }
+        catch { }
     }
 
     // ===== EventSystem management =====
@@ -481,10 +500,6 @@ public class PauseReaderComponent : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Restores EventSystem immediately (no delayed steps).
-    /// Toggles InputModule to reset its internal state.
-    /// </summary>
     private void RestoreEventSystem()
     {
         try
@@ -493,18 +508,7 @@ public class PauseReaderComponent : MonoBehaviour
             {
                 eventSystemObject.SetActive(true);
                 eventSystemObject = null;
-
-                // Reset input module state immediately
-                var es = EventSystem.current;
-                if (es != null)
-                {
-                    var module = es.GetComponent<InputSystemUIInputModule>();
-                    if (module != null)
-                    {
-                        module.enabled = false;
-                        module.enabled = true;
-                    }
-                }
+                restoreStep = 5;
             }
         }
         catch (Exception e)
@@ -514,10 +518,33 @@ public class PauseReaderComponent : MonoBehaviour
         }
     }
 
+    private void FinishRestore()
+    {
+        try
+        {
+            var es = EventSystem.current;
+            if (es == null) return;
+
+            var module = es.GetComponent<InputSystemUIInputModule>();
+            if (module != null)
+            {
+                module.enabled = false;
+                module.enabled = true;
+            }
+        }
+        catch (Exception e)
+        {
+            Plugin.Log?.LogDebug($"PauseReader FinishRestore error: {e.Message}");
+        }
+    }
+
     void OnDestroy()
     {
-        if (isActive || collectDelay >= 0 || suspended)
+        if (isOpen || collectDelay >= 0 || suspended)
+        {
             RestoreEventSystem();
+            ScreenReader.Suppressed = false;
+        }
         Instance = null;
     }
 }

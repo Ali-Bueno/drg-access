@@ -6,10 +6,10 @@ using drgAccess.Components;
 namespace drgAccess.Patches;
 
 /// <summary>
-/// Patches for pause menu: activates the PauseReaderComponent for navigable
-/// weapon/artifact/stat reading. Deactivates when pause form hides.
+/// Activates PauseReaderComponent when the pause form opens.
+/// The reader is fully self-contained (handles its own close/Escape/settings),
+/// so no hide patch is needed.
 /// </summary>
-
 [HarmonyPatch(typeof(UICorePauseForm), nameof(UICorePauseForm.Show))]
 public static class PauseFormShowPatch
 {
@@ -24,27 +24,6 @@ public static class PauseFormShowPatch
         catch (Exception ex)
         {
             Plugin.Log?.LogError($"PauseFormShowPatch error: {ex.Message}");
-        }
-    }
-}
-
-[HarmonyPatch(typeof(UICorePauseForm), nameof(UICorePauseForm.SetVisibility))]
-public static class PauseFormHidePatch
-{
-    public static void Postfix(UICorePauseForm __instance, bool visible)
-    {
-        try
-        {
-            if (!visible)
-            {
-                var reader = PauseReaderComponent.Instance;
-                if (reader != null)
-                    reader.Deactivate();
-            }
-        }
-        catch (Exception ex)
-        {
-            Plugin.Log?.LogError($"PauseFormHidePatch error: {ex.Message}");
         }
     }
 }
