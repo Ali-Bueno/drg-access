@@ -348,25 +348,25 @@ namespace drgAccess.Components
                 new AudioCueItem
                 {
                     Name = "Boss: Charge",
-                    Description = "Boss charging at you. Rising aggressive alarm.",
+                    Description = "Boss charging at you. 3 fast aggressive beeps.",
                     PlayPreview = () => PreviewBossAttackType(BossAttackType.Charge)
                 },
                 new AudioCueItem
                 {
                     Name = "Boss: Spikes",
-                    Description = "Boss spawning ground spikes. Rumbling rising tone.",
+                    Description = "Boss spawning ground spikes. 3 medium deep beeps.",
                     PlayPreview = () => PreviewBossAttackType(BossAttackType.Spikes)
                 },
                 new AudioCueItem
                 {
                     Name = "Boss: Fireball",
-                    Description = "Boss firing projectiles. Sharp rising alarm.",
+                    Description = "Boss firing projectiles. 3 very fast sharp beeps.",
                     PlayPreview = () => PreviewBossAttackType(BossAttackType.Fireball)
                 },
                 new AudioCueItem
                 {
                     Name = "Boss: Heal",
-                    Description = "Boss healing itself. Low warbling tone.",
+                    Description = "Boss healing itself. 3 slow gentle beeps.",
                     PlayPreview = () => PreviewBossAttackType(BossAttackType.Heal)
                 }
             };

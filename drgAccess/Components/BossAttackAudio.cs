@@ -19,33 +19,35 @@ namespace drgAccess.Components
     }
 
     /// <summary>
-    /// Sound generator for boss attack charging effects.
-    /// Produces a rising-pitch alarm that accelerates to signal an incoming attack.
+    /// Sound generator for boss attack telegraphs.
+    /// Plays a pattern of 3 short beeps with attack-specific timing, frequency, and waveform.
+    /// Speed between beeps is the main differentiator between attack types.
     /// </summary>
     public class ChargingSoundGenerator : ISampleProvider
     {
         private readonly WaveFormat waveFormat;
         private readonly int sampleRate;
         private double phase;
-        private double alarmPhase;
 
-        // Attack parameters (set per attack type)
-        private double baseFreq;
-        private double peakFreq;
-        private double baseAlarmRate;
-        private double peakAlarmRate;
-        private float duration;
-        private bool isHeal;
+        // Per-beep parameters
+        private double frequency;
+        private int beepDurationSamples;
+        private int gapDurationSamples;
+        private int totalPatternSamples;
+        private WaveformType waveformType;
+
+        private enum WaveformType { Sine, SquareSine, Deep, Gentle }
 
         // Playback state
         private bool isPlaying;
         private int samplesPlayed;
-        private int totalSamples;
 
         // Volume control
         private float targetVolume;
         private float currentVolume;
         private const float VOLUME_SMOOTHING = 0.05f;
+
+        private const int BEEP_COUNT = 3;
 
         public WaveFormat WaveFormat => waveFormat;
 
@@ -69,31 +71,39 @@ namespace drgAccess.Components
             switch (type)
             {
                 case BossAttackType.Charge:
-                    baseFreq = 400; peakFreq = 1000;
-                    baseAlarmRate = 4; peakAlarmRate = 18;
-                    duration = 1.2f; isHeal = false;
+                    // Fast 3 beeps, aggressive square+sine, high frequency
+                    frequency = 600;
+                    beepDurationSamples = (int)(0.08 * sampleRate);
+                    gapDurationSamples = (int)(0.10 * sampleRate);
+                    waveformType = WaveformType.SquareSine;
                     break;
                 case BossAttackType.Spikes:
-                    baseFreq = 300; peakFreq = 800;
-                    baseAlarmRate = 3; peakAlarmRate = 15;
-                    duration = 1.4f; isHeal = false;
+                    // Medium 3 beeps, deep rumble, low frequency
+                    frequency = 350;
+                    beepDurationSamples = (int)(0.10 * sampleRate);
+                    gapDurationSamples = (int)(0.18 * sampleRate);
+                    waveformType = WaveformType.Deep;
                     break;
                 case BossAttackType.Fireball:
-                    baseFreq = 500; peakFreq = 1200;
-                    baseAlarmRate = 5; peakAlarmRate = 20;
-                    duration = 1.0f; isHeal = false;
+                    // Very fast 3 beeps, sharp sine, high frequency
+                    frequency = 800;
+                    beepDurationSamples = (int)(0.06 * sampleRate);
+                    gapDurationSamples = (int)(0.06 * sampleRate);
+                    waveformType = WaveformType.Sine;
                     break;
                 case BossAttackType.Heal:
-                    baseFreq = 200; peakFreq = 400;
-                    baseAlarmRate = 6; peakAlarmRate = 12;
-                    duration = 2.0f; isHeal = true;
+                    // Slow 3 beeps, gentle sine, low frequency
+                    frequency = 250;
+                    beepDurationSamples = (int)(0.12 * sampleRate);
+                    gapDurationSamples = (int)(0.28 * sampleRate);
+                    waveformType = WaveformType.Gentle;
                     break;
             }
 
+            // Total = 3 beeps + 2 gaps (no trailing gap)
+            totalPatternSamples = BEEP_COUNT * beepDurationSamples + (BEEP_COUNT - 1) * gapDurationSamples;
             samplesPlayed = 0;
-            totalSamples = (int)(duration * sampleRate);
             phase = 0;
-            alarmPhase = 0;
             isPlaying = true;
         }
 
@@ -109,55 +119,69 @@ namespace drgAccess.Components
             {
                 currentVolume += (targetVolume - currentVolume) * VOLUME_SMOOTHING;
 
-                if (!isPlaying || samplesPlayed >= totalSamples)
+                if (!isPlaying || samplesPlayed >= totalPatternSamples)
                 {
                     buffer[offset + i] = 0;
-                    if (isPlaying && samplesPlayed >= totalSamples)
+                    if (isPlaying && samplesPlayed >= totalPatternSamples)
                         isPlaying = false;
                     continue;
                 }
 
-                double progress = (double)samplesPlayed / totalSamples;
+                // Determine which beep/gap we're in
+                int cycleLength = beepDurationSamples + gapDurationSamples;
+                int posInCycle = samplesPlayed % cycleLength;
+                bool inBeep = posInCycle < beepDurationSamples;
 
-                // Frequency rises from base to peak over duration
-                double freq = baseFreq + (peakFreq - baseFreq) * progress;
+                // Last beep has no trailing gap, check if we're past the last gap start
+                int lastBeepStart = (BEEP_COUNT - 1) * cycleLength;
+                if (samplesPlayed >= lastBeepStart)
+                    inBeep = (samplesPlayed - lastBeepStart) < beepDurationSamples;
 
-                // Alarm rate accelerates
-                double rate = baseAlarmRate + (peakAlarmRate - baseAlarmRate) * progress;
-
-                // Alarm modulation
-                alarmPhase += rate / sampleRate;
-                if (alarmPhase >= 1.0) alarmPhase -= 1.0;
-                double modulation = Math.Sin(2.0 * Math.PI * alarmPhase);
-
-                double modulatedFreq;
-                double waveform;
-
-                if (isHeal)
+                if (!inBeep)
                 {
-                    // Heal: gentle warble with sine wave
-                    modulatedFreq = freq * (1.0 + modulation * 0.2);
-                    double sine = Math.Sin(2.0 * Math.PI * phase);
-                    double sine2 = Math.Sin(2.0 * Math.PI * phase * 1.5);
-                    waveform = sine * 0.7 + sine2 * 0.3;
-                }
-                else
-                {
-                    // Attack: aggressive siren with square+sine mix
-                    modulatedFreq = freq * (1.0 + modulation * 0.3);
-                    double sine = Math.Sin(2.0 * Math.PI * phase);
-                    double square = sine > 0 ? 1.0 : -1.0;
-                    waveform = square * 0.35 + sine * 0.65;
+                    buffer[offset + i] = 0;
+                    samplesPlayed++;
+                    continue;
                 }
 
-                // Envelope: sustain with quick fade at end
+                // Beep envelope: quick attack and release for clean beep
+                double beepProgress = (double)posInCycle / beepDurationSamples;
+                if (samplesPlayed >= lastBeepStart)
+                    beepProgress = (double)(samplesPlayed - lastBeepStart) / beepDurationSamples;
+
                 double envelope = 1.0;
-                if (progress > 0.85)
-                    envelope = (1.0 - progress) / 0.15;
+                if (beepProgress < 0.05)
+                    envelope = beepProgress / 0.05; // 5% attack
+                else if (beepProgress > 0.85)
+                    envelope = (1.0 - beepProgress) / 0.15; // 15% release
+
+                // Generate waveform based on type
+                double waveform;
+                switch (waveformType)
+                {
+                    case WaveformType.SquareSine:
+                        double sine = Math.Sin(2.0 * Math.PI * phase);
+                        double square = sine > 0 ? 1.0 : -1.0;
+                        waveform = square * 0.35 + sine * 0.65;
+                        break;
+                    case WaveformType.Deep:
+                        // Low rumble: fundamental + sub-octave
+                        waveform = Math.Sin(2.0 * Math.PI * phase) * 0.6
+                                 + Math.Sin(2.0 * Math.PI * phase * 0.5) * 0.4;
+                        break;
+                    case WaveformType.Gentle:
+                        // Soft sine with slight harmonic
+                        waveform = Math.Sin(2.0 * Math.PI * phase) * 0.8
+                                 + Math.Sin(2.0 * Math.PI * phase * 2.0) * 0.2;
+                        break;
+                    default: // Sine
+                        waveform = Math.Sin(2.0 * Math.PI * phase);
+                        break;
+                }
 
                 buffer[offset + i] = (float)(currentVolume * waveform * envelope);
 
-                phase += modulatedFreq / sampleRate;
+                phase += frequency / sampleRate;
                 if (phase >= 1.0) phase -= 1.0;
                 samplesPlayed++;
             }

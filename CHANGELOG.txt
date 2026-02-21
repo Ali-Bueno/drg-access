@@ -2,6 +2,20 @@ CHANGELOG
 =========
 
 
+v0.5.5 - February 21, 2026
+---------------------------
+
+Improvements:
+
+  - Boss Attack Audio Redesign: Replaced continuous rising-pitch sirens
+    with distinct 3-beep patterns per attack type. Each attack now has
+    clearly different speed, frequency, and waveform:
+      * Charge: 3 fast beeps at 600 Hz (aggressive square+sine)
+      * Spikes: 3 medium beeps at 350 Hz (deep rumble + sub-octave)
+      * Fireball: 3 very fast beeps at 800 Hz (sharp sine)
+      * Heal: 3 slow beeps at 250 Hz (gentle sine + harmonic)
+
+
 v0.5.4 - February 20, 2026
 ---------------------------
 

@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.5.4
+- **Current version**: v0.5.5
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -217,12 +217,11 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Boss Attack Telegraphs**: Screen reader + audio warnings for Dreadnought boss attack patterns
   - Patches `DreadnoughtAnimator` telegraph methods (all declared directly, safe to patch)
   - 4 attack types with distinct screen reader announcements: "Charge!", "Spikes!", "Fireball!", "Healing!"
-  - Rising-pitch charging audio with different frequency ranges per attack type:
-    - Charge: 400-1000 Hz (aggressive square+sine mix)
-    - Spikes: 300-800 Hz (rumbling rising)
-    - Fireball: 500-1200 Hz (sharp rising)
-    - Heal: 200-400 Hz (gentle warble with sine harmonics)
-  - Alarm rate accelerates during charge-up (siren effect)
+  - 3-beep pattern audio with attack-specific speed, frequency, and waveform:
+    - Charge: 3 fast beeps, 600 Hz (aggressive square+sine, 80ms beep / 100ms gap)
+    - Spikes: 3 medium beeps, 350 Hz (deep rumble + sub-octave, 100ms beep / 180ms gap)
+    - Fireball: 3 very fast beeps, 800 Hz (sharp sine, 60ms beep / 60ms gap)
+    - Heal: 3 slow beeps, 250 Hz (gentle sine + harmonic, 120ms beep / 280ms gap)
   - Directional stereo panning toward boss position
   - Volume configurable via Boss Attacks slider in Mod Settings
 - **Boss HP Tracking**: Automatic boss health percentage announcements
