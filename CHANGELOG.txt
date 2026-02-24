@@ -2,6 +2,30 @@ CHANGELOG
 =========
 
 
+v0.5.8 - February 24, 2026
+---------------------------
+
+New Features:
+
+  - Drill Beacon (Bobby): New positional audio beacon for escort missions.
+    A rhythmic chugging pulse guides you toward Bobby the drill. The sound
+    changes between a fast chug when Bobby is moving and a slow idle when
+    stopped. State announcements: "Bobby arriving", "Bobby started",
+    "Bobby stopped", "Bobby mining the heartstone", "Bobby is broken",
+    "Bobby finished". Fuel tracked at 50%, 25%, 10%. Progress announced
+    at 25%, 50%, 75%. "Out of Bobby's range, get closer" when too far.
+    F key compass reports direction and distance to Bobby. Volume
+    adjustable in Mod Settings (F1). NavMesh pathfinding for guidance
+    around obstacles.
+
+  - Objective Reader (O key): Press O during gameplay to hear all active
+    objectives and their progress. Example: "Objective: Collect 10
+    Morkite: 7/10". Multiple objectives are read together.
+
+  - Drill Beacon Audio Preview: New audio cue preview in the Mod Settings
+    Menu for the drill beacon sound (24 total cues now).
+
+
 v0.5.7 - February 24, 2026
 ---------------------------
 

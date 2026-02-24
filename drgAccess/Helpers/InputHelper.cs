@@ -54,6 +54,11 @@ public static class InputHelper
         return KeyPressed(Key.T);
     }
 
+    public static bool ReadObjectives()
+    {
+        return KeyPressed(Key.O);
+    }
+
     public static bool ToggleSettingsMenu()
     {
         return KeyPressed(Key.F1);

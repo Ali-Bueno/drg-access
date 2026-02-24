@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.5.7
+- **Current version**: v0.5.8
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -163,7 +163,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - L3 (leftStickButton): compass direction to drop pod
 - **Audio Cue Preview Menu**: Submenu within the Mod Settings Menu to preview all audio cues
   - Access via "Audio Cue Preview" item in Mod Settings (F1), navigate with Up/Down, preview with Enter / A
-  - 23 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Hazard Warning, Boss Charge/Spikes/Fireball/Heal, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
+  - 24 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Drill Beacon, Hazard Warning, Boss Charge/Spikes/Fireball/Heal, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Escape / B button returns to main settings menu
   - Previews use pending volume values (unsaved changes applied during preview)
@@ -189,7 +189,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Mod Settings Menu**: Configurable mod settings accessible with F1 key (outside gameplay)
   - Opens with F1 / Y button, closes with Escape / B button or Save/Cancel
   - Navigate with Up/Down arrows or D-Pad, adjust values with Left/Right arrows or D-Pad
-  - **Volume Sliders**: 8 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles, Footsteps, Boss Attacks) — 0-100% in 5% steps
+  - **Volume Sliders**: 9 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles, Footsteps, Boss Attacks, Drill Beacon) — 0-100% in 5% steps
   - **Toggle Settings**: Footsteps On/Off (enabled by default)
   - **Detection Settings**: Configurable ranges and limits:
     - Enemy Detection Range (10-60m, default 35m)
@@ -197,7 +197,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
     - Collectible Range Multiplier (0.5x-2.0x, default 1.0x)
     - Wall Detection Range (5-25m, default 12m)
     - Max Hazard Warnings (1-5 simultaneous, default 3)
-  - **Audio Cue Preview submenu**: All 23 audio cue previews (moved from standalone menu), Enter to preview
+  - **Audio Cue Preview submenu**: All 24 audio cue previews (moved from standalone menu), Enter to preview
   - Save persists to `drgAccess_settings.cfg` next to the mod DLL
   - Cancel restores previous values via snapshot system
   - Previews respect pending (unsaved) volume values
@@ -234,6 +234,22 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - HP threshold announcements at 75%, 50%, 25%, 15%, 10%, 5% (via `UpdateFill` patch)
   - "Boss defeated!" on boss death (`OnOwnerDeath`)
   - "Boss healed" with 3-second cooldown to avoid spam (`OnHealed`)
+- **Drill Beacon (Bobby)**: 3D positional audio beacon for escort missions
+  - Tracks Bobby the drill via `FindObjectOfType<Bobby>()`, polls state in Update()
+  - Rhythmic chug/pulse sound (triangle + pulse wave + sub-octave with amplitude tremolo)
+  - Running state: fast 6 Hz tremolo, 250-450 Hz; Stopped state: slow 3 Hz tremolo, 200-350 Hz
+  - State announcements: "Bobby arriving", "Bobby started", "Bobby stopped", "Bobby mining the heartstone", "Bobby is broken", "Bobby finished"
+  - Fuel tracking: announces at 50%, 25%, 10% ("Fuel critical, 10 percent")
+  - Progress tracking: announces at 25%, 50%, 75% of drill path
+  - Player range: "Out of Bobby's range, get closer" with 5s cooldown
+  - F key compass: direction + distance to Bobby (drop pod gets priority if active)
+  - NavMesh pathfinding via `NavMeshPathHelper` (no conflict — Bobby during ESCORT, drop pod during extraction)
+  - Volume configurable via Drill Beacon slider in Mod Settings
+  - `BeaconMode.Drill` added to `BeaconBeepGenerator` with `DrillRunning` property
+- **Objective Reader (O key)**: Press O during gameplay to hear all active objectives
+  - Finds `UIObjectiveTracker` in scene, reads all visible `UIObjective` items
+  - Announces description + progress for each (e.g. "Objective: Collect 10 Morkite: 7/10")
+  - Multiple objectives joined with periods (e.g. "Objectives: Kill 5 elites: 3/5. Collect minerals: 12/20")
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
@@ -269,6 +285,8 @@ drgAccess/
 │   ├── HazardWarningAudio.cs      # Multi-channel hazard warning siren (exploders, ground spikes)
 │   ├── BossAttackAudio.cs         # Boss attack telegraph charging sounds (rising-pitch alarm per type)
 │   ├── FootstepAudio.cs           # Material-based footstep sounds (stone/metal MP3 playback)
+│   ├── DrillBeaconAudio.cs        # Bobby drill beacon (escort mission positional audio)
+│   ├── ObjectiveReaderComponent.cs # O key objective reader during gameplay
 │   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
 │   ├── HPReaderComponent.cs       # H key HP reading during gameplay
@@ -359,6 +377,8 @@ references/tolk/                   # Tolk DLL references
 | `UIBossTopBar` | Boss HP tracking (show, updateFill thresholds, death, heal) |
 | `AudioMastering` | Master volume sync (SetMasterVolume, OnSaveDataLoaded) |
 | `UIAbortPopupForm` | Abort popup close detection (HidePopup) for pause reader resume |
+| `Bobby` | Drill escort tracking (state, fuel, progress, position — polled, not patched) |
+| `UIObjectiveTracker` | Active objective reading (uiObjectives array, O key reader) |
 
 ---
 

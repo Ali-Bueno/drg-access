@@ -176,6 +176,13 @@ namespace drgAccess.Components
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewBossAttack()
                 },
+                new MainMenuItem
+                {
+                    Category = ModConfig.DRILL_BEACON,
+                    DisplayName = "Drill Beacon",
+                    Type = MainItemType.VolumeSlider,
+                    PlayPreview = () => PreviewBeacon(300, 0.20f, BeaconMode.Drill, ModConfig.DRILL_BEACON)
+                },
                 // --- Detection Settings ---
                 new MainMenuItem
                 {
@@ -295,6 +302,12 @@ namespace drgAccess.Components
                     Name = "Supply Pod Beacon",
                     Description = "Guides you to supply pod zones. Warbling trill.",
                     PlayPreview = () => PreviewBeacon(500, 0.18f, BeaconMode.SupplyDrop, ModConfig.SUPPLY_POD_BEACON)
+                },
+                new AudioCueItem
+                {
+                    Name = "Drill Beacon",
+                    Description = "Guides you to Bobby the drill during escort missions. Rhythmic chugging pulse.",
+                    PlayPreview = () => PreviewBeacon(300, 0.20f, BeaconMode.Drill, ModConfig.DRILL_BEACON)
                 },
                 new AudioCueItem
                 {

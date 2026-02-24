@@ -24,12 +24,13 @@ namespace drgAccess.Helpers
         public const string COLLECTIBLES = "Collectibles";
         public const string FOOTSTEPS = "Footsteps";
         public const string BOSS_ATTACKS = "BossAttacks";
+        public const string DRILL_BEACON = "DrillBeacon";
 
         public static readonly string[] VolumeCategories = new[]
         {
             WALL_NAVIGATION, ENEMY_DETECTION, DROP_POD_BEACON,
             SUPPLY_POD_BEACON, HAZARD_WARNING, COLLECTIBLES, FOOTSTEPS,
-            BOSS_ATTACKS
+            BOSS_ATTACKS, DRILL_BEACON
         };
 
         // --- Toggle settings ---

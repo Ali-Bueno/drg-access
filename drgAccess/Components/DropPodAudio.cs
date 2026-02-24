@@ -13,7 +13,8 @@ namespace drgAccess.Components
     public enum BeaconMode
     {
         DropPod,    // Sonar ping: metallic ringing with slow decay
-        SupplyDrop  // Warble/trill: rapid frequency oscillation, mechanical buzz
+        SupplyDrop, // Warble/trill: rapid frequency oscillation, mechanical buzz
+        Drill       // Rhythmic rumble/chug: tremolo-modulated pulse, mechanical feel
     }
 
     /// <summary>
@@ -35,6 +36,7 @@ namespace drgAccess.Components
         private volatile bool active = false;
         private volatile bool doubleBeep = false;
         private volatile int modeInt = 0;
+        private volatile bool isDrillRunning = false;
 
         // Internal state (audio thread only)
         private int sampleCounter = 0;
@@ -74,6 +76,11 @@ namespace drgAccess.Components
             set => modeInt = (int)value;
         }
 
+        public bool DrillRunning
+        {
+            set => isDrillRunning = value;
+        }
+
         public BeaconBeepGenerator(int sampleRate = 44100)
         {
             this.sampleRate = sampleRate;
@@ -91,9 +98,13 @@ namespace drgAccess.Components
             var mode = (BeaconMode)modeInt;
 
             // Duration depends on mode
-            int beepDuration = mode == BeaconMode.DropPod
-                ? (int)(sampleRate * 0.10) // 100ms sonar ping (longer ring)
-                : (int)(sampleRate * 0.07); // 70ms warble trill
+            int beepDuration = mode switch
+            {
+                BeaconMode.DropPod => (int)(sampleRate * 0.10),   // 100ms sonar ping
+                BeaconMode.SupplyDrop => (int)(sampleRate * 0.07), // 70ms warble trill
+                BeaconMode.Drill => (int)(sampleRate * 0.12),      // 120ms drill pulse
+                _ => (int)(sampleRate * 0.10)
+            };
             int gapSamples = (int)(sampleRate * 0.03);
             int secondBeepStart = beepDuration + gapSamples;
             int secondBeepEnd = secondBeepStart + beepDuration;
@@ -119,8 +130,10 @@ namespace drgAccess.Components
                     float sample;
                     if (mode == BeaconMode.DropPod)
                         sample = GenerateDropPodSample(progress, isInSecondBeep);
-                    else
+                    else if (mode == BeaconMode.SupplyDrop)
                         sample = GenerateSupplyDropSample(progress);
+                    else
+                        sample = GenerateDrillSample(progress);
 
                     buffer[offset + i] = currentVolume * sample;
                 }
@@ -195,6 +208,42 @@ namespace drgAccess.Components
 
             return envelope * (float)(sample + sub);
         }
+
+        /// <summary>
+        /// Drill rumble: rhythmic chug with tremolo modulation.
+        /// Triangle + pulse wave mix with sub-octave, clearly mechanical.
+        /// Tremolo rate changes based on drill running/stopped state.
+        /// </summary>
+        private float GenerateDrillSample(float progress)
+        {
+            // Quick attack, moderate decay
+            float envelope = progress < 0.03f
+                ? progress / 0.03f
+                : (float)Math.Exp(-(progress - 0.03) * 4.0);
+
+            // Amplitude tremolo: chugging rhythm (3 Hz idle, 6 Hz running)
+            float tremoloRate = isDrillRunning ? 6.0f : 3.0f;
+            float tremolo = 0.6f + 0.4f * (float)Math.Sin(2.0 * Math.PI * tremoloRate * progress);
+
+            // Triangle wave for smooth drill body
+            double triPhase = (phase * 4.0) % 4.0;
+            double triangle = triPhase < 2.0 ? triPhase - 1.0 : 3.0 - triPhase;
+
+            // Pulse wave for mechanical character (25% duty cycle)
+            double pulse = phase % 1.0 < 0.25 ? 0.5 : -0.3;
+
+            // Sub-octave rumble
+            double sub = Math.Sin(2.0 * Math.PI * phase2) * 0.25;
+
+            double sample = triangle * 0.5 + pulse * 0.25 + sub;
+
+            phase += currentFrequency / sampleRate;
+            phase2 += (currentFrequency * 0.5) / sampleRate;
+            if (phase >= 1.0) phase -= 1.0;
+            if (phase2 >= 1.0) phase2 -= 1.0;
+
+            return envelope * tremolo * (float)sample;
+        }
     }
 
     /// <summary>
@@ -222,6 +271,7 @@ namespace drgAccess.Components
         // Drop pod reference
         private DropPod activePod;
         private bool isBeaconActive = false;
+        public bool IsBeaconActive => isBeaconActive;
 
         // Player references
         private Transform playerTransform;
