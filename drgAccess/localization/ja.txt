@@ -1,0 +1,363 @@
+# DRG Access Mod - 日本語 (ja)
+# このファイルを編集してモッドのメッセージをカスタマイズできます。
+# 形式: key=value（1行に1つ）。#で始まる行はコメントです。
+
+# === モッド ===
+mod_loaded=DRGサバイバー アクセシビリティMod ロード完了
+
+# === 方向（トップダウン: 上=W, 下=S, 左=A, 右=D） ===
+dir_up=上
+dir_down=下
+dir_left=左
+dir_right=右
+dir_up_left=左上
+dir_up_right=右上
+dir_down_left=左下
+dir_down_right=右下
+dir_ahead=前方
+
+# === フォーム通知 ===
+form_main_menu=メインメニュー
+form_play_menu=プレイメニュー
+form_settings=設定
+form_gear_inventory=装備一覧
+form_stat_upgrades=ステータス強化
+form_shop=ショップ
+form_skin_overrides=スキン変更
+form_loading=ロード中
+form_level_up=レベルアップ
+form_level_up_title=レベルアップ: {0}
+form_overclock=オーバークロック
+form_overclock_weapon=オーバークロック: {0}
+form_unlock=アンロック
+form_mastery_unlock=マスタリーアンロック
+form_run_summary=ラン結果
+form_credits=クレジット: {0}
+form_xp=経験値: {0}
+form_rank=ランク: {0}
+form_mutator_selection=ミューテーター選択
+form_gear_found=装備発見
+form_gear_details=装備詳細
+form_score=スコア
+form_splash_press_key=何かキーを押してください
+form_brightness_instructions=明るさ調整。左右矢印キーで調整し、Enterで確定
+form_brightness_short=明るさ調整。左右で調整、Enterで確定
+form_brightness_confirmed=明るさ確定
+form_save_slot_selection=セーブスロット選択
+form_delete_confirm=セーブスロット{0}を削除しますか？Enterで確定、Escapeでキャンセル
+form_delete_confirm_generic=セーブスロットを削除しますか？Enterで確定、Escapeでキャンセル
+form_save_deleted=セーブスロット削除済み
+form_cancelled=キャンセル
+
+# === ボス ===
+boss_charge=突撃！
+boss_spikes=スパイク！
+boss_fireball=火球！
+boss_healing=回復中！
+boss_appeared=ボス！
+boss_hp_percent=ボス {0}%
+boss_defeated=ボス撃破！
+boss_healed=ボス回復
+
+# === ドロップポッド ===
+pod_inside=ポッド内部
+pod_almost_inside=もう少し、そのまま進め
+pod_near_ramp=ポッド付近、音を頼りに中へ
+pod_very_close=ドロップポッド すぐ近く
+pod_compass_ramp=ポッド入口: {0}、{1}
+pod_compass_normal=ドロップポッド: {0}、{1}メートル
+
+# === 補給ゾーン ===
+zone_inside=補給ゾーン内
+zone_left_activating=補給ゾーンから出た、ゾーンに戻れ
+zone_left=補給ゾーンから出た
+zone_complete=補給ゾーン完了
+zone_clearing=ゾーン確保中、岩{0}個を採掘
+zone_activating=ゾーン起動中
+zone_rocks_remaining=残り{0}個
+zone_all_cleared=全て採掘完了
+zone_timer=残り{0}秒
+
+# === ドリルビーコン（ボビー） ===
+drill_stopped=ボビー停止
+drill_arriving=ボビー到着中
+drill_started=ボビー始動
+drill_mining=ボビーがハートストーンを採掘中
+drill_broken=ボビー故障
+drill_finished=ボビー完了
+drill_out_of_range=ボビーの範囲外、近づけ
+drill_fuel_critical=燃料危険、10パーセント
+drill_fuel_25=燃料25パーセント
+drill_fuel_50=燃料50パーセント
+drill_progress_halfway=ボビー半分到達
+drill_progress_percent=ボビー {0}パーセント到達
+drill_compass=ボビー: {0}、{1}メートル
+
+# === 敵接近 ===
+enemy_exploder_very_close=爆発敵 すぐ近く！
+enemy_boss_very_close=ボス すぐ近く！
+enemy_elite_very_close=エリート すぐ近く！
+enemy_exploder_nearby=爆発敵 付近
+enemy_boss_nearby=ボス 付近
+enemy_elite_nearby=エリート 付近
+enemy_nearby_singular=敵 付近
+enemy_nearby_plural=敵{0}体 付近
+
+# === 収集物 ===
+collect_red_sugar=レッドシュガー
+collect_gear=装備
+collect_buff=バフ
+collect_currency=通貨
+collect_mineral_vein=鉱脈
+collect_loot_crate=ルートクレート
+collect_xp=経験値
+collect_nearby={0} 付近{1}
+collect_closer={0} 接近中{1}
+collect_very_close={0} すぐ近く{1}
+collect_magnet=マグネット
+collect_speed_boost=スピードブースト
+collect_mining_speed=採掘速度
+collect_berserk=バーサーク
+collect_artifact_magnet=アーティファクトマグネット
+
+# === アクションフィードバック ===
+action_bought=購入
+action_cannot_afford=資金不足
+action_sold=売却
+action_nothing_to_sell=売却対象なし
+action_cannot_sell=売却不可
+action_max_level=最大レベル到達
+action_upgraded_to_max=レベル{0}/{1}に強化
+action_upgraded_to=レベル{0}に強化
+action_purchased={0}を購入
+action_rerolled=リロール完了
+action_reroll_fail=リロール資金不足
+action_healed=回復済み
+action_heal_fail=回復資金不足
+action_equipped={0}を装備
+action_unequipped={0}を解除
+action_gear_upgraded={0}を強化
+action_salvaged={0}を解体
+
+# === 所持金 ===
+wallet_unavailable=所持金情報なし
+wallet_gold=ゴールド: {0}
+wallet_no_currency=通貨なし
+wallet_error=所持金読み取り不可
+
+# === 装備中ギア（Tキー） ===
+gear_no_inventory=装備一覧なし
+gear_no_equipped_panel=装備パネルなし
+gear_equipped_header=装備中のギア
+gear_equipped_none=: なし
+gear_equipped_error=装備読み取り不可
+
+# === ピックアップ ===
+pickup_healed={0}HP回復
+pickup_gear_named={0}を取得
+pickup_gear_generic=装備を取得
+pickup_loot_crate={0}ルートクレート
+
+# === HPリーダー ===
+hp_no_player=プレイヤー未検出
+hp_format=HP: {0} / {1}
+hp_format_percent=HP: {0}%
+
+# === 目標 ===
+obj_none=目標なし
+obj_no_active=進行中の目標なし
+obj_single=目標: {0}
+obj_multiple=目標: {0}
+
+# === マイルストーン ===
+milestone_none=マイルストーンなし
+milestone_empty=マイルストーン。WとSで閲覧。このカテゴリにはマイルストーンがありません。
+milestone_unavailable=マイルストーンなし
+milestone_header=マイルストーン。{0}件。WとSで閲覧。{1}
+milestone_progress=進捗: {0}
+milestone_complete=完了
+milestone_reward=報酬: {0}
+milestone_requires=条件: {0}
+
+# === ポーズメニュー ===
+pause_header=ポーズ中。上下で移動、Enterで選択、Escapeで再開。{0}
+pause_weapons=武器。{0}
+pause_artifacts=アーティファクト。{0}
+pause_stats=ステータス。{0}
+pause_level=レベル{0}
+pause_resume=再開
+pause_menu=メニュー
+pause_settings=設定
+pause_no_info=情報なし
+
+# === エンド画面 ===
+end_header=終了画面。上下矢印で移動、Enterで選択。{0}
+end_rank_xp=ランク経験値: {0}
+end_endless_rank_xp=エンドレス ランク経験値: {0}
+end_hazard=ハザード: {0}
+end_stages=ステージ: {0}
+end_credits=クレジット: {0}
+end_endless_credits=エンドレス クレジット: {0}
+end_resources=資源:
+end_weapon_report=武器レポート。
+end_level=レベル{0}
+end_damage=ダメージ: {0}
+end_dps=DPS: {0}
+end_damage_breakdown=ダメージ内訳
+end_total=合計: {0}
+end_player_stats=プレイヤーステータス
+end_exploration=探索統計
+end_no_info=情報なし
+end_retry=リトライ
+end_continue=続行
+end_go_endless=エンドレスモードへ
+
+# === Mod設定メニュー ===
+setting_wall_nav=壁検知
+setting_enemy_detect=敵検知
+setting_drop_pod=ドロップポッドビーコン
+setting_supply_pod=補給ポッドビーコン
+setting_hazard=危険警報
+setting_collectibles=収集物
+setting_footsteps_toggle=足音
+setting_footsteps_vol=足音音量
+setting_boss_attacks=ボス攻撃
+setting_drill_beacon=ドリルビーコン
+setting_enemy_range=敵検知範囲
+setting_hazard_range=危険警報範囲
+setting_collect_range=収集物範囲
+setting_wall_range=壁検知範囲
+setting_max_hazard=最大危険警報数
+setting_audio_cue_preview=オーディオキュー プレビュー
+setting_save=設定を保存
+setting_cancel=キャンセル
+toggle_on=オン
+toggle_off=オフ
+setting_meters={0}メートル
+setting_multiplier={0}倍
+setting_saved=設定保存済み
+setting_cancelled=変更キャンセル
+setting_menu_header=Mod設定。上下で移動、左右で音量調整、Enterでプレビューまたは実行、F1かEscapeで閉じる。
+
+# === オーディオキュー 名前と説明 ===
+cue_wall_forward=壁: 前方
+cue_wall_forward_desc=前方の壁。近づくほど音量が上がります。
+cue_wall_backward=壁: 後方
+cue_wall_backward_desc=後方の壁。近づくほど音量が上がります。
+cue_wall_sides=壁: 側面
+cue_wall_sides_desc=左右の壁。該当する方向にパンします。
+cue_enemy_normal=敵: 通常
+cue_enemy_normal_desc=通常の敵が接近中。近づくほどビープが速くなります。
+cue_enemy_elite=敵: エリート
+cue_enemy_elite_desc=エリート敵が接近中。振動する低いビープ。
+cue_enemy_boss=敵: ボス
+cue_enemy_boss_desc=ボス敵が接近中。重低音の唸り。
+cue_enemy_loot=レアルートエネミー
+cue_enemy_loot_desc=金ルートバグかフーリ・ホーダーが付近に。明るい上昇チャイム。
+cue_drop_pod=ドロップポッドビーコン
+cue_drop_pod_desc=脱出ポッドへ誘導。金属的なソナー音。
+cue_drop_pod_critical=ドロップポッド: 至近距離
+cue_drop_pod_critical_desc=ポッドまで8メートル以内。速い二重ビープ。
+cue_drop_pod_ramp=ドロップポッド: ランプトーン
+cue_drop_pod_ramp_desc=ランプ上、2.5メートル以内。ポッド入口への連続トーン。
+cue_supply_pod=補給ポッドビーコン
+cue_supply_pod_desc=補給ポッドゾーンへ誘導。震えるトリル音。
+cue_drill_beacon=ドリルビーコン
+cue_drill_beacon_desc=護衛ミッション中のボビーへ誘導。リズミカルな脈動音。
+cue_hazard=危険警報
+cue_hazard_desc=爆発敵やスパイクなどの危険が接近。サイレン音。
+cue_red_sugar=収集物: レッドシュガー
+cue_red_sugar_desc=回復アイテムが付近に。水滴のような音。
+cue_gear_drop=収集物: 装備ドロップ
+cue_gear_drop_desc=武器や装備が付近に。二音の和音ビープ。
+cue_buff=収集物: バフ
+cue_buff_desc=バフアイテムが付近に。電気的なバズ音。
+cue_currency=収集物: 通貨
+cue_currency_desc=ゴールドや鉱物が付近に。短い結晶チャイム。
+cue_mineral=収集物: 鉱脈
+cue_mineral_desc=採掘可能な鉱脈が付近に。金属的なクリンク音。
+cue_loot_crate=収集物: ルートクレート
+cue_loot_crate_desc=ルートクレートが付近に。きらめくビープ。
+cue_xp=収集物: 経験値
+cue_xp_desc=地面の経験値オーブ。柔らかい連続トーン。
+cue_boss_charge=ボス: 突撃
+cue_boss_charge_desc=ボスが突進中。速い攻撃的なビープ3回。
+cue_boss_spikes=ボス: スパイク
+cue_boss_spikes_desc=ボスが地面のスパイクを発生。中速の重低音ビープ3回。
+cue_boss_fireball=ボス: 火球
+cue_boss_fireball_desc=ボスが弾を発射。非常に速い鋭いビープ3回。
+cue_boss_heal=ボス: 回復
+cue_boss_heal_desc=ボスが自己回復中。ゆっくり穏やかなビープ3回。
+cue_audio_preview_header=オーディオキュー プレビュー。上下で移動、Enterでプレビュー、Escapeで戻る。{0}。{1}
+
+# === UI共通 ===
+ui_locked=ロック中
+ui_completed=完了
+ui_equipped=装備中
+ui_empty=空
+ui_on=オン
+ui_off=オフ
+ui_pinned=ピン留め
+ui_unpinned=ピン解除
+ui_active=有効
+ui_previous=前へ
+ui_next=次へ
+ui_new=新規
+ui_favorite=お気に入り
+ui_item=アイテム
+ui_selector=セレクター
+ui_points=ポイント
+ui_price=価格: {0}
+ui_price_currency=価格: {0} {1}
+ui_cannot_afford=資金不足
+
+# === セーブスロット ===
+save_slot=セーブスロット {0}
+
+# === クラス選択 ===
+class_unlock_rank=プレイヤーランク{0}で解放
+class_unlock_requirement=ロック中。解放にはクラス完了{0}回が必要
+class_weapon=武器: {0}
+class_damage_type=ダメージタイプ: {0}
+
+# === ギア ===
+gear_fallback=ギア
+gear_tier=ティア{0}
+gear_stats=ステータス: {0}
+gear_upgrade_cost=強化費用: {0}
+gear_upgrade_available=強化可能
+gear_sell_value=売却値: {0}
+gear_sell_available=売却可能
+gear_level=レベル{0}/{1}
+gear_level_no_max=レベル{0}
+gear_cost=コスト: {0}
+gear_max_level=最大レベル
+gear_slot_armor=アーマー
+gear_slot_companion=コンパニオン
+gear_slot_grinder=グラインダー
+gear_slot_tank=タンク
+gear_slot_tool=ツール
+gear_slot_weapon_mod=ウェポンMod
+
+# === ミッション ===
+mission_sector=セクター{0}
+mission_gate=ゲート{0}
+mission_node=ミッションノード
+mission_high_score=ハイスコア: {0}
+mission_fixed_run=固定ラン
+mission_hazard=ハザード{0}
+
+# === ウォレット通貨 ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=アーティファクトリロール
+wallet_mutator_rerolls=ミューテーターリロール
+wallet_ommoran_core=Ommoran Core

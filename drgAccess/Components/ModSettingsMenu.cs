@@ -117,69 +117,69 @@ namespace drgAccess.Components
                 new MainMenuItem
                 {
                     Category = ModConfig.WALL_NAVIGATION,
-                    DisplayName = "Wall Navigation",
+                    DisplayName = ModLocalization.Get("setting_wall_nav"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewContinuousTone(500, 0f, ModConfig.WALL_NAVIGATION)
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.ENEMY_DETECTION,
-                    DisplayName = "Enemy Detection",
+                    DisplayName = ModLocalization.Get("setting_enemy_detect"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewEnemyBeep(EnemyAudioType.Normal, 1000, 3, ModConfig.ENEMY_DETECTION)
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.DROP_POD_BEACON,
-                    DisplayName = "Drop Pod Beacon",
+                    DisplayName = ModLocalization.Get("setting_drop_pod"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewBeacon(1100, 0.15f, BeaconMode.DropPod, ModConfig.DROP_POD_BEACON)
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.SUPPLY_POD_BEACON,
-                    DisplayName = "Supply Pod Beacon",
+                    DisplayName = ModLocalization.Get("setting_supply_pod"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewBeacon(500, 0.18f, BeaconMode.SupplyDrop, ModConfig.SUPPLY_POD_BEACON)
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.HAZARD_WARNING,
-                    DisplayName = "Hazard Warning",
+                    DisplayName = ModLocalization.Get("setting_hazard"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewAlarm(ModConfig.HAZARD_WARNING)
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.COLLECTIBLES,
-                    DisplayName = "Collectibles",
+                    DisplayName = ModLocalization.Get("setting_collectibles"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.RedSugar, 500f, 0.18f, ModConfig.COLLECTIBLES)
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.FOOTSTEPS_ENABLED,
-                    DisplayName = "Footsteps",
+                    DisplayName = ModLocalization.Get("setting_footsteps_toggle"),
                     Type = MainItemType.Toggle
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.FOOTSTEPS,
-                    DisplayName = "Footsteps Volume",
+                    DisplayName = ModLocalization.Get("setting_footsteps_vol"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => FootstepAudio.Instance?.PreviewFootstep(GetPendingVolume(ModConfig.FOOTSTEPS))
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.BOSS_ATTACKS,
-                    DisplayName = "Boss Attacks",
+                    DisplayName = ModLocalization.Get("setting_boss_attacks"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewBossAttack()
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.DRILL_BEACON,
-                    DisplayName = "Drill Beacon",
+                    DisplayName = ModLocalization.Get("setting_drill_beacon"),
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewBeacon(300, 0.20f, BeaconMode.Drill, ModConfig.DRILL_BEACON)
                 },
@@ -187,47 +187,47 @@ namespace drgAccess.Components
                 new MainMenuItem
                 {
                     Category = ModConfig.ENEMY_RANGE,
-                    DisplayName = "Enemy Detection Range",
+                    DisplayName = ModLocalization.Get("setting_enemy_range"),
                     Type = MainItemType.SettingSlider
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.HAZARD_RANGE,
-                    DisplayName = "Hazard Warning Range",
+                    DisplayName = ModLocalization.Get("setting_hazard_range"),
                     Type = MainItemType.SettingSlider
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.COLLECTIBLE_RANGE,
-                    DisplayName = "Collectible Range",
+                    DisplayName = ModLocalization.Get("setting_collect_range"),
                     Type = MainItemType.SettingSlider
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.WALL_RANGE,
-                    DisplayName = "Wall Detection Range",
+                    DisplayName = ModLocalization.Get("setting_wall_range"),
                     Type = MainItemType.SettingSlider
                 },
                 new MainMenuItem
                 {
                     Category = ModConfig.MAX_HAZARD_CHANNELS,
-                    DisplayName = "Max Hazard Warnings",
+                    DisplayName = ModLocalization.Get("setting_max_hazard"),
                     Type = MainItemType.SettingSlider
                 },
                 // --- Submenu ---
                 new MainMenuItem
                 {
-                    DisplayName = "Audio Cue Preview",
+                    DisplayName = ModLocalization.Get("setting_audio_cue_preview"),
                     Type = MainItemType.AudioCueSubmenu
                 },
                 new MainMenuItem
                 {
-                    DisplayName = "Save Changes",
+                    DisplayName = ModLocalization.Get("setting_save"),
                     Type = MainItemType.SaveButton
                 },
                 new MainMenuItem
                 {
-                    DisplayName = "Cancel",
+                    DisplayName = ModLocalization.Get("setting_cancel"),
                     Type = MainItemType.CancelButton
                 }
             };
@@ -239,147 +239,147 @@ namespace drgAccess.Components
             {
                 new AudioCueItem
                 {
-                    Name = "Wall: Forward",
-                    Description = "Wall ahead. Gets louder the closer the wall is.",
+                    Name = ModLocalization.Get("cue_wall_forward"),
+                    Description = ModLocalization.Get("cue_wall_forward_desc"),
                     PlayPreview = () => PreviewContinuousTone(500, 0f, ModConfig.WALL_NAVIGATION)
                 },
                 new AudioCueItem
                 {
-                    Name = "Wall: Backward",
-                    Description = "Wall behind you. Gets louder the closer it is.",
+                    Name = ModLocalization.Get("cue_wall_backward"),
+                    Description = ModLocalization.Get("cue_wall_backward_desc"),
                     PlayPreview = () => PreviewContinuousTone(180, 0f, ModConfig.WALL_NAVIGATION)
                 },
                 new AudioCueItem
                 {
-                    Name = "Wall: Sides",
-                    Description = "Wall to the left or right. Pans to the corresponding side.",
+                    Name = ModLocalization.Get("cue_wall_sides"),
+                    Description = ModLocalization.Get("cue_wall_sides_desc"),
                     PlayPreview = () => PreviewContinuousTone(300, -0.8f, ModConfig.WALL_NAVIGATION)
                 },
                 new AudioCueItem
                 {
-                    Name = "Enemy: Normal",
-                    Description = "Regular enemy nearby. Beeps faster the closer it gets.",
+                    Name = ModLocalization.Get("cue_enemy_normal"),
+                    Description = ModLocalization.Get("cue_enemy_normal_desc"),
                     PlayPreview = () => PreviewEnemyBeep(EnemyAudioType.Normal, 1000, 4, ModConfig.ENEMY_DETECTION)
                 },
                 new AudioCueItem
                 {
-                    Name = "Enemy: Elite",
-                    Description = "Elite enemy nearby. Slower vibrating beep, distinct from normal.",
+                    Name = ModLocalization.Get("cue_enemy_elite"),
+                    Description = ModLocalization.Get("cue_enemy_elite_desc"),
                     PlayPreview = () => PreviewEnemyBeep(EnemyAudioType.Elite, 300, 3, ModConfig.ENEMY_DETECTION)
                 },
                 new AudioCueItem
                 {
-                    Name = "Enemy: Boss",
-                    Description = "Boss enemy nearby. Deep rumble, unmistakable.",
+                    Name = ModLocalization.Get("cue_enemy_boss"),
+                    Description = ModLocalization.Get("cue_enemy_boss_desc"),
                     PlayPreview = () => PreviewEnemyBeep(EnemyAudioType.Boss, 70, 2, ModConfig.ENEMY_DETECTION)
                 },
                 new AudioCueItem
                 {
-                    Name = "Rare Loot Enemy",
-                    Description = "Golden Lootbug or Huuli Hoarder nearby. Bright ascending chime.",
+                    Name = ModLocalization.Get("cue_enemy_loot"),
+                    Description = ModLocalization.Get("cue_enemy_loot_desc"),
                     PlayPreview = () => PreviewEnemyBeep(EnemyAudioType.Loot, 1800, 3, ModConfig.ENEMY_DETECTION)
                 },
                 new AudioCueItem
                 {
-                    Name = "Drop Pod Beacon",
-                    Description = "Guides you to the extraction pod. Metallic sonar ping.",
+                    Name = ModLocalization.Get("cue_drop_pod"),
+                    Description = ModLocalization.Get("cue_drop_pod_desc"),
                     PlayPreview = () => PreviewBeacon(1100, 0.15f, BeaconMode.DropPod, ModConfig.DROP_POD_BEACON)
                 },
                 new AudioCueItem
                 {
-                    Name = "Drop Pod: Critical",
-                    Description = "Very close to the pod, under 8 meters. Fast double-beep.",
+                    Name = ModLocalization.Get("cue_drop_pod_critical"),
+                    Description = ModLocalization.Get("cue_drop_pod_critical_desc"),
                     PlayPreview = () => PreviewBeaconDouble(1400, 0.08f, ModConfig.DROP_POD_BEACON)
                 },
                 new AudioCueItem
                 {
-                    Name = "Drop Pod: Ramp Tone",
-                    Description = "On the ramp, under 2.5 meters. Continuous tone toward pod entrance.",
+                    Name = ModLocalization.Get("cue_drop_pod_ramp"),
+                    Description = ModLocalization.Get("cue_drop_pod_ramp_desc"),
                     PlayPreview = () => PreviewContinuousTone(1400, 0f, ModConfig.DROP_POD_BEACON)
                 },
                 new AudioCueItem
                 {
-                    Name = "Supply Pod Beacon",
-                    Description = "Guides you to supply pod zones. Warbling trill.",
+                    Name = ModLocalization.Get("cue_supply_pod"),
+                    Description = ModLocalization.Get("cue_supply_pod_desc"),
                     PlayPreview = () => PreviewBeacon(500, 0.18f, BeaconMode.SupplyDrop, ModConfig.SUPPLY_POD_BEACON)
                 },
                 new AudioCueItem
                 {
-                    Name = "Drill Beacon",
-                    Description = "Guides you to Bobby the drill during escort missions. Rhythmic chugging pulse.",
+                    Name = ModLocalization.Get("cue_drill_beacon"),
+                    Description = ModLocalization.Get("cue_drill_beacon_desc"),
                     PlayPreview = () => PreviewBeacon(300, 0.20f, BeaconMode.Drill, ModConfig.DRILL_BEACON)
                 },
                 new AudioCueItem
                 {
-                    Name = "Hazard Warning",
-                    Description = "Danger nearby, like exploders or ground spikes. Siren alarm.",
+                    Name = ModLocalization.Get("cue_hazard"),
+                    Description = ModLocalization.Get("cue_hazard_desc"),
                     PlayPreview = () => PreviewAlarm(ModConfig.HAZARD_WARNING)
                 },
                 new AudioCueItem
                 {
-                    Name = "Collectible: Red Sugar",
-                    Description = "Health pickup nearby. Water-drop bloop sound.",
+                    Name = ModLocalization.Get("cue_red_sugar"),
+                    Description = ModLocalization.Get("cue_red_sugar_desc"),
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.RedSugar, 500f, 0.18f, ModConfig.COLLECTIBLES)
                 },
                 new AudioCueItem
                 {
-                    Name = "Collectible: Gear Drop",
-                    Description = "Weapon or equipment drop nearby. Rich two-tone chord beep.",
+                    Name = ModLocalization.Get("cue_gear_drop"),
+                    Description = ModLocalization.Get("cue_gear_drop_desc"),
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.GearDrop, 1000f, 0.2f, ModConfig.COLLECTIBLES)
                 },
                 new AudioCueItem
                 {
-                    Name = "Collectible: Buff Pickup",
-                    Description = "Buff pickup nearby. Electric buzzy tone.",
+                    Name = ModLocalization.Get("cue_buff"),
+                    Description = ModLocalization.Get("cue_buff_desc"),
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.BuffPickup, 1200f, 0.15f, ModConfig.COLLECTIBLES)
                 },
                 new AudioCueItem
                 {
-                    Name = "Collectible: Currency",
-                    Description = "Gold or mineral drop nearby. Short crystalline chime.",
+                    Name = ModLocalization.Get("cue_currency"),
+                    Description = ModLocalization.Get("cue_currency_desc"),
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.CurrencyPickup, 750f, 0.15f, ModConfig.COLLECTIBLES)
                 },
                 new AudioCueItem
                 {
-                    Name = "Collectible: Mineral Vein",
-                    Description = "Mineable mineral vein nearby. Metallic clink.",
+                    Name = ModLocalization.Get("cue_mineral"),
+                    Description = ModLocalization.Get("cue_mineral_desc"),
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.MineralVein, 400f, 0.25f, ModConfig.COLLECTIBLES)
                 },
                 new AudioCueItem
                 {
-                    Name = "Collectible: Loot Crate",
-                    Description = "Loot crate nearby. Shimmering sparkle beep.",
+                    Name = ModLocalization.Get("cue_loot_crate"),
+                    Description = ModLocalization.Get("cue_loot_crate_desc"),
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.LootCrate, 1500f, 0.18f, ModConfig.COLLECTIBLES)
                 },
                 new AudioCueItem
                 {
-                    Name = "Collectible: XP Nearby",
-                    Description = "XP orbs on the ground. Soft continuous tone.",
+                    Name = ModLocalization.Get("cue_xp"),
+                    Description = ModLocalization.Get("cue_xp_desc"),
                     PlayPreview = () => PreviewCollectibleContinuous(CollectibleSoundType.XpNearby, 500f, ModConfig.COLLECTIBLES)
                 },
                 // --- Boss Attack Cues ---
                 new AudioCueItem
                 {
-                    Name = "Boss: Charge",
-                    Description = "Boss charging at you. 3 fast aggressive beeps.",
+                    Name = ModLocalization.Get("cue_boss_charge"),
+                    Description = ModLocalization.Get("cue_boss_charge_desc"),
                     PlayPreview = () => PreviewBossAttackType(BossAttackType.Charge)
                 },
                 new AudioCueItem
                 {
-                    Name = "Boss: Spikes",
-                    Description = "Boss spawning ground spikes. 3 medium deep beeps.",
+                    Name = ModLocalization.Get("cue_boss_spikes"),
+                    Description = ModLocalization.Get("cue_boss_spikes_desc"),
                     PlayPreview = () => PreviewBossAttackType(BossAttackType.Spikes)
                 },
                 new AudioCueItem
                 {
-                    Name = "Boss: Fireball",
-                    Description = "Boss firing projectiles. 3 very fast sharp beeps.",
+                    Name = ModLocalization.Get("cue_boss_fireball"),
+                    Description = ModLocalization.Get("cue_boss_fireball_desc"),
                     PlayPreview = () => PreviewBossAttackType(BossAttackType.Fireball)
                 },
                 new AudioCueItem
                 {
-                    Name = "Boss: Heal",
-                    Description = "Boss healing itself. 3 slow gentle beeps.",
+                    Name = ModLocalization.Get("cue_boss_heal"),
+                    Description = ModLocalization.Get("cue_boss_heal_desc"),
                     PlayPreview = () => PreviewBossAttackType(BossAttackType.Heal)
                 }
             };
@@ -544,7 +544,7 @@ namespace drgAccess.Components
                     break;
                 case MainItemType.Toggle:
                     bool isOn = GetPendingToggle(item.Category);
-                    SpeakDirect($"{item.DisplayName}. {(isOn ? "On" : "Off")}");
+                    SpeakDirect($"{item.DisplayName}. {(isOn ? ModLocalization.Get("toggle_on") : ModLocalization.Get("toggle_off"))}");
                     break;
                 default:
                     SpeakDirect(item.DisplayName);
@@ -585,7 +585,7 @@ namespace drgAccess.Components
             cueIndex = 0;
 
             var first = audioCueItems[0];
-            SpeakDirect($"Audio cue preview. Up and down to navigate, Enter to preview, Escape to go back. {first.Name}. {first.Description}");
+            SpeakDirect(ModLocalization.Get("cue_audio_preview_header", first.Name, first.Description));
         }
 
         private void ExitSubmenu()
@@ -664,9 +664,9 @@ namespace drgAccess.Components
             if (!ModConfig.SettingDefs.TryGetValue(key, out var def)) return val.ToString();
 
             if (def.Unit == "m")
-                return $"{val:F0} meters";
+                return ModLocalization.Get("setting_meters", $"{val:F0}");
             if (def.Unit == "x")
-                return $"{val:F1}x";
+                return ModLocalization.Get("setting_multiplier", $"{val:F1}");
             // No unit (count)
             return $"{val:F0}";
         }
@@ -676,7 +676,7 @@ namespace drgAccess.Components
             if (pendingVolumes == null) return;
             bool current = GetPendingToggle(key);
             pendingVolumes[key] = current ? 0f : 1f;
-            SpeakDirect(current ? "Off" : "On");
+            SpeakDirect(current ? ModLocalization.Get("toggle_off") : ModLocalization.Get("toggle_on"));
         }
 
         private bool GetPendingToggle(string key)
@@ -730,7 +730,7 @@ namespace drgAccess.Components
 
             var firstItem = mainItems[0];
             int pct = Mathf.RoundToInt(GetPendingVolume(firstItem.Category) * 100);
-            string announcement = "Mod settings. Up and down to navigate, left and right to adjust volume, Enter to preview or activate, F1 or Escape to close.";
+            string announcement = ModLocalization.Get("setting_menu_header");
             announcement += $" {firstItem.DisplayName}. {pct}%";
             SpeakDirect(announcement);
             Plugin.Log.LogInfo("[ModSettingsMenu] Menu opened");
@@ -747,11 +747,11 @@ namespace drgAccess.Components
             {
                 ModConfig.ApplySnapshot(pendingVolumes);
                 ModConfig.Save();
-                SpeakDirect("Settings saved");
+                SpeakDirect(ModLocalization.Get("setting_saved"));
             }
             else
             {
-                SpeakDirect("Changes cancelled");
+                SpeakDirect(ModLocalization.Get("setting_cancelled"));
             }
             pendingVolumes = null;
 

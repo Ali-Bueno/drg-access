@@ -31,7 +31,7 @@ public static class UIFormPatches
         {
             if (visible && !GammaAdjusterOpen)
             {
-                ScreenReader.Interrupt("Main Menu");
+                ScreenReader.Interrupt(ModLocalization.Get("form_main_menu"));
             }
         }
     }
@@ -45,7 +45,7 @@ public static class UIFormPatches
         {
             if (visible)
             {
-                ScreenReader.Interrupt("Play Menu");
+                ScreenReader.Interrupt(ModLocalization.Get("form_play_menu"));
             }
         }
     }
@@ -60,7 +60,7 @@ public static class UIFormPatches
             UISettingsPatch.SettingsOpen = visible;
             if (visible)
             {
-                ScreenReader.Interrupt("Settings");
+                ScreenReader.Interrupt(ModLocalization.Get("form_settings"));
             }
             else
             {
@@ -104,7 +104,7 @@ public static class UIFormPatches
             CachedGearForm = visible ? __instance : null;
             if (visible)
             {
-                ScreenReader.Interrupt("Gear Inventory");
+                ScreenReader.Interrupt(ModLocalization.Get("form_gear_inventory"));
                 try { WalletReader.CachedWallet = __instance.wallet; } catch { }
                 try { UIButtonPatch.CachedGearEconomy = __instance.gearEconomy; } catch { }
                 try { UIButtonPatch.CachedGearWallet = __instance.wallet; } catch { }
@@ -123,7 +123,7 @@ public static class UIFormPatches
             WalletReader.UpgradeFormOpen = visible;
             if (visible)
             {
-                ScreenReader.Interrupt("Stat Upgrades");
+                ScreenReader.Interrupt(ModLocalization.Get("form_stat_upgrades"));
                 try { WalletReader.CachedWallet = __instance.wallet; } catch { }
             }
         }
@@ -139,7 +139,7 @@ public static class UIFormPatches
             WalletReader.ShopFormOpen = visible;
             if (visible)
             {
-                ScreenReader.Interrupt("Shop");
+                ScreenReader.Interrupt(ModLocalization.Get("form_shop"));
                 try { WalletReader.CachedWallet = __instance.wallet; } catch { }
             }
         }
@@ -184,7 +184,7 @@ public static class UIFormPatches
         {
             if (visible)
             {
-                ScreenReader.Interrupt("Skin Overrides");
+                ScreenReader.Interrupt(ModLocalization.Get("form_skin_overrides"));
             }
         }
     }
@@ -217,7 +217,7 @@ public static class UIFormPatches
         {
             if (visible)
             {
-                ScreenReader.Say("Loading");
+                ScreenReader.Say(ModLocalization.Get("form_loading"));
             }
         }
     }
@@ -260,13 +260,13 @@ public static class UIFormPatches
             {
                 var titleText = __instance.titleText;
                 string title = titleText != null ? titleText.text : null;
-                string message = !string.IsNullOrEmpty(title) ? $"Level Up: {TextHelper.CleanText(title)}" : "Level Up";
+                string message = !string.IsNullOrEmpty(title) ? ModLocalization.Get("form_level_up_title", TextHelper.CleanText(title)) : ModLocalization.Get("form_level_up");
                 ScreenReader.Interrupt(message);
             }
             catch (System.Exception ex)
             {
                 Plugin.Log?.LogError($"UILevelUpForm announce error: {ex.Message}");
-                ScreenReader.Interrupt("Level Up");
+                ScreenReader.Interrupt(ModLocalization.Get("form_level_up"));
             }
         }
     }
@@ -280,7 +280,7 @@ public static class UIFormPatches
         {
             try
             {
-                var sb = new StringBuilder("Overclock");
+                var sb = new StringBuilder(ModLocalization.Get("form_overclock"));
                 var weaponTitle = __instance.weaponTitleText;
                 if (weaponTitle != null && !string.IsNullOrEmpty(weaponTitle.text))
                 {
@@ -296,7 +296,7 @@ public static class UIFormPatches
             catch (System.Exception ex)
             {
                 Plugin.Log?.LogError($"UIOverclockForm announce error: {ex.Message}");
-                ScreenReader.Interrupt("Overclock");
+                ScreenReader.Interrupt(ModLocalization.Get("form_overclock"));
             }
         }
     }
@@ -310,7 +310,7 @@ public static class UIFormPatches
         {
             try
             {
-                var sb = new StringBuilder("Unlock");
+                var sb = new StringBuilder(ModLocalization.Get("form_unlock"));
                 var typeTitle = __instance.unlockTypeTitle;
                 if (typeTitle != null && !string.IsNullOrEmpty(typeTitle.text))
                 {
@@ -331,7 +331,7 @@ public static class UIFormPatches
             catch (System.Exception ex)
             {
                 Plugin.Log?.LogError($"UIUnlockForm ShowMilestone announce error: {ex.Message}");
-                ScreenReader.Interrupt("Unlock");
+                ScreenReader.Interrupt(ModLocalization.Get("form_unlock"));
             }
         }
     }
@@ -345,7 +345,7 @@ public static class UIFormPatches
         {
             try
             {
-                var sb = new StringBuilder("Mastery Unlock");
+                var sb = new StringBuilder(ModLocalization.Get("form_mastery_unlock"));
                 var itemName = __instance.masteryItemName;
                 if (itemName != null && !string.IsNullOrEmpty(itemName.text))
                 {
@@ -361,7 +361,7 @@ public static class UIFormPatches
             catch (System.Exception ex)
             {
                 Plugin.Log?.LogError($"UIUnlockForm ShowMastery announce error: {ex.Message}");
-                ScreenReader.Interrupt("Mastery Unlock");
+                ScreenReader.Interrupt(ModLocalization.Get("form_mastery_unlock"));
             }
         }
     }
@@ -375,25 +375,25 @@ public static class UIFormPatches
         {
             try
             {
-                var sb = new StringBuilder("Run Summary");
+                var sb = new StringBuilder(ModLocalization.Get("form_run_summary"));
                 var credits = __instance.creditsText;
                 if (credits != null && !string.IsNullOrEmpty(credits.text))
-                    sb.Append($". Credits: {TextHelper.CleanText(credits.text)}");
+                    sb.Append($". {ModLocalization.Get("form_credits", TextHelper.CleanText(credits.text))}");
 
                 var xp = __instance.xpText;
                 if (xp != null && !string.IsNullOrEmpty(xp.text))
-                    sb.Append($". XP: {TextHelper.CleanText(xp.text)}");
+                    sb.Append($". {ModLocalization.Get("form_xp", TextHelper.CleanText(xp.text))}");
 
                 var rank = __instance.rankGainedText;
                 if (rank != null && !string.IsNullOrEmpty(rank.text))
-                    sb.Append($". Rank: {TextHelper.CleanText(rank.text)}");
+                    sb.Append($". {ModLocalization.Get("form_rank", TextHelper.CleanText(rank.text))}");
 
                 ScreenReader.Interrupt(sb.ToString());
             }
             catch (System.Exception ex)
             {
                 Plugin.Log?.LogError($"UIProgressionSummaryForm announce error: {ex.Message}");
-                ScreenReader.Interrupt("Run Summary");
+                ScreenReader.Interrupt(ModLocalization.Get("form_run_summary"));
             }
         }
     }
@@ -427,7 +427,7 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix(UIMutatorForm __instance)
         {
-            ScreenReader.Interrupt("Mutator Selection");
+            ScreenReader.Interrupt(ModLocalization.Get("form_mutator_selection"));
         }
     }
 
@@ -438,7 +438,7 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix(UIGearFoundForm __instance)
         {
-            ScreenReader.Interrupt("Gear Found");
+            ScreenReader.Interrupt(ModLocalization.Get("form_gear_found"));
         }
     }
 
@@ -449,7 +449,7 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix(UIGearInspectForm __instance)
         {
-            ScreenReader.Interrupt("Gear Details");
+            ScreenReader.Interrupt(ModLocalization.Get("form_gear_details"));
         }
     }
 
@@ -460,7 +460,7 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix(UIScoreInpectForm __instance)
         {
-            ScreenReader.Interrupt("Score");
+            ScreenReader.Interrupt(ModLocalization.Get("form_score"));
         }
     }
 
@@ -487,7 +487,7 @@ public static class UIFormPatches
                     ScreenReader.Interrupt(TextHelper.CleanText(btnText.text));
                     return;
                 }
-                ScreenReader.Interrupt("Press any key");
+                ScreenReader.Interrupt(ModLocalization.Get("form_splash_press_key"));
             }
             catch (System.Exception ex)
             {
@@ -507,8 +507,7 @@ public static class UIFormPatches
             SettingsFocusTracker.SuppressUntilFrame = Time.frameCount + 3;
             try
             {
-                var sb = new StringBuilder("Brightness Adjustment. ");
-                sb.Append("Use left and right arrows to adjust brightness, then press Enter to confirm");
+                var sb = new StringBuilder(ModLocalization.Get("form_brightness_instructions"));
 
                 var slider = __instance.slider;
                 if (slider != null)
@@ -526,7 +525,7 @@ public static class UIFormPatches
             catch (System.Exception ex)
             {
                 Plugin.Log?.LogError($"GammaAdjuster Show error: {ex.Message}");
-                ScreenReader.Interrupt("Brightness Adjustment. Use left and right arrows to adjust, Enter to confirm");
+                ScreenReader.Interrupt(ModLocalization.Get("form_brightness_short"));
             }
         }
     }
@@ -548,7 +547,7 @@ public static class UIFormPatches
         public static void Postfix()
         {
             GammaAdjusterOpen = false;
-            ScreenReader.Interrupt("Brightness confirmed");
+            ScreenReader.Interrupt(ModLocalization.Get("form_brightness_confirmed"));
         }
     }
 
@@ -565,13 +564,13 @@ public static class UIFormPatches
                 var header = __instance.headerText;
                 string title = header != null && !string.IsNullOrEmpty(header.text)
                     ? TextHelper.CleanText(header.text)
-                    : "Save Slot Selection";
+                    : ModLocalization.Get("form_save_slot_selection");
                 ScreenReader.Interrupt(title);
             }
             catch (System.Exception ex)
             {
                 Plugin.Log?.LogError($"UISaveSlotSelector announce error: {ex.Message}");
-                ScreenReader.Interrupt("Save Slot Selection");
+                ScreenReader.Interrupt(ModLocalization.Get("form_save_slot_selection"));
             }
         }
     }
@@ -588,13 +587,13 @@ public static class UIFormPatches
                 var slotToDelete = __instance.uiSaveSlotToDelete;
                 int slotNum = slotToDelete != null ? (int)slotToDelete.SaveSlot + 1 : 0;
                 string msg = slotNum > 0
-                    ? $"Delete Save Slot {slotNum}? Press Enter to confirm, Escape to cancel"
-                    : "Delete save slot? Press Enter to confirm, Escape to cancel";
+                    ? ModLocalization.Get("form_delete_confirm", slotNum)
+                    : ModLocalization.Get("form_delete_confirm_generic");
                 ScreenReader.Interrupt(msg);
             }
             catch
             {
-                ScreenReader.Interrupt("Delete save slot? Press Enter to confirm, Escape to cancel");
+                ScreenReader.Interrupt(ModLocalization.Get("form_delete_confirm_generic"));
             }
         }
     }
@@ -606,7 +605,7 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix()
         {
-            ScreenReader.Interrupt("Save slot deleted");
+            ScreenReader.Interrupt(ModLocalization.Get("form_save_deleted"));
         }
     }
 
@@ -617,7 +616,7 @@ public static class UIFormPatches
         [HarmonyPostfix]
         public static void Postfix()
         {
-            ScreenReader.Interrupt("Cancelled");
+            ScreenReader.Interrupt(ModLocalization.Get("form_cancelled"));
         }
     }
 

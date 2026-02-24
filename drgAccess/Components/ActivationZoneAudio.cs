@@ -190,15 +190,15 @@ namespace drgAccess.Components
                 // Announce enter/exit transitions
                 if (isInside && !wasInsideZone)
                 {
-                    ScreenReader.Interrupt("Inside supply zone");
+                    ScreenReader.Interrupt(ModLocalization.Get("zone_inside"));
                     lastRocksAnnounced = -1;
                 }
                 else if (!isInside && wasInsideZone)
                 {
                     if (state == ActivationZone.EState.ACTIVATING)
-                        ScreenReader.Interrupt("Left supply zone, return to zone");
+                        ScreenReader.Interrupt(ModLocalization.Get("zone_left_activating"));
                     else
-                        ScreenReader.Interrupt("Left supply zone");
+                        ScreenReader.Interrupt(ModLocalization.Get("zone_left"));
                 }
                 wasInsideZone = isInside;
 
@@ -212,7 +212,7 @@ namespace drgAccess.Components
                     else if (state == ActivationZone.EState.DONE && !announcedCompletion)
                     {
                         announcedCompletion = true;
-                        ScreenReader.Interrupt("Supply zone complete");
+                        ScreenReader.Interrupt(ModLocalization.Get("zone_complete"));
                     }
                     lastZoneState = state;
                 }
@@ -279,9 +279,9 @@ namespace drgAccess.Components
                 var rocks = activeZone.rocksInArea;
                 int rockCount = rocks != null ? rocks.Count : 0;
                 if (rockCount > 0)
-                    ScreenReader.Say($"Clearing zone, {rockCount} rocks to mine");
+                    ScreenReader.Say(ModLocalization.Get("zone_clearing", rockCount));
                 else
-                    ScreenReader.Say("Zone activating");
+                    ScreenReader.Say(ModLocalization.Get("zone_activating"));
             }
             catch { }
         }
@@ -297,9 +297,9 @@ namespace drgAccess.Components
                 {
                     lastRocksAnnounced = remaining;
                     if (remaining > 0)
-                        ScreenReader.Say($"{remaining} rocks remaining");
+                        ScreenReader.Say(ModLocalization.Get("zone_rocks_remaining", remaining));
                     else
-                        ScreenReader.Say("All rocks cleared");
+                        ScreenReader.Say(ModLocalization.Get("zone_all_cleared"));
                     return;
                 }
                 if (lastRocksAnnounced < 0)
@@ -312,7 +312,7 @@ namespace drgAccess.Components
                     lastProgressTime = Time.time;
                     int seconds = Mathf.RoundToInt(timeLeft);
                     if (seconds > 0)
-                        ScreenReader.Say($"{seconds} seconds remaining");
+                        ScreenReader.Say(ModLocalization.Get("zone_timer", seconds));
                 }
             }
             catch { }

@@ -1,0 +1,363 @@
+# DRG Access Mod - Magyar (hu)
+# Szerkeszd ezt a fajlt a mod uzenetei magyarra forditasahoz.
+# Formatum: kulcs=ertek (soronkent egy). A # jellel kezdodo sorok megjegyzesek.
+
+# === Mod ===
+mod_loaded=DRG Survivor akadalymentesitesi mod betoltve
+
+# === Directions (top-down: up=W, down=S, left=A, right=D) ===
+dir_up=fel
+dir_down=le
+dir_left=balra
+dir_right=jobbra
+dir_up_left=balra fel
+dir_up_right=jobbra fel
+dir_down_left=balra le
+dir_down_right=jobbra le
+dir_ahead=elore
+
+# === Form Announcements ===
+form_main_menu=Fomenu
+form_play_menu=Jatek menu
+form_settings=Beallitasok
+form_gear_inventory=Felszereles
+form_stat_upgrades=Statisztika fejlesztes
+form_shop=Bolt
+form_skin_overrides=Kinezet valasztas
+form_loading=Betoltes
+form_level_up=Szintlepes
+form_level_up_title=Szintlepes: {0}
+form_overclock=Tulorazas
+form_overclock_weapon=Tulorazas: {0}
+form_unlock=Feloldas
+form_mastery_unlock=Mesterseg feloldas
+form_run_summary=Futas osszefoglalo
+form_credits=Kredit: {0}
+form_xp=XP: {0}
+form_rank=Rang: {0}
+form_mutator_selection=Mutator valasztas
+form_gear_found=Felszereles talalva
+form_gear_details=Felszereles reszletek
+form_score=Pontszam
+form_splash_press_key=Nyomj egy billentyut
+form_brightness_instructions=Fenyero beallitas. Hasznald a bal es jobb nyilakat a fenyero allitasahoz, majd nyomj Entert a jovahagyashoz
+form_brightness_short=Fenyero beallitas. Bal es jobb nyilakkal allitsd, Enter a jovahagyashoz
+form_brightness_confirmed=Fenyero jovahagyva
+form_save_slot_selection=Mentes valasztas
+form_delete_confirm={0}. mentes torlese? Nyomj Entert a jovahagyashoz, Escape-et a visszavonashoz
+form_delete_confirm_generic=Mentes torlese? Nyomj Entert a jovahagyashoz, Escape-et a visszavonashoz
+form_save_deleted=Mentes torolve
+form_cancelled=Visszavonva
+
+# === Boss ===
+boss_charge=Rohamas!
+boss_spikes=Tuskok!
+boss_fireball=Tuzgolyo!
+boss_healing=Gyogyulas!
+boss_appeared=Fonok!
+boss_hp_percent=Fonok {0}%
+boss_defeated=Fonok legyozve!
+boss_healed=Fonok gyogyult
+
+# === Drop Pod ===
+pod_inside=A kapszulan belul
+pod_almost_inside=Majdnem bent, menj tovabb
+pod_near_ramp=A kapszula kozeleben, kovesd a hangot befelre
+pod_very_close=Kapszula nagyon kozel
+pod_compass_ramp=Kapszula bejarat: {0}, {1}
+pod_compass_normal=Kapszula: {0}, {1} meter
+
+# === Supply Zone ===
+zone_inside=Ellato zonan belul
+zone_left_activating=Elhagytad az ellato zonat, terj vissza
+zone_left=Elhagytad az ellato zonat
+zone_complete=Ellato zona kesz
+zone_clearing=Zona tisztitas, {0} ko banyaszando
+zone_activating=Zona aktivalas
+zone_rocks_remaining={0} ko maradt
+zone_all_cleared=Minden ko kibanyaszva
+zone_timer={0} masodperc van hatra
+
+# === Drill Beacon (Bobby) ===
+drill_stopped=Bobby megallt
+drill_arriving=Bobby erkezik
+drill_started=Bobby elindult
+drill_mining=Bobby banyassza a szivkovet
+drill_broken=Bobby elromlott
+drill_finished=Bobby vegzett
+drill_out_of_range=Bobby hatasugaraon kivul, menj kozelebb
+drill_fuel_critical=Uzemanyag kritikus, 10 szazalek
+drill_fuel_25=Uzemanyag 25 szazalek
+drill_fuel_50=Uzemanyag 50 szazalek
+drill_progress_halfway=Bobby felutan
+drill_progress_percent=Bobby {0} szazalekon
+drill_compass=Bobby: {0}, {1} meter
+
+# === Enemy Proximity ===
+enemy_exploder_very_close=Robbanekony nagyon kozel!
+enemy_boss_very_close=Fonok nagyon kozel!
+enemy_elite_very_close=Elit nagyon kozel!
+enemy_exploder_nearby=Robbanekony a kozelben
+enemy_boss_nearby=Fonok a kozelben
+enemy_elite_nearby=Elit a kozelben
+enemy_nearby_singular=Ellenseg a kozelben
+enemy_nearby_plural={0} ellenseg a kozelben
+
+# === Collectibles ===
+collect_red_sugar=Voros cukor
+collect_gear=Felszereles
+collect_buff=Bovites
+collect_currency=Valuta
+collect_mineral_vein=Asvanyer
+collect_loot_crate=Zsakmanydoba
+collect_xp=XP
+collect_nearby={0} a kozelben{1}
+collect_closer={0} kozelebb{1}
+collect_very_close={0} nagyon kozel{1}
+collect_magnet=Magnes
+collect_speed_boost=Sebesseg noveles
+collect_mining_speed=Banyaszati sebesseg
+collect_berserk=Berserk
+collect_artifact_magnet=Mukincs magnes
+
+# === Action Feedback ===
+action_bought=Megveeve
+action_cannot_afford=Nincs eleg penz
+action_sold=Eladva
+action_nothing_to_sell=Nincs eladni valo
+action_cannot_sell=Nem adhato el
+action_max_level=Maximalis szint elerve
+action_upgraded_to_max=Fejlesztve {0}/{1} szintre
+action_upgraded_to=Fejlesztve {0} szintre
+action_purchased={0} megvasarolva
+action_rerolled=Ujradobva
+action_reroll_fail=Nincs eleg penz az ujradobashoz
+action_healed=Gyogyitva
+action_heal_fail=Nincs eleg penz a gyogyitashoz
+action_equipped={0} felszerelve
+action_unequipped={0} leveve
+action_gear_upgraded={0} fejlesztve
+action_salvaged={0} szethordva
+
+# === Wallet ===
+wallet_unavailable=Nincs penzrarca elerheto
+wallet_gold=Arany: {0}
+wallet_no_currency=Nincs valuta
+wallet_error=Nem olvasahato a penzrarca
+
+# === Equipped Gear (T key) ===
+gear_no_inventory=Nincs felszereles
+gear_no_equipped_panel=Nincs viselt felszereles panel
+gear_equipped_header=Viselt felszerelesek
+gear_equipped_none=: Nincs
+gear_equipped_error=Nem olvasahato a viselt felszereles
+
+# === Pickups ===
+pickup_healed={0} HP gyogyitva
+pickup_gear_named={0} felveve
+pickup_gear_generic=Felszereles felveve
+pickup_loot_crate={0} zsakmanydoba
+
+# === HP Reader ===
+hp_no_player=Nincs jatekos
+hp_format=HP: {0} / {1}
+hp_format_percent=HP: {0}%
+
+# === Objectives ===
+obj_none=Nincs cel
+obj_no_active=Nincs aktiv cel
+obj_single=Cel: {0}
+obj_multiple=Celok: {0}
+
+# === Milestones ===
+milestone_none=Nincsenek merfolkovek
+milestone_empty=Merfolkovek. W es S a bongeszesehez. Nincs merfoldko ebben a kategoriaban.
+milestone_unavailable=Nincsenek merfolkovek
+milestone_header=Merfolkovek. {0} elem. W es S a bongeszesehez. {1}
+milestone_progress=Haladas: {0}
+milestone_complete=Teljesitve
+milestone_reward=Jutalom: {0}
+milestone_requires=Kovetelmeny: {0}
+
+# === Pause Menu ===
+pause_header=Jatek szuneteltetve. Fel es le a navigalashoz, Enter a kivalasztashoz, Escape a folytatashoz. {0}
+pause_weapons=Fegyverek. {0}
+pause_artifacts=Mukincsek. {0}
+pause_stats=Statisztikak. {0}
+pause_level={0}. szint
+pause_resume=Folytatas
+pause_menu=Menu
+pause_settings=Beallitasok
+pause_no_info=Nincs elerheto informacio
+
+# === End Screen ===
+end_header=Vegkepernyo. Fel es le nyilakkal navigalj, Enter a kivalasztashoz. {0}
+end_rank_xp=Rang XP: {0}
+end_endless_rank_xp=Vegtelen rang XP: {0}
+end_hazard=Veszelyszint: {0}
+end_stages=Szintek: {0}
+end_credits=Kredit: {0}
+end_endless_credits=Vegtelen kredit: {0}
+end_resources=Nyersanyagok:
+end_weapon_report=Fegyver jelentes.
+end_level={0}. szint
+end_damage=Sebzes: {0}
+end_dps=DPS: {0}
+end_damage_breakdown=Sebzes reszletezese
+end_total=Osszesen: {0}
+end_player_stats=Jatekos statisztikak
+end_exploration=Felfedezes statisztikak
+end_no_info=Nincs elerheto informacio
+end_retry=Ujraproba
+end_continue=Folytatas
+end_go_endless=Vegtelen mod
+
+# === Mod Settings Menu ===
+setting_wall_nav=Fal navigacio
+setting_enemy_detect=Ellenseg eszleles
+setting_drop_pod=Kapszula jelzo
+setting_supply_pod=Ellato kapszula jelzo
+setting_hazard=Veszelyjelzes
+setting_collectibles=Gyujtheto targyak
+setting_footsteps_toggle=Leptek
+setting_footsteps_vol=Leptek hangero
+setting_boss_attacks=Fonok tamadasok
+setting_drill_beacon=Furo jelzo
+setting_enemy_range=Ellenseg eszlelesi hatotav
+setting_hazard_range=Veszelyjelzes hatotav
+setting_collect_range=Gyujtheto targyak hatotav
+setting_wall_range=Fal eszlelesi hatotav
+setting_max_hazard=Maximum veszelyjelzesek
+setting_audio_cue_preview=Hang jelzes elonezet
+setting_save=Valtozasok mentese
+setting_cancel=Megse
+toggle_on=Be
+toggle_off=Ki
+setting_meters={0} meter
+setting_multiplier={0}x
+setting_saved=Beallitasok mentve
+setting_cancelled=Valtozasok visszavonva
+setting_menu_header=Mod beallitasok. Fel es le a navigalashoz, bal es jobb a hangero allitasahoz, Enter az elonezethez vagy aktivalashoz, F1 vagy Escape a bezarashoz.
+
+# === Audio Cue Names + Descriptions ===
+cue_wall_forward=Fal: elore
+cue_wall_forward_desc=Fal elotted. Minel kozelebb, annal hangosabb.
+cue_wall_backward=Fal: hatra
+cue_wall_backward_desc=Fal mogotted. Minel kozelebb, annal hangosabb.
+cue_wall_sides=Fal: oldalak
+cue_wall_sides_desc=Fal balra vagy jobbra. A megfelelo oldalra panoramaz.
+cue_enemy_normal=Ellenseg: normal
+cue_enemy_normal_desc=Sima ellenseg a kozelben. Minel kozelebb, annal gyorsabb a csipoges.
+cue_enemy_elite=Ellenseg: elit
+cue_enemy_elite_desc=Elit ellenseg a kozelben. Lassabb vibralo csipoges, mas mint a normal.
+cue_enemy_boss=Ellenseg: fonok
+cue_enemy_boss_desc=Fonok ellenseg a kozelben. Mely morgas, osszeteveszthetetlen.
+cue_enemy_loot=Ritka zsakmany ellenseg
+cue_enemy_loot_desc=Arany Lootbug vagy Huuli Hoarder a kozelben. Fenyes emelkedo csengetes.
+cue_drop_pod=Kapszula jelzo
+cue_drop_pod_desc=A kivonasi kapszulahoz vezet. Femes szonar ping.
+cue_drop_pod_critical=Kapszula: kritikus
+cue_drop_pod_critical_desc=Nagyon kozel a kapszulahoz, 8 meteren belul. Gyors dupla csipoges.
+cue_drop_pod_ramp=Kapszula: rampa hang
+cue_drop_pod_ramp_desc=A rampan, 2,5 meteren belul. Folyamatos hang a bejarat fele.
+cue_supply_pod=Ellato kapszula jelzo
+cue_supply_pod_desc=Ellato kapszula zonakhoz vezet. Hullamzo trilla.
+cue_drill_beacon=Furo jelzo
+cue_drill_beacon_desc=Bobby-hoz vezet a kisereti kuldetesek soran. Ritmusos dugattyu pulzus.
+cue_hazard=Veszelyjelzes
+cue_hazard_desc=Veszelyes dolog a kozelben, peldaul robbanokonyek vagy foldtuskek. Szirena.
+cue_red_sugar=Gyujtheto: Voros cukor
+cue_red_sugar_desc=Gyogyito targy a kozelben. Vizcseppes buborekolo hang.
+cue_gear_drop=Gyujtheto: Felszereles
+cue_gear_drop_desc=Fegyver vagy felszereles a kozelben. Gazdag kethangusu csipoges.
+cue_buff=Gyujtheto: Bovites
+cue_buff_desc=Bovites a kozelben. Elektromos zugo hang.
+cue_currency=Gyujtheto: Valuta
+cue_currency_desc=Arany vagy asvanyi targy a kozelben. Rovid kristaly csengetes.
+cue_mineral=Gyujtheto: Asvanyer
+cue_mineral_desc=Banyaszhato asvanyer a kozelben. Femes koccogas.
+cue_loot_crate=Gyujtheto: Zsakmanydoba
+cue_loot_crate_desc=Zsakmanydoba a kozelben. Csillamo szikrazas csipoges.
+cue_xp=Gyujtheto: Kozelben levo XP
+cue_xp_desc=XP golyok a foldon. Halk folyamatos hang.
+cue_boss_charge=Fonok: Rohamas
+cue_boss_charge_desc=A fonok rohant feledben. 3 gyors agressziv csipoges.
+cue_boss_spikes=Fonok: Tuskok
+cue_boss_spikes_desc=A fonok foldtuskoket ideez. 3 kozepes mely csipoges.
+cue_boss_fireball=Fonok: Tuzgolyo
+cue_boss_fireball_desc=A fonok lovedekeket lo. 3 nagyon gyors eles csipoges.
+cue_boss_heal=Fonok: Gyogyulas
+cue_boss_heal_desc=A fonok gyogyitja magat. 3 lassu szelid csipoges.
+cue_audio_preview_header=Hang jelzes elonezet. Fel es le a navigalashoz, Enter az elonezethez, Escape a visszalepeshez. {0}. {1}
+
+# === UI Common ===
+ui_locked=Zarolva
+ui_completed=Teljesitve
+ui_equipped=Felszerelve
+ui_empty=Ures
+ui_on=Be
+ui_off=Ki
+ui_pinned=Kituzve
+ui_unpinned=Leveve
+ui_active=Aktiv
+ui_previous=Elozo
+ui_next=Kovetkezo
+ui_new=Uj
+ui_favorite=Kedvenc
+ui_item=targy
+ui_selector=Valaszto
+ui_points=pont
+ui_price=Ar: {0}
+ui_price_currency=Ar: {0} {1}
+ui_cannot_afford=Nincs eleg penz
+
+# === Save Slot ===
+save_slot=Mentes {0}
+
+# === Class Selection ===
+class_unlock_rank=Feloldas jatekos rang {0} szinten
+class_unlock_requirement=Zarolva. {0} osztaly teljesites szukseges a feloldashoz
+class_weapon=Fegyver: {0}
+class_damage_type=Sebzes tipus: {0}
+
+# === Gear ===
+gear_fallback=Felszereles
+gear_tier=Szint {0}
+gear_stats=Statisztikak: {0}
+gear_upgrade_cost=Fejlesztes koltsege: {0}
+gear_upgrade_available=Fejlesztes elerheto
+gear_sell_value=Eladasi ertek: {0}
+gear_sell_available=Eladas elerheto
+gear_level=Szint {0}/{1}
+gear_level_no_max=Szint {0}
+gear_cost=Koltseg: {0}
+gear_max_level=Maximalis szint
+gear_slot_armor=Pancel
+gear_slot_companion=Tars
+gear_slot_grinder=Grinder
+gear_slot_tank=Tank
+gear_slot_tool=Szerszam
+gear_slot_weapon_mod=Fegyver mod
+
+# === Mission ===
+mission_sector=Szektor {0}
+mission_gate=Kapu {0}
+mission_node=Kuldetesi csomod
+mission_high_score=Legjobb pontszam: {0}
+mission_fixed_run=Rogzitett futas
+mission_hazard=Veszelyszint {0}
+
+# === Wallet Currencies ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=Artifact Rerolls
+wallet_mutator_rerolls=Mutator Rerolls
+wallet_ommoran_core=Ommoran Core

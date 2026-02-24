@@ -1,0 +1,363 @@
+# DRG Access Mod - 简体中文 (zh-cn)
+# 编辑此文件可自定义模组的中文消息。
+# 格式: key=value（每行一条）。以 # 开头的行为注释。
+
+# === 模组 ===
+mod_loaded=DRG幸存者无障碍模组已加载
+
+# === 方向（俯视视角：上=W，下=S，左=A，右=D） ===
+dir_up=上
+dir_down=下
+dir_left=左
+dir_right=右
+dir_up_left=左上
+dir_up_right=右上
+dir_down_left=左下
+dir_down_right=右下
+dir_ahead=前方
+
+# === 界面通知 ===
+form_main_menu=主菜单
+form_play_menu=游戏菜单
+form_settings=设置
+form_gear_inventory=装备库
+form_stat_upgrades=属性升级
+form_shop=商店
+form_skin_overrides=皮肤覆盖
+form_loading=加载中
+form_level_up=升级
+form_level_up_title=升级：{0}
+form_overclock=超频
+form_overclock_weapon=超频：{0}
+form_unlock=解锁
+form_mastery_unlock=精通解锁
+form_run_summary=战斗总结
+form_credits=信用点：{0}
+form_xp=经验值：{0}
+form_rank=等级：{0}
+form_mutator_selection=变异器选择
+form_gear_found=发现装备
+form_gear_details=装备详情
+form_score=分数
+form_splash_press_key=按任意键
+form_brightness_instructions=亮度调节。使用左右方向键调整亮度，然后按回车确认
+form_brightness_short=亮度调节。左右键调整，回车确认
+form_brightness_confirmed=亮度已确认
+form_save_slot_selection=存档位选择
+form_delete_confirm=删除存档位 {0}？按回车确认，按Escape取消
+form_delete_confirm_generic=删除存档位？按回车确认，按Escape取消
+form_save_deleted=存档已删除
+form_cancelled=已取消
+
+# === Boss ===
+boss_charge=冲锋！
+boss_spikes=尖刺！
+boss_fireball=火球！
+boss_healing=治疗中！
+boss_appeared=Boss出现！
+boss_hp_percent=Boss {0}%
+boss_defeated=Boss已击败！
+boss_healed=Boss已恢复
+
+# === 逃生舱 ===
+pod_inside=已进入逃生舱
+pod_almost_inside=即将进入，继续前进
+pod_near_ramp=靠近逃生舱，沿音调进入
+pod_very_close=逃生舱非常近
+pod_compass_ramp=舱口：{0}，{1}
+pod_compass_normal=逃生舱：{0}，{1}米
+
+# === 补给区 ===
+zone_inside=已进入补给区
+zone_left_activating=已离开补给区，请返回
+zone_left=已离开补给区
+zone_complete=补给区完成
+zone_clearing=清理补给区，{0}块矿石待开采
+zone_activating=补给区激活中
+zone_rocks_remaining=剩余{0}块矿石
+zone_all_cleared=矿石已清理完毕
+zone_timer=剩余{0}秒
+
+# === 钻机信标（鲍比） ===
+drill_stopped=鲍比已停止
+drill_arriving=鲍比即将到达
+drill_started=鲍比已启动
+drill_mining=鲍比正在开采核心石
+drill_broken=鲍比损坏了
+drill_finished=鲍比完成了
+drill_out_of_range=超出鲍比范围，请靠近
+drill_fuel_critical=燃料告急，10%
+drill_fuel_25=燃料25%
+drill_fuel_50=燃料50%
+drill_progress_halfway=鲍比已完成一半
+drill_progress_percent=鲍比已完成{0}%
+drill_compass=鲍比：{0}，{1}米
+
+# === 敌人警报 ===
+enemy_exploder_very_close=爆破兵非常近！
+enemy_boss_very_close=Boss非常近！
+enemy_elite_very_close=精英怪非常近！
+enemy_exploder_nearby=附近有爆破兵
+enemy_boss_nearby=附近有Boss
+enemy_elite_nearby=附近有精英怪
+enemy_nearby_singular=附近有敌人
+enemy_nearby_plural=附近有{0}个敌人
+
+# === 收集品 ===
+collect_red_sugar=红糖
+collect_gear=装备
+collect_buff=增益
+collect_currency=货币
+collect_mineral_vein=矿脉
+collect_loot_crate=宝箱
+collect_xp=经验
+collect_nearby={0}在附近{1}
+collect_closer={0}更近了{1}
+collect_very_close={0}非常近{1}
+collect_magnet=磁铁
+collect_speed_boost=加速
+collect_mining_speed=采矿加速
+collect_berserk=狂暴
+collect_artifact_magnet=神器磁铁
+
+# === 操作反馈 ===
+action_bought=已购买
+action_cannot_afford=资金不足
+action_sold=已出售
+action_nothing_to_sell=无物可售
+action_cannot_sell=无法出售
+action_max_level=已达最高等级
+action_upgraded_to_max=已升级至{0}/{1}级
+action_upgraded_to=已升级至{0}级
+action_purchased=已购买{0}
+action_rerolled=已刷新
+action_reroll_fail=资金不足，无法刷新
+action_healed=已治疗
+action_heal_fail=资金不足，无法治疗
+action_equipped=已装备{0}
+action_unequipped=已卸下{0}
+action_gear_upgraded=已升级{0}
+action_salvaged=已回收{0}
+
+# === 钱包 ===
+wallet_unavailable=无可用钱包
+wallet_gold=金币：{0}
+wallet_no_currency=无货币
+wallet_error=无法读取钱包
+
+# === 已装备装备（T键） ===
+gear_no_inventory=无装备库
+gear_no_equipped_panel=无已装备面板
+gear_equipped_header=已装备
+gear_equipped_none=：无
+gear_equipped_error=无法读取已装备物品
+
+# === 拾取 ===
+pickup_healed=恢复了{0}点生命
+pickup_gear_named=拾取了{0}
+pickup_gear_generic=拾取了装备
+pickup_loot_crate={0}宝箱
+
+# === 生命值 ===
+hp_no_player=未找到玩家
+hp_format=生命值：{0} / {1}
+hp_format_percent=生命值：{0}%
+
+# === 任务目标 ===
+obj_none=无目标
+obj_no_active=无进行中的目标
+obj_single=目标：{0}
+obj_multiple=目标：{0}
+
+# === 里程碑 ===
+milestone_none=无里程碑
+milestone_empty=里程碑。W和S键浏览。此分类无里程碑。
+milestone_unavailable=无可用里程碑
+milestone_header=里程碑。共{0}项。W和S键浏览。{1}
+milestone_progress=进度：{0}
+milestone_complete=已完成
+milestone_reward=奖励：{0}
+milestone_requires=需要：{0}
+
+# === 暂停菜单 ===
+pause_header=游戏已暂停。上下键导航，回车选择，Escape恢复。{0}
+pause_weapons=武器。{0}
+pause_artifacts=神器。{0}
+pause_stats=属性。{0}
+pause_level={0}级
+pause_resume=继续游戏
+pause_menu=返回菜单
+pause_settings=设置
+pause_no_info=无可用信息
+
+# === 结算界面 ===
+end_header=结算界面。上下键导航，回车选择。{0}
+end_rank_xp=等级经验：{0}
+end_endless_rank_xp=无尽模式经验：{0}
+end_hazard=危险等级：{0}
+end_stages=关卡数：{0}
+end_credits=信用点：{0}
+end_endless_credits=无尽模式信用点：{0}
+end_resources=资源：
+end_weapon_report=武器报告。
+end_level={0}级
+end_damage=伤害：{0}
+end_dps=每秒伤害：{0}
+end_damage_breakdown=伤害分布
+end_total=总计：{0}
+end_player_stats=玩家属性
+end_exploration=探索统计
+end_no_info=无可用信息
+end_retry=重试
+end_continue=继续
+end_go_endless=进入无尽模式
+
+# === 模组设置菜单 ===
+setting_wall_nav=墙壁导航
+setting_enemy_detect=敌人检测
+setting_drop_pod=逃生舱信标
+setting_supply_pod=补给舱信标
+setting_hazard=危险警报
+setting_collectibles=收集品
+setting_footsteps_toggle=脚步声
+setting_footsteps_vol=脚步声音量
+setting_boss_attacks=Boss攻击
+setting_drill_beacon=钻机信标
+setting_enemy_range=敌人检测范围
+setting_hazard_range=危险警报范围
+setting_collect_range=收集品范围
+setting_wall_range=墙壁检测范围
+setting_max_hazard=最大危险警报数
+setting_audio_cue_preview=音效预览
+setting_save=保存更改
+setting_cancel=取消
+toggle_on=开启
+toggle_off=关闭
+setting_meters={0}米
+setting_multiplier={0}倍
+setting_saved=设置已保存
+setting_cancelled=更改已取消
+setting_menu_header=模组设置。上下键导航，左右键调整音量，回车预览或激活，F1或Escape关闭。
+
+# === 音效名称和描述 ===
+cue_wall_forward=墙壁：前方
+cue_wall_forward_desc=前方有墙壁。越近越响。
+cue_wall_backward=墙壁：后方
+cue_wall_backward_desc=后方有墙壁。越近越响。
+cue_wall_sides=墙壁：两侧
+cue_wall_sides_desc=左侧或右侧有墙壁。声音偏向对应方向。
+cue_enemy_normal=敌人：普通
+cue_enemy_normal_desc=附近有普通敌人。越近提示越快。
+cue_enemy_elite=敌人：精英
+cue_enemy_elite_desc=附近有精英敌人。较慢的颤动声，与普通敌人不同。
+cue_enemy_boss=敌人：Boss
+cue_enemy_boss_desc=附近有Boss敌人。低沉的轰鸣声，辨识度极高。
+cue_enemy_loot=稀有掉落敌人
+cue_enemy_loot_desc=附近有黄金虫或胡利掠夺者。明亮的上升音调。
+cue_drop_pod=逃生舱信标
+cue_drop_pod_desc=引导你前往撤离舱。金属声呐脉冲。
+cue_drop_pod_critical=逃生舱：极近
+cue_drop_pod_critical_desc=距逃生舱不到8米。快速双重提示音。
+cue_drop_pod_ramp=逃生舱：入口音调
+cue_drop_pod_ramp_desc=在舱门坡道上，不到2.5米。持续音调指向舱口。
+cue_supply_pod=补给舱信标
+cue_supply_pod_desc=引导你前往补给区。颤音哨声。
+cue_drill_beacon=钻机信标
+cue_drill_beacon_desc=护送任务中引导你前往鲍比钻机。有节奏的脉冲声。
+cue_hazard=危险警报
+cue_hazard_desc=附近有危险，如爆破兵或地刺。警笛声。
+cue_red_sugar=收集品：红糖
+cue_red_sugar_desc=附近有生命恢复物。水滴声。
+cue_gear_drop=收集品：装备掉落
+cue_gear_drop_desc=附近有武器或装备掉落。丰富的双音和弦。
+cue_buff=收集品：增益拾取
+cue_buff_desc=附近有增益拾取物。电子蜂鸣声。
+cue_currency=收集品：货币
+cue_currency_desc=附近有金币或矿物掉落。清脆的水晶音。
+cue_mineral=收集品：矿脉
+cue_mineral_desc=附近有可采矿脉。金属敲击声。
+cue_loot_crate=收集品：宝箱
+cue_loot_crate_desc=附近有宝箱。闪烁的亮光音。
+cue_xp=收集品：附近经验
+cue_xp_desc=地上有经验球。柔和的持续音调。
+cue_boss_charge=Boss：冲锋
+cue_boss_charge_desc=Boss正在冲锋。3声快速急促的提示音。
+cue_boss_spikes=Boss：尖刺
+cue_boss_spikes_desc=Boss释放地刺。3声中速低沉的提示音。
+cue_boss_fireball=Boss：火球
+cue_boss_fireball_desc=Boss发射弹幕。3声极快尖锐的提示音。
+cue_boss_heal=Boss：治疗
+cue_boss_heal_desc=Boss正在恢复。3声缓慢柔和的提示音。
+cue_audio_preview_header=音效预览。上下键浏览，回车试听，Escape返回。{0}。{1}
+
+# === 界面通用 ===
+ui_locked=已锁定
+ui_completed=已完成
+ui_equipped=已装备
+ui_empty=空
+ui_on=开启
+ui_off=关闭
+ui_pinned=已置顶
+ui_unpinned=已取消置顶
+ui_active=激活
+ui_previous=上一个
+ui_next=下一个
+ui_new=新
+ui_favorite=收藏
+ui_item=物品
+ui_selector=选择器
+ui_points=点
+ui_price=价格：{0}
+ui_price_currency=价格：{0} {1}
+ui_cannot_afford=资金不足
+
+# === 存档位 ===
+save_slot=存档位 {0}
+
+# === 职业选择 ===
+class_unlock_rank=玩家等级 {0} 解锁
+class_unlock_requirement=已锁定。需要 {0} 次职业通关才能解锁
+class_weapon=武器：{0}
+class_damage_type=伤害类型：{0}
+
+# === 装备 ===
+gear_fallback=装备
+gear_tier=阶 {0}
+gear_stats=属性：{0}
+gear_upgrade_cost=升级费用：{0}
+gear_upgrade_available=可升级
+gear_sell_value=出售价值：{0}
+gear_sell_available=可出售
+gear_level=等级 {0}/{1}
+gear_level_no_max=等级 {0}
+gear_cost=花费：{0}
+gear_max_level=最高等级
+gear_slot_armor=护甲
+gear_slot_companion=伙伴
+gear_slot_grinder=研磨器
+gear_slot_tank=坦克
+gear_slot_tool=工具
+gear_slot_weapon_mod=武器模组
+
+# === 任务 ===
+mission_sector=区域 {0}
+mission_gate=关卡 {0}
+mission_node=任务节点
+mission_high_score=最高分：{0}
+mission_fixed_run=固定路线
+mission_hazard=危险等级 {0}
+
+# === 钱包货币 ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=神器重骰
+wallet_mutator_rerolls=变异器重骰
+wallet_ommoran_core=Ommoran Core

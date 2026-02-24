@@ -1,0 +1,363 @@
+# DRG Access Mod - Polski (pl)
+# Edytuj ten plik, aby dostosować komunikaty moda do swojego języka.
+# Format: klucz=wartość (jeden na linię). Linie zaczynające się od # to komentarze.
+
+# === Mod ===
+mod_loaded=Mod dostępności DRG Survivor załadowany
+
+# === Directions (top-down: up=W, down=S, left=A, right=D) ===
+dir_up=góra
+dir_down=dół
+dir_left=lewo
+dir_right=prawo
+dir_up_left=góra-lewo
+dir_up_right=góra-prawo
+dir_down_left=dół-lewo
+dir_down_right=dół-prawo
+dir_ahead=przed tobą
+
+# === Form Announcements ===
+form_main_menu=Menu główne
+form_play_menu=Menu gry
+form_settings=Ustawienia
+form_gear_inventory=Ekwipunek
+form_stat_upgrades=Ulepszenia statystyk
+form_shop=Sklep
+form_skin_overrides=Skórki
+form_loading=Ładowanie
+form_level_up=Awans poziomu
+form_level_up_title=Awans poziomu: {0}
+form_overclock=Podkręcenie
+form_overclock_weapon=Podkręcenie: {0}
+form_unlock=Odblokowanie
+form_mastery_unlock=Odblokowanie mistrzostwa
+form_run_summary=Podsumowanie wyprawy
+form_credits=Kredyty: {0}
+form_xp=PD: {0}
+form_rank=Ranga: {0}
+form_mutator_selection=Wybór mutatorów
+form_gear_found=Znaleziono sprzęt
+form_gear_details=Szczegóły sprzętu
+form_score=Wynik
+form_splash_press_key=Naciśnij dowolny klawisz
+form_brightness_instructions=Regulacja jasności. Użyj strzałek lewo i prawo, aby ustawić jasność, a następnie naciśnij Enter, aby potwierdzić
+form_brightness_short=Regulacja jasności. Strzałki lewo i prawo, Enter aby potwierdzić
+form_brightness_confirmed=Jasność potwierdzona
+form_save_slot_selection=Wybór slotu zapisu
+form_delete_confirm=Usunąć slot zapisu {0}? Enter aby potwierdzić, Escape aby anulować
+form_delete_confirm_generic=Usunąć slot zapisu? Enter aby potwierdzić, Escape aby anulować
+form_save_deleted=Slot zapisu usunięty
+form_cancelled=Anulowano
+
+# === Boss ===
+boss_charge=Szarża!
+boss_spikes=Kolce!
+boss_fireball=Kula ognia!
+boss_healing=Leczenie!
+boss_appeared=Boss!
+boss_hp_percent=Boss {0}%
+boss_defeated=Boss pokonany!
+boss_healed=Boss uleczony
+
+# === Drop Pod ===
+pod_inside=Wewnątrz kapsuły
+pod_almost_inside=Prawie w środku, nie zatrzymuj się
+pod_near_ramp=Przy kapsule, podążaj za dźwiękiem do środka
+pod_very_close=Kapsuła bardzo blisko
+pod_compass_ramp=Wejście do kapsuły: {0}, {1}
+pod_compass_normal=Kapsuła: {0}, {1} metrów
+
+# === Supply Zone ===
+zone_inside=Wewnątrz strefy zaopatrzenia
+zone_left_activating=Opuszczono strefę zaopatrzenia, wróć do strefy
+zone_left=Opuszczono strefę zaopatrzenia
+zone_complete=Strefa zaopatrzenia ukończona
+zone_clearing=Oczyszczanie strefy, {0} skał do wydobycia
+zone_activating=Strefa się aktywuje
+zone_rocks_remaining=Pozostało {0} skał
+zone_all_cleared=Wszystkie skały oczyszczone
+zone_timer=Pozostało {0} sekund
+
+# === Drill Beacon (Bobby) ===
+drill_stopped=Bobby zatrzymany
+drill_arriving=Bobby nadjeżdża
+drill_started=Bobby ruszył
+drill_mining=Bobby wydobywa serce kamienia
+drill_broken=Bobby jest uszkodzony
+drill_finished=Bobby zakończył
+drill_out_of_range=Poza zasięgiem Bobby'ego, podejdź bliżej
+drill_fuel_critical=Paliwo krytyczne, 10 procent
+drill_fuel_25=Paliwo 25 procent
+drill_fuel_50=Paliwo 50 procent
+drill_progress_halfway=Bobby w połowie drogi
+drill_progress_percent=Bobby {0} procent drogi
+drill_compass=Bobby: {0}, {1} metrów
+
+# === Enemy Proximity ===
+enemy_exploder_very_close=Eksploder bardzo blisko!
+enemy_boss_very_close=Boss bardzo blisko!
+enemy_elite_very_close=Elita bardzo blisko!
+enemy_exploder_nearby=Eksploder w pobliżu
+enemy_boss_nearby=Boss w pobliżu
+enemy_elite_nearby=Elita w pobliżu
+enemy_nearby_singular=Wróg w pobliżu
+enemy_nearby_plural={0} wrogów w pobliżu
+
+# === Collectibles ===
+collect_red_sugar=Czerwony Cukier
+collect_gear=Sprzęt
+collect_buff=Wzmocnienie
+collect_currency=Waluta
+collect_mineral_vein=Żyła minerału
+collect_loot_crate=Skrzynia z łupem
+collect_xp=PD
+collect_nearby={0} w pobliżu{1}
+collect_closer={0} bliżej{1}
+collect_very_close={0} bardzo blisko{1}
+collect_magnet=Magnes
+collect_speed_boost=Przyspieszenie
+collect_mining_speed=Szybkość wydobycia
+collect_berserk=Szał
+collect_artifact_magnet=Magnes artefaktów
+
+# === Action Feedback ===
+action_bought=Kupiono
+action_cannot_afford=Nie stać cię
+action_sold=Sprzedano
+action_nothing_to_sell=Nie ma nic do sprzedania
+action_cannot_sell=Nie można sprzedać
+action_max_level=Osiągnięto maksymalny poziom
+action_upgraded_to_max=Ulepszono do poziomu {0}/{1}
+action_upgraded_to=Ulepszono do poziomu {0}
+action_purchased=Kupiono {0}
+action_rerolled=Przerzucono
+action_reroll_fail=Nie stać cię na przerzucenie
+action_healed=Uleczono
+action_heal_fail=Nie stać cię na leczenie
+action_equipped=Założono {0}
+action_unequipped=Zdjęto {0}
+action_gear_upgraded=Ulepszono {0}
+action_salvaged=Złomowano {0}
+
+# === Wallet ===
+wallet_unavailable=Portfel niedostępny
+wallet_gold=Złoto: {0}
+wallet_no_currency=Brak waluty
+wallet_error=Nie można odczytać portfela
+
+# === Equipped Gear (T key) ===
+gear_no_inventory=Brak ekwipunku
+gear_no_equipped_panel=Brak panelu założonego sprzętu
+gear_equipped_header=Założony sprzęt
+gear_equipped_none=: Brak
+gear_equipped_error=Nie można odczytać założonego sprzętu
+
+# === Pickups ===
+pickup_healed=Uleczono {0} PŻ
+pickup_gear_named=Podniesiono {0}
+pickup_gear_generic=Podniesiono sprzęt
+pickup_loot_crate={0} skrzynia z łupem
+
+# === HP Reader ===
+hp_no_player=Nie znaleziono gracza
+hp_format=PŻ: {0} / {1}
+hp_format_percent=PŻ: {0}%
+
+# === Objectives ===
+obj_none=Brak celów
+obj_no_active=Brak aktywnych celów
+obj_single=Cel: {0}
+obj_multiple=Cele: {0}
+
+# === Milestones ===
+milestone_none=Brak kamieni milowych
+milestone_empty=Kamienie milowe. W i S aby przeglądać. Brak kamieni milowych w tej kategorii.
+milestone_unavailable=Brak dostępnych kamieni milowych
+milestone_header=Kamienie milowe. {0} elementów. W i S aby przeglądać. {1}
+milestone_progress=Postęp: {0}
+milestone_complete=Ukończono
+milestone_reward=Nagroda: {0}
+milestone_requires=Wymagania: {0}
+
+# === Pause Menu ===
+pause_header=Gra wstrzymana. Góra i dół aby nawigować, Enter aby wybrać, Escape aby wznowić. {0}
+pause_weapons=Bronie. {0}
+pause_artifacts=Artefakty. {0}
+pause_stats=Statystyki. {0}
+pause_level=Poziom {0}
+pause_resume=Wznów
+pause_menu=Menu
+pause_settings=Ustawienia
+pause_no_info=Brak dostępnych informacji
+
+# === End Screen ===
+end_header=Ekran końcowy. Strzałki góra i dół aby nawigować, Enter aby wybrać. {0}
+end_rank_xp=PD rangi: {0}
+end_endless_rank_xp=PD rangi niekończącej: {0}
+end_hazard=Zagrożenie: {0}
+end_stages=Etapy: {0}
+end_credits=Kredyty: {0}
+end_endless_credits=Kredyty niekończącej: {0}
+end_resources=Zasoby:
+end_weapon_report=Raport broni.
+end_level=Poziom {0}
+end_damage=Obrażenia: {0}
+end_dps=OPS: {0}
+end_damage_breakdown=Podział obrażeń
+end_total=Łącznie: {0}
+end_player_stats=Statystyki gracza
+end_exploration=Statystyki eksploracji
+end_no_info=Brak dostępnych informacji
+end_retry=Ponów
+end_continue=Kontynuuj
+end_go_endless=Graj bez końca
+
+# === Mod Settings Menu ===
+setting_wall_nav=Nawigacja ścian
+setting_enemy_detect=Wykrywanie wrogów
+setting_drop_pod=Sygnał kapsuły
+setting_supply_pod=Sygnał strefy zaopatrzenia
+setting_hazard=Ostrzeżenie o zagrożeniu
+setting_collectibles=Przedmioty
+setting_footsteps_toggle=Kroki
+setting_footsteps_vol=Głośność kroków
+setting_boss_attacks=Ataki bossa
+setting_drill_beacon=Sygnał wiertła
+setting_enemy_range=Zasięg wykrywania wrogów
+setting_hazard_range=Zasięg ostrzeżeń o zagrożeniach
+setting_collect_range=Zasięg przedmiotów
+setting_wall_range=Zasięg wykrywania ścian
+setting_max_hazard=Maks. ostrzeżeń o zagrożeniach
+setting_audio_cue_preview=Podgląd sygnałów dźwiękowych
+setting_save=Zapisz zmiany
+setting_cancel=Anuluj
+toggle_on=Włączono
+toggle_off=Wyłączono
+setting_meters={0} metrów
+setting_multiplier={0}x
+setting_saved=Ustawienia zapisane
+setting_cancelled=Zmiany anulowane
+setting_menu_header=Ustawienia moda. Góra i dół aby nawigować, lewo i prawo aby regulować głośność, Enter aby odtworzyć podgląd lub aktywować, F1 lub Escape aby zamknąć.
+
+# === Audio Cue Names + Descriptions ===
+cue_wall_forward=Ściana: Przód
+cue_wall_forward_desc=Ściana przed tobą. Im bliżej, tym głośniej.
+cue_wall_backward=Ściana: Tył
+cue_wall_backward_desc=Ściana za tobą. Im bliżej, tym głośniej.
+cue_wall_sides=Ściana: Boki
+cue_wall_sides_desc=Ściana po lewej lub prawej. Dźwięk przesuwa się na odpowiednią stronę.
+cue_enemy_normal=Wróg: Zwykły
+cue_enemy_normal_desc=Zwykły wróg w pobliżu. Im bliżej, tym szybsze piknięcia.
+cue_enemy_elite=Wróg: Elita
+cue_enemy_elite_desc=Elitarny wróg w pobliżu. Wolniejszy wibrujący dźwięk, inny niż zwykły.
+cue_enemy_boss=Wróg: Boss
+cue_enemy_boss_desc=Boss w pobliżu. Głębokie dudnienie, nie do pomylenia.
+cue_enemy_loot=Rzadki wróg z łupem
+cue_enemy_loot_desc=Złoty Lootbug lub Huuli Hoarder w pobliżu. Jasny wznoszący się dźwięk.
+cue_drop_pod=Sygnał kapsuły
+cue_drop_pod_desc=Prowadzi do kapsuły ekstrakcyjnej. Metaliczny ping sonarowy.
+cue_drop_pod_critical=Kapsuła: Krytyczna bliskość
+cue_drop_pod_critical_desc=Bardzo blisko kapsuły, poniżej 8 metrów. Szybki podwójny sygnał.
+cue_drop_pod_ramp=Kapsuła: Dźwięk rampy
+cue_drop_pod_ramp_desc=Na rampie, poniżej 2,5 metra. Ciągły dźwięk w kierunku wejścia.
+cue_supply_pod=Sygnał strefy zaopatrzenia
+cue_supply_pod_desc=Prowadzi do stref zaopatrzenia. Wibrujący trel.
+cue_drill_beacon=Sygnał wiertła
+cue_drill_beacon_desc=Prowadzi do Bobby'ego podczas misji eskorty. Rytmiczny pulsujący dźwięk.
+cue_hazard=Ostrzeżenie o zagrożeniu
+cue_hazard_desc=Zagrożenie w pobliżu, np. eksplodery lub kolce. Alarm syrenowy.
+cue_red_sugar=Przedmiot: Czerwony Cukier
+cue_red_sugar_desc=Paczka zdrowia w pobliżu. Dźwięk kropli wody.
+cue_gear_drop=Przedmiot: Sprzęt
+cue_gear_drop_desc=Broń lub wyposażenie w pobliżu. Bogaty dwutonowy akord.
+cue_buff=Przedmiot: Wzmocnienie
+cue_buff_desc=Wzmocnienie w pobliżu. Elektryczny brzęczący dźwięk.
+cue_currency=Przedmiot: Waluta
+cue_currency_desc=Złoto lub minerał w pobliżu. Krótki krystaliczny dźwięk.
+cue_mineral=Przedmiot: Żyła minerału
+cue_mineral_desc=Żyła minerału do wydobycia w pobliżu. Metaliczne kliknięcie.
+cue_loot_crate=Przedmiot: Skrzynia z łupem
+cue_loot_crate_desc=Skrzynia z łupem w pobliżu. Migoczący iskrzący dźwięk.
+cue_xp=Przedmiot: PD w pobliżu
+cue_xp_desc=Kule doświadczenia na ziemi. Cichy ciągły dźwięk.
+cue_boss_charge=Boss: Szarża
+cue_boss_charge_desc=Boss szarżuje na ciebie. 3 szybkie agresywne sygnały.
+cue_boss_spikes=Boss: Kolce
+cue_boss_spikes_desc=Boss tworzy kolce z ziemi. 3 średnie głębokie sygnały.
+cue_boss_fireball=Boss: Kula ognia
+cue_boss_fireball_desc=Boss strzela pociskami. 3 bardzo szybkie ostre sygnały.
+cue_boss_heal=Boss: Leczenie
+cue_boss_heal_desc=Boss się leczy. 3 wolne łagodne sygnały.
+cue_audio_preview_header=Podgląd sygnałów dźwiękowych. Góra i dół aby nawigować, Enter aby odtworzyć, Escape aby wrócić. {0}. {1}
+
+# === UI Common ===
+ui_locked=Zablokowane
+ui_completed=Ukończone
+ui_equipped=Założone
+ui_empty=Puste
+ui_on=Włączone
+ui_off=Wyłączone
+ui_pinned=Przypięte
+ui_unpinned=Odpięte
+ui_active=Aktywne
+ui_previous=Poprzedni
+ui_next=Następny
+ui_new=Nowe
+ui_favorite=Ulubione
+ui_item=przedmiot
+ui_selector=Wybierak
+ui_points=punkty
+ui_price=Cena: {0}
+ui_price_currency=Cena: {0} {1}
+ui_cannot_afford=Nie stać cię
+
+# === Save Slot ===
+save_slot=Slot zapisu {0}
+
+# === Class Selection ===
+class_unlock_rank=Odblokowanie na randze gracza {0}
+class_unlock_requirement=Zablokowane. Wymaga {0} ukończeń klasy do odblokowania
+class_weapon=Broń: {0}
+class_damage_type=Typ obrażeń: {0}
+
+# === Gear ===
+gear_fallback=Sprzęt
+gear_tier=Poziom {0}
+gear_stats=Statystyki: {0}
+gear_upgrade_cost=Koszt ulepszenia: {0}
+gear_upgrade_available=Ulepszenie dostępne
+gear_sell_value=Wartość sprzedaży: {0}
+gear_sell_available=Sprzedaż dostępna
+gear_level=Poziom {0}/{1}
+gear_level_no_max=Poziom {0}
+gear_cost=Koszt: {0}
+gear_max_level=Maksymalny poziom
+gear_slot_armor=Zbroja
+gear_slot_companion=Towarzysz
+gear_slot_grinder=Grinder
+gear_slot_tank=Tank
+gear_slot_tool=Narzędzie
+gear_slot_weapon_mod=Modyfikacja broni
+
+# === Mission ===
+mission_sector=Sektor {0}
+mission_gate=Brama {0}
+mission_node=Węzeł misji
+mission_high_score=Najlepszy wynik: {0}
+mission_fixed_run=Stała wyprawa
+mission_hazard=Zagrożenie {0}
+
+# === Wallet Currencies ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=Artifact Rerolls
+wallet_mutator_rerolls=Mutator Rerolls
+wallet_ommoran_core=Ommoran Core

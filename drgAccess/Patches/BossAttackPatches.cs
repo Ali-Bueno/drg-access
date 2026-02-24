@@ -5,6 +5,7 @@ using HarmonyLib;
 using UnityEngine;
 using DRS.UI;
 using drgAccess.Components;
+using drgAccess.Helpers;
 
 namespace drgAccess.Patches
 {
@@ -30,7 +31,7 @@ namespace drgAccess.Patches
         {
             try
             {
-                ScreenReader.Interrupt("Charge!");
+                ScreenReader.Interrupt(ModLocalization.Get("boss_charge"));
                 var pos = GetBossPosition(__instance);
                 BossAttackAudio.PlayAttackSound(BossAttackType.Charge, pos);
             }
@@ -46,7 +47,7 @@ namespace drgAccess.Patches
         {
             try
             {
-                ScreenReader.Interrupt("Spikes!");
+                ScreenReader.Interrupt(ModLocalization.Get("boss_spikes"));
                 var pos = GetBossPosition(__instance);
                 BossAttackAudio.PlayAttackSound(BossAttackType.Spikes, pos);
             }
@@ -63,7 +64,7 @@ namespace drgAccess.Patches
         {
             try
             {
-                ScreenReader.Interrupt("Fireball!");
+                ScreenReader.Interrupt(ModLocalization.Get("boss_fireball"));
                 var pos = GetBossPosition(__instance);
                 BossAttackAudio.PlayAttackSound(BossAttackType.Fireball, pos);
             }
@@ -81,7 +82,7 @@ namespace drgAccess.Patches
             {
                 if (state)
                 {
-                    ScreenReader.Interrupt("Healing!");
+                    ScreenReader.Interrupt(ModLocalization.Get("boss_healing"));
                     var pos = GetBossPosition(__instance);
                     BossAttackAudio.PlayAttackSound(BossAttackType.Heal, pos);
                 }
@@ -130,7 +131,7 @@ namespace drgAccess.Patches
                 try
                 {
                     lastAnnouncedThreshold = 100;
-                    ScreenReader.Interrupt("Boss!");
+                    ScreenReader.Interrupt(ModLocalization.Get("boss_appeared"));
                 }
                 catch (Exception e)
                 {
@@ -152,7 +153,7 @@ namespace drgAccess.Patches
                     if (hpPercent <= threshold && lastAnnouncedThreshold > threshold)
                     {
                         lastAnnouncedThreshold = threshold;
-                        ScreenReader.Interrupt($"Boss {threshold}%");
+                        ScreenReader.Interrupt(ModLocalization.Get("boss_hp_percent", threshold));
                         break;
                     }
                 }
@@ -170,7 +171,7 @@ namespace drgAccess.Patches
             try
             {
                 BossAttackAudio.StopAll();
-                ScreenReader.Interrupt("Boss defeated!");
+                ScreenReader.Interrupt(ModLocalization.Get("boss_defeated"));
                 lastAnnouncedThreshold = 100;
             }
             catch (Exception e)
@@ -187,7 +188,7 @@ namespace drgAccess.Patches
             {
                 if (Time.time - lastHealAnnounceTime < HEAL_ANNOUNCE_COOLDOWN) return;
                 lastHealAnnounceTime = Time.time;
-                ScreenReader.Say("Boss healed");
+                ScreenReader.Say(ModLocalization.Get("boss_healed"));
             }
             catch (Exception e)
             {

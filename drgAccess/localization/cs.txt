@@ -1,0 +1,363 @@
+# DRG Access Mod - Čeština (cs)
+# Upravte tento soubor pro přizpůsobení hlášek modu v češtině.
+# Formát: klíč=hodnota (jeden na řádek). Řádky začínající # jsou komentáře.
+
+# === Mod ===
+mod_loaded=Mod přístupnosti DRG Survivor načten
+
+# === Directions (top-down: up=W, down=S, left=A, right=D) ===
+dir_up=nahoru
+dir_down=dolů
+dir_left=vlevo
+dir_right=vpravo
+dir_up_left=vlevo nahoru
+dir_up_right=vpravo nahoru
+dir_down_left=vlevo dolů
+dir_down_right=vpravo dolů
+dir_ahead=vpředu
+
+# === Form Announcements ===
+form_main_menu=Hlavní nabídka
+form_play_menu=Nabídka hry
+form_settings=Nastavení
+form_gear_inventory=Inventář vybavení
+form_stat_upgrades=Vylepšení statistik
+form_shop=Obchod
+form_skin_overrides=Změna vzhledů
+form_loading=Načítání
+form_level_up=Nová úroveň
+form_level_up_title=Nová úroveň: {0}
+form_overclock=Přetaktování
+form_overclock_weapon=Přetaktování: {0}
+form_unlock=Odemknutí
+form_mastery_unlock=Odemknutí mistrovství
+form_run_summary=Shrnutí běhu
+form_credits=Kredity: {0}
+form_xp=XP: {0}
+form_rank=Hodnost: {0}
+form_mutator_selection=Výběr mutátoru
+form_gear_found=Nalezené vybavení
+form_gear_details=Detail vybavení
+form_score=Skóre
+form_splash_press_key=Stiskněte libovolnou klávesu
+form_brightness_instructions=Nastavení jasu. Šipkami vlevo a vpravo upravte jas, pak potvrďte Enterem
+form_brightness_short=Nastavení jasu. Šipkami vlevo a vpravo upravte, Enter pro potvrzení
+form_brightness_confirmed=Jas potvrzen
+form_save_slot_selection=Výběr uloženého slotu
+form_delete_confirm=Smazat uložený slot {0}? Enter pro potvrzení, Escape pro zrušení
+form_delete_confirm_generic=Smazat uložený slot? Enter pro potvrzení, Escape pro zrušení
+form_save_deleted=Uložený slot smazán
+form_cancelled=Zrušeno
+
+# === Boss ===
+boss_charge=Náraz!
+boss_spikes=Hroty!
+boss_fireball=Ohnivá koule!
+boss_healing=Léčení!
+boss_appeared=Boss!
+boss_hp_percent=Boss {0}%
+boss_defeated=Boss poražen!
+boss_healed=Boss se vyléčil
+
+# === Drop Pod ===
+pod_inside=Uvnitř modulu
+pod_almost_inside=Skoro uvnitř, pokračujte
+pod_near_ramp=Blízko modulu, následujte tón dovnitř
+pod_very_close=Záchranný modul velmi blízko
+pod_compass_ramp=Vstup do modulu: {0}, {1}
+pod_compass_normal=Záchranný modul: {0}, {1} metrů
+
+# === Supply Zone ===
+zone_inside=Uvnitř zásobovací zóny
+zone_left_activating=Opuštěna zásobovací zóna, vraťte se
+zone_left=Opuštěna zásobovací zóna
+zone_complete=Zásobovací zóna dokončena
+zone_clearing=Čištění zóny, {0} kamenů k vytěžení
+zone_activating=Zóna se aktivuje
+zone_rocks_remaining=Zbývá {0} kamenů
+zone_all_cleared=Všechny kameny vytěženy
+zone_timer=Zbývá {0} sekund
+
+# === Drill Beacon (Bobby) ===
+drill_stopped=Bobby se zastavil
+drill_arriving=Bobby přijíždí
+drill_started=Bobby se rozjel
+drill_mining=Bobby těží srdcový kámen
+drill_broken=Bobby je poškozený
+drill_finished=Bobby dokončil
+drill_out_of_range=Mimo dosah Bobbyho, přibližte se
+drill_fuel_critical=Kritická úroveň paliva, 10 procent
+drill_fuel_25=Palivo 25 procent
+drill_fuel_50=Palivo 50 procent
+drill_progress_halfway=Bobby v polovině cesty
+drill_progress_percent=Bobby na {0} procentech cesty
+drill_compass=Bobby: {0}, {1} metrů
+
+# === Enemy Proximity ===
+enemy_exploder_very_close=Výbušný velmi blízko!
+enemy_boss_very_close=Boss velmi blízko!
+enemy_elite_very_close=Elitní velmi blízko!
+enemy_exploder_nearby=Výbušný poblíž
+enemy_boss_nearby=Boss poblíž
+enemy_elite_nearby=Elitní poblíž
+enemy_nearby_singular=Nepřítel poblíž
+enemy_nearby_plural={0} nepřátel poblíž
+
+# === Collectibles ===
+collect_red_sugar=Červený cukr
+collect_gear=Vybavení
+collect_buff=Bonus
+collect_currency=Měna
+collect_mineral_vein=Žíla minerálu
+collect_loot_crate=Truhla s kořistí
+collect_xp=XP
+collect_nearby={0} poblíž{1}
+collect_closer={0} blíže{1}
+collect_very_close={0} velmi blízko{1}
+collect_magnet=Magnet
+collect_speed_boost=Zrychlení
+collect_mining_speed=Rychlost těžby
+collect_berserk=Berserk
+collect_artifact_magnet=Magnet artefaktů
+
+# === Action Feedback ===
+action_bought=Koupeno
+action_cannot_afford=Nedostatek prostředků
+action_sold=Prodáno
+action_nothing_to_sell=Nic k prodeji
+action_cannot_sell=Nelze prodat
+action_max_level=Maximální úroveň dosažena
+action_upgraded_to_max=Vylepšeno na úroveň {0}/{1}
+action_upgraded_to=Vylepšeno na úroveň {0}
+action_purchased=Zakoupeno: {0}
+action_rerolled=Přehozeno
+action_reroll_fail=Nedostatek prostředků na přehození
+action_healed=Vyléčeno
+action_heal_fail=Nedostatek prostředků na léčení
+action_equipped=Nasazeno: {0}
+action_unequipped=Sundáno: {0}
+action_gear_upgraded=Vylepšeno: {0}
+action_salvaged=Rozebráno: {0}
+
+# === Wallet ===
+wallet_unavailable=Peněženka nedostupná
+wallet_gold=Zlato: {0}
+wallet_no_currency=Žádná měna
+wallet_error=Nelze přečíst peněženku
+
+# === Equipped Gear (T key) ===
+gear_no_inventory=Žádný inventář vybavení
+gear_no_equipped_panel=Žádný panel nasazeného vybavení
+gear_equipped_header=Nasazené vybavení
+gear_equipped_none=: Nic
+gear_equipped_error=Nelze přečíst nasazené vybavení
+
+# === Pickups ===
+pickup_healed=Vyléčeno {0} HP
+pickup_gear_named=Sebráno: {0}
+pickup_gear_generic=Vybavení sebráno
+pickup_loot_crate=Truhla s kořistí ({0})
+
+# === HP Reader ===
+hp_no_player=Hráč nenalezen
+hp_format=HP: {0} / {1}
+hp_format_percent=HP: {0}%
+
+# === Objectives ===
+obj_none=Žádné úkoly
+obj_no_active=Žádné aktivní úkoly
+obj_single=Úkol: {0}
+obj_multiple=Úkoly: {0}
+
+# === Milestones ===
+milestone_none=Žádné milníky
+milestone_empty=Milníky. W a S pro procházení. V této kategorii nejsou žádné milníky.
+milestone_unavailable=Žádné milníky k dispozici
+milestone_header=Milníky. {0} položek. W a S pro procházení. {1}
+milestone_progress=Postup: {0}
+milestone_complete=Dokončeno
+milestone_reward=Odměna: {0}
+milestone_requires=Vyžaduje: {0}
+
+# === Pause Menu ===
+pause_header=Hra pozastavena. Šipkami nahoru a dolů procházejte, Enter pro výběr, Escape pro pokračování. {0}
+pause_weapons=Zbraně. {0}
+pause_artifacts=Artefakty. {0}
+pause_stats=Statistiky. {0}
+pause_level=Úroveň {0}
+pause_resume=Pokračovat
+pause_menu=Nabídka
+pause_settings=Nastavení
+pause_no_info=Žádné informace
+
+# === End Screen ===
+end_header=Konec hry. Šipkami nahoru a dolů procházejte, Enter pro výběr. {0}
+end_rank_xp=XP hodnosti: {0}
+end_endless_rank_xp=XP nekonečné hodnosti: {0}
+end_hazard=Nebezpečí: {0}
+end_stages=Etapy: {0}
+end_credits=Kredity: {0}
+end_endless_credits=Nekonečné kredity: {0}
+end_resources=Zdroje:
+end_weapon_report=Hlášení o zbraních.
+end_level=Úroveň {0}
+end_damage=Poškození: {0}
+end_dps=DPS: {0}
+end_damage_breakdown=Rozdělení poškození
+end_total=Celkem: {0}
+end_player_stats=Statistiky hráče
+end_exploration=Statistiky průzkumu
+end_no_info=Žádné informace
+end_retry=Znovu
+end_continue=Pokračovat
+end_go_endless=Nekonečný režim
+
+# === Mod Settings Menu ===
+setting_wall_nav=Navigace zdí
+setting_enemy_detect=Detekce nepřátel
+setting_drop_pod=Maják záchranného modulu
+setting_supply_pod=Maják zásobovacího modulu
+setting_hazard=Varování před nebezpečím
+setting_collectibles=Sběratelské předměty
+setting_footsteps_toggle=Kroky
+setting_footsteps_vol=Hlasitost kroků
+setting_boss_attacks=Útoky bosse
+setting_drill_beacon=Maják vrtačky
+setting_enemy_range=Dosah detekce nepřátel
+setting_hazard_range=Dosah varování před nebezpečím
+setting_collect_range=Dosah sběratelských předmětů
+setting_wall_range=Dosah detekce zdí
+setting_max_hazard=Max. varování před nebezpečím
+setting_audio_cue_preview=Náhled zvukových signálů
+setting_save=Uložit změny
+setting_cancel=Zrušit
+toggle_on=Zapnuto
+toggle_off=Vypnuto
+setting_meters={0} metrů
+setting_multiplier={0}x
+setting_saved=Nastavení uloženo
+setting_cancelled=Změny zrušeny
+setting_menu_header=Nastavení modu. Šipkami nahoru a dolů procházejte, vlevo a vpravo upravujte hlasitost, Enter pro náhled nebo potvrzení, F1 nebo Escape pro zavření.
+
+# === Audio Cue Names + Descriptions ===
+cue_wall_forward=Zeď: Vpředu
+cue_wall_forward_desc=Zeď vpředu. Čím blíže, tím hlasitěji.
+cue_wall_backward=Zeď: Vzadu
+cue_wall_backward_desc=Zeď za vámi. Čím blíže, tím hlasitěji.
+cue_wall_sides=Zeď: Po stranách
+cue_wall_sides_desc=Zeď vlevo nebo vpravo. Zvuk se přesouvá na příslušnou stranu.
+cue_enemy_normal=Nepřítel: Běžný
+cue_enemy_normal_desc=Běžný nepřítel poblíž. Čím blíže, tím rychlejší pípání.
+cue_enemy_elite=Nepřítel: Elitní
+cue_enemy_elite_desc=Elitní nepřítel poblíž. Pomalejší vibrující tón, odlišný od běžného.
+cue_enemy_boss=Nepřítel: Boss
+cue_enemy_boss_desc=Boss poblíž. Hluboký dunivý zvuk, nezaměnitelný.
+cue_enemy_loot=Vzácný kořistní nepřítel
+cue_enemy_loot_desc=Zlatý Lootbug nebo Huuli Hoarder poblíž. Jasný stoupající zvonkohra.
+cue_drop_pod=Maják záchranného modulu
+cue_drop_pod_desc=Navádí vás k záchrannému modulu. Kovový sonarový ping.
+cue_drop_pod_critical=Záchranný modul: Kritická vzdálenost
+cue_drop_pod_critical_desc=Velmi blízko modulu, pod 8 metrů. Rychlé dvojité pípnutí.
+cue_drop_pod_ramp=Záchranný modul: Tón rampy
+cue_drop_pod_ramp_desc=Na rampě, pod 2,5 metru. Nepřetržitý tón směrem ke vstupu.
+cue_supply_pod=Maják zásobovacího modulu
+cue_supply_pod_desc=Navádí vás k zásobovacím zónám. Kolísavý trylek.
+cue_drill_beacon=Maják vrtačky
+cue_drill_beacon_desc=Navádí vás k Bobbymu během eskortních misí. Rytmický pulzující zvuk.
+cue_hazard=Varování před nebezpečím
+cue_hazard_desc=Nebezpečí poblíž, jako výbušní nepřátelé nebo pozemní hroty. Siréna.
+cue_red_sugar=Sběr: Červený cukr
+cue_red_sugar_desc=Lék poblíž. Zvuk kapky vody.
+cue_gear_drop=Sběr: Vybavení
+cue_gear_drop_desc=Zbraň nebo vybavení poblíž. Dvoutónový akord.
+cue_buff=Sběr: Bonus
+cue_buff_desc=Bonus poblíž. Elektrický bzučivý tón.
+cue_currency=Sběr: Měna
+cue_currency_desc=Zlato nebo minerál poblíž. Krátký křišťálový zvonkohra.
+cue_mineral=Sběr: Žíla minerálu
+cue_mineral_desc=Těžitelná žíla poblíž. Kovové cinknutí.
+cue_loot_crate=Sběr: Truhla s kořistí
+cue_loot_crate_desc=Truhla s kořistí poblíž. Třpytivé jiskření.
+cue_xp=Sběr: XP poblíž
+cue_xp_desc=XP koule na zemi. Tichý nepřetržitý tón.
+cue_boss_charge=Boss: Náraz
+cue_boss_charge_desc=Boss se na vás řítí. 3 rychlá agresivní pípnutí.
+cue_boss_spikes=Boss: Hroty
+cue_boss_spikes_desc=Boss vytváří pozemní hroty. 3 střední hluboká pípnutí.
+cue_boss_fireball=Boss: Ohnivá koule
+cue_boss_fireball_desc=Boss střílí projektily. 3 velmi rychlá ostrá pípnutí.
+cue_boss_heal=Boss: Léčení
+cue_boss_heal_desc=Boss se léčí. 3 pomalá jemná pípnutí.
+cue_audio_preview_header=Náhled zvukových signálů. Šipkami nahoru a dolů procházejte, Enter pro přehrání, Escape pro návrat. {0}. {1}
+
+# === UI Common ===
+ui_locked=Zamčeno
+ui_completed=Dokončeno
+ui_equipped=Nasazeno
+ui_empty=Prázdné
+ui_on=Zapnuto
+ui_off=Vypnuto
+ui_pinned=Připnuto
+ui_unpinned=Odepnuto
+ui_active=Aktivní
+ui_previous=Předchozí
+ui_next=Další
+ui_new=Nové
+ui_favorite=Oblíbené
+ui_item=předmět
+ui_selector=Volič
+ui_points=body
+ui_price=Cena: {0}
+ui_price_currency=Cena: {0} {1}
+ui_cannot_afford=Nedostatek prostředků
+
+# === Save Slot ===
+save_slot=Uložený slot {0}
+
+# === Class Selection ===
+class_unlock_rank=Odemkne se na hodnosti hráče {0}
+class_unlock_requirement=Zamčeno. Vyžaduje {0} dokončení třídy k odemknutí
+class_weapon=Zbraň: {0}
+class_damage_type=Typ poškození: {0}
+
+# === Gear ===
+gear_fallback=Vybavení
+gear_tier=Úroveň {0}
+gear_stats=Statistiky: {0}
+gear_upgrade_cost=Cena vylepšení: {0}
+gear_upgrade_available=Vylepšení dostupné
+gear_sell_value=Prodejní hodnota: {0}
+gear_sell_available=Prodej dostupný
+gear_level=Úroveň {0}/{1}
+gear_level_no_max=Úroveň {0}
+gear_cost=Cena: {0}
+gear_max_level=Maximální úroveň
+gear_slot_armor=Brnění
+gear_slot_companion=Společník
+gear_slot_grinder=Grinder
+gear_slot_tank=Tank
+gear_slot_tool=Nástroj
+gear_slot_weapon_mod=Modifikace zbraně
+
+# === Mission ===
+mission_sector=Sektor {0}
+mission_gate=Brána {0}
+mission_node=Uzel mise
+mission_high_score=Nejlepší skóre: {0}
+mission_fixed_run=Pevný běh
+mission_hazard=Nebezpečí {0}
+
+# === Wallet Currencies ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=Artifact Rerolls
+wallet_mutator_rerolls=Mutator Rerolls
+wallet_ommoran_core=Ommoran Core

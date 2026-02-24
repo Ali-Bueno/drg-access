@@ -313,7 +313,7 @@ public static partial class UIButtonPatch
         {
             // Check if this is an empty slot
             if (!shopButton.HasContent())
-                return "Empty";
+                return ModLocalization.Get("ui_empty");
 
             var skillData = shopButton.skillData;
             if (skillData != null)
@@ -358,14 +358,14 @@ public static partial class UIButtonPatch
                         catch { }
 
                         if (!string.IsNullOrEmpty(currencyName))
-                            sb.Append($". Price: {priceAmount} {currencyName}");
+                            sb.Append(". " + ModLocalization.Get("ui_price_currency", priceAmount, currencyName));
                         else
-                            sb.Append(". Price: " + priceAmount);
+                            sb.Append(". " + ModLocalization.Get("ui_price", priceAmount));
                     }
 
                     // Affordability
                     if (!shopButton.canAfford)
-                        sb.Append(", Cannot afford");
+                        sb.Append(", " + ModLocalization.Get("ui_cannot_afford"));
 
                     return sb.ToString();
                 }
@@ -437,16 +437,16 @@ public static partial class UIButtonPatch
 
                 if (sb.Length > 0) sb.Append(". ");
                 if (!string.IsNullOrEmpty(currencyName))
-                    sb.Append($"Price: {priceAmount} {currencyName}");
+                    sb.Append(ModLocalization.Get("ui_price_currency", priceAmount, currencyName));
                 else
-                    sb.Append($"Price: {priceAmount}");
+                    sb.Append(ModLocalization.Get("ui_price", priceAmount));
             }
 
             // Affordability
             if (!buttonPrice.canAfford)
             {
                 if (sb.Length > 0) sb.Append(", ");
-                sb.Append("Cannot afford");
+                sb.Append(ModLocalization.Get("ui_cannot_afford"));
             }
 
             return sb.Length > 0 ? sb.ToString() : null;
@@ -472,14 +472,14 @@ public static partial class UIButtonPatch
 
                 if (isLocked)
                 {
-                    result += ", Locked";
+                    result += ", " + ModLocalization.Get("ui_locked");
                 }
 
                 return result;
             }
 
             int hazLevel = hazLevelButton.hazLevel;
-            return $"Hazard {hazLevel}";
+            return ModLocalization.Get("mission_hazard", hazLevel);
         }
         catch (System.Exception ex)
         {
@@ -501,12 +501,12 @@ public static partial class UIButtonPatch
             string pinItemName = FindShopPinItemName(sliderToggle);
             if (pinItemName != null)
             {
-                string pinState = isToggled ? "Pinned" : "Unpinned";
+                string pinState = isToggled ? ModLocalization.Get("ui_pinned") : ModLocalization.Get("ui_unpinned");
                 return $"Pin {pinItemName}, {pinState}";
             }
 
             // Not a shop pin toggle — use generic label detection
-            string state = isToggled ? "On" : "Off";
+            string state = isToggled ? ModLocalization.Get("ui_on") : ModLocalization.Get("ui_off");
             string labelText = "";
 
             // 1. Check buttonText field
@@ -561,7 +561,7 @@ public static partial class UIButtonPatch
                     var skillData = btn.SkillData;
                     if (skillData != null && !string.IsNullOrEmpty(skillData.Title))
                         return TextHelper.CleanText(skillData.Title);
-                    return "item";
+                    return ModLocalization.Get("ui_item");
                 }
             }
         }
@@ -592,13 +592,13 @@ public static partial class UIButtonPatch
             if (pointsText != null && !string.IsNullOrEmpty(pointsText.text))
             {
                 if (sb.Length > 0) sb.Append(". ");
-                sb.Append(TextHelper.CleanText(pointsText.text) + " points");
+                sb.Append(TextHelper.CleanText(pointsText.text) + " " + ModLocalization.Get("ui_points"));
             }
 
             if (button.isToggled)
             {
                 if (sb.Length > 0) sb.Append(", ");
-                sb.Append("Active");
+                sb.Append(ModLocalization.Get("ui_active"));
             }
 
             return sb.Length > 0 ? sb.ToString() : null;
@@ -641,7 +641,7 @@ public static partial class UIButtonPatch
 
             // Add price
             int price = button.marketAction == UIMineralMarketButton.EMineralMarketAction.BUY ? button.buyPrice : button.sellPrice;
-            sb.Append($", Price: {price}");
+            sb.Append(", " + ModLocalization.Get("ui_price", price));
 
             return sb.ToString();
         }
@@ -694,13 +694,13 @@ public static partial class UIButtonPatch
         try
         {
             int slotNum = (int)slot.SaveSlot + 1;
-            var sb = new StringBuilder($"Save Slot {slotNum}");
+            var sb = new StringBuilder(ModLocalization.Get("save_slot", slotNum));
 
             // Check if slot has data by looking at the rank value text
             var rankVal = slot.playerRankValueText;
             if (rankVal == null || string.IsNullOrEmpty(rankVal.text))
             {
-                sb.Append(", Empty");
+                sb.Append(", " + ModLocalization.Get("ui_empty"));
                 return sb.ToString();
             }
 
@@ -816,9 +816,9 @@ public static partial class UIButtonPatch
             // Determine direction
             string direction = "";
             if (selector.leftButton != null && button.gameObject == selector.leftButton.gameObject)
-                direction = "Previous";
+                direction = ModLocalization.Get("ui_previous");
             else if (selector.rightButton != null && button.gameObject == selector.rightButton.gameObject)
-                direction = "Next";
+                direction = ModLocalization.Get("ui_next");
 
             // Find value text: look for TMP that's NOT inside leftButton or rightButton
             string value = null;
@@ -853,11 +853,11 @@ public static partial class UIButtonPatch
                 if (sb.Length > 0) sb.Append(". ");
                 sb.Append(direction);
             }
-            return sb.Length > 0 ? sb.ToString() : "Selector";
+            return sb.Length > 0 ? sb.ToString() : ModLocalization.Get("ui_selector");
         }
         catch
         {
-            return "Selector";
+            return ModLocalization.Get("ui_selector");
         }
     }
 }

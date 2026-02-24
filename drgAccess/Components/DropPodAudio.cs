@@ -433,7 +433,7 @@ namespace drgAccess.Components
             beepGenerator.Active = false;
             rampToneGenerator.Volume = 0f;
 
-            ScreenReader.Interrupt("Inside the pod");
+            ScreenReader.Interrupt(ModLocalization.Get("pod_inside"));
             Plugin.Log.LogInfo("[DropPodAudio] Player entered pod - beacon stopped");
         }
 
@@ -551,14 +551,14 @@ namespace drgAccess.Components
                 bool isRight = rightDot > 0.38f;
                 bool isLeft = rightDot < -0.38f;
 
-                if (isUp && isRight) return "up-right";
-                if (isUp && isLeft) return "up-left";
-                if (isDown && isRight) return "down-right";
-                if (isDown && isLeft) return "down-left";
-                if (isUp) return "up";
-                if (isDown) return "down";
-                if (isRight) return "right";
-                if (isLeft) return "left";
+                if (isUp && isRight) return ModLocalization.Get("dir_up_right");
+                if (isUp && isLeft) return ModLocalization.Get("dir_up_left");
+                if (isDown && isRight) return ModLocalization.Get("dir_down_right");
+                if (isDown && isLeft) return ModLocalization.Get("dir_down_left");
+                if (isUp) return ModLocalization.Get("dir_up");
+                if (isDown) return ModLocalization.Get("dir_down");
+                if (isRight) return ModLocalization.Get("dir_right");
+                if (isLeft) return ModLocalization.Get("dir_left");
                 return "here";
             }
             catch { return "unknown"; }
@@ -650,13 +650,13 @@ namespace drgAccess.Components
                     if (isVeryClose && !announcedInteriorClose)
                     {
                         announcedInteriorClose = true;
-                        ScreenReader.Interrupt("Almost inside, keep going");
+                        ScreenReader.Interrupt(ModLocalization.Get("pod_almost_inside"));
                     }
 
                     if (!announcedRampProximity)
                     {
                         announcedRampProximity = true;
-                        ScreenReader.Interrupt("Near the pod, follow the tone inside");
+                        ScreenReader.Interrupt(ModLocalization.Get("pod_near_ramp"));
                     }
                 }
                 else
@@ -690,7 +690,7 @@ namespace drgAccess.Components
                     if (!announcedCriticalProximity)
                     {
                         announcedCriticalProximity = true;
-                        ScreenReader.Interrupt("Drop pod very close");
+                        ScreenReader.Interrupt(ModLocalization.Get("pod_very_close"));
                     }
                 }
                 else
@@ -749,20 +749,20 @@ namespace drgAccess.Components
                     bool isLeft = rightDot < -0.38f;
 
                     string dir = "here";
-                    if (isUp && isRight) dir = "up-right";
-                    else if (isUp && isLeft) dir = "up-left";
-                    else if (isDown && isRight) dir = "down-right";
-                    else if (isDown && isLeft) dir = "down-left";
-                    else if (isUp) dir = "up";
-                    else if (isDown) dir = "down";
-                    else if (isRight) dir = "right";
-                    else if (isLeft) dir = "left";
+                    if (isUp && isRight) dir = ModLocalization.Get("dir_up_right");
+                    else if (isUp && isLeft) dir = ModLocalization.Get("dir_up_left");
+                    else if (isDown && isRight) dir = ModLocalization.Get("dir_down_right");
+                    else if (isDown && isLeft) dir = ModLocalization.Get("dir_down_left");
+                    else if (isUp) dir = ModLocalization.Get("dir_up");
+                    else if (isDown) dir = ModLocalization.Get("dir_down");
+                    else if (isRight) dir = ModLocalization.Get("dir_right");
+                    else if (isLeft) dir = ModLocalization.Get("dir_left");
 
                     string distText = interiorDist < 1f
                         ? $"{interiorDist:0.#} meters"
                         : $"{Mathf.RoundToInt(interiorDist)} meters";
 
-                    ScreenReader.Interrupt($"Pod entrance: {dir}, {distText}");
+                    ScreenReader.Interrupt(ModLocalization.Get("pod_compass_ramp", dir, distText));
                 }
                 else
                 {
@@ -774,7 +774,7 @@ namespace drgAccess.Components
                     string direction = GetScreenDirection();
                     int meters = Mathf.RoundToInt(distance);
 
-                    ScreenReader.Interrupt($"Drop pod: {direction}, {meters} meters");
+                    ScreenReader.Interrupt(ModLocalization.Get("pod_compass_normal", direction, meters));
                 }
             }
             catch (Exception e)

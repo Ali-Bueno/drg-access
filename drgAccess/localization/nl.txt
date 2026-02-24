@@ -1,0 +1,363 @@
+# DRG Access Mod - Nederlands (nl)
+# Bewerk dit bestand om modberichten aan te passen voor je taal.
+# Formaat: sleutel=waarde (een per regel). Regels die beginnen met # zijn opmerkingen.
+
+# === Mod ===
+mod_loaded=DRG Survivor Toegankelijkheidsmod geladen
+
+# === Directions (top-down: boven=W, onder=S, links=A, rechts=D) ===
+dir_up=boven
+dir_down=onder
+dir_left=links
+dir_right=rechts
+dir_up_left=linksboven
+dir_up_right=rechtsboven
+dir_down_left=linksonder
+dir_down_right=rechtsonder
+dir_ahead=vooruit
+
+# === Form Announcements ===
+form_main_menu=Hoofdmenu
+form_play_menu=Spelmenu
+form_settings=Instellingen
+form_gear_inventory=Uitrustingsinventaris
+form_stat_upgrades=Stat-upgrades
+form_shop=Winkel
+form_skin_overrides=Skinwijzigingen
+form_loading=Laden
+form_level_up=Level omhoog
+form_level_up_title=Level omhoog: {0}
+form_overclock=Overklok
+form_overclock_weapon=Overklok: {0}
+form_unlock=Ontgrendeling
+form_mastery_unlock=Meesterschap ontgrendeld
+form_run_summary=Runoverzicht
+form_credits=Credits: {0}
+form_xp=XP: {0}
+form_rank=Rang: {0}
+form_mutator_selection=Mutatorselectie
+form_gear_found=Uitrusting gevonden
+form_gear_details=Uitrustingsdetails
+form_score=Score
+form_splash_press_key=Druk op een toets
+form_brightness_instructions=Helderheidsaanpassing. Gebruik pijltjes links en rechts om de helderheid aan te passen en druk op Enter om te bevestigen
+form_brightness_short=Helderheidsaanpassing. Pijltjes links en rechts om aan te passen, Enter om te bevestigen
+form_brightness_confirmed=Helderheid bevestigd
+form_save_slot_selection=Opslagslot selectie
+form_delete_confirm=Opslagslot {0} verwijderen? Druk op Enter om te bevestigen, Escape om te annuleren
+form_delete_confirm_generic=Opslagslot verwijderen? Druk op Enter om te bevestigen, Escape om te annuleren
+form_save_deleted=Opslagslot verwijderd
+form_cancelled=Geannuleerd
+
+# === Boss ===
+boss_charge=Charge!
+boss_spikes=Stekels!
+boss_fireball=Vuurbal!
+boss_healing=Genezing!
+boss_appeared=Baas!
+boss_hp_percent=Baas {0}%
+boss_defeated=Baas verslagen!
+boss_healed=Baas genezen
+
+# === Drop Pod ===
+pod_inside=In de pod
+pod_almost_inside=Bijna binnen, doorlopen
+pod_near_ramp=Dichtbij de pod, volg de toon naar binnen
+pod_very_close=Droppod heel dichtbij
+pod_compass_ramp=Podingang: {0}, {1}
+pod_compass_normal=Droppod: {0}, {1} meter
+
+# === Supply Zone ===
+zone_inside=In de bevoorradingszone
+zone_left_activating=Bevoorradingszone verlaten, keer terug naar de zone
+zone_left=Bevoorradingszone verlaten
+zone_complete=Bevoorradingszone voltooid
+zone_clearing=Zone leegmaken, {0} rotsen te mijnen
+zone_activating=Zone wordt geactiveerd
+zone_rocks_remaining={0} rotsen over
+zone_all_cleared=Alle rotsen verwijderd
+zone_timer={0} seconden resterend
+
+# === Drill Beacon (Bobby) ===
+drill_stopped=Bobby gestopt
+drill_arriving=Bobby arriveert
+drill_started=Bobby gestart
+drill_mining=Bobby mijnt de hartsteen
+drill_broken=Bobby is kapot
+drill_finished=Bobby klaar
+drill_out_of_range=Buiten Bobby's bereik, kom dichterbij
+drill_fuel_critical=Brandstof kritiek, 10 procent
+drill_fuel_25=Brandstof 25 procent
+drill_fuel_50=Brandstof 50 procent
+drill_progress_halfway=Bobby halverwege
+drill_progress_percent=Bobby {0} procent onderweg
+drill_compass=Bobby: {0}, {1} meter
+
+# === Enemy Proximity ===
+enemy_exploder_very_close=Ontploffer heel dichtbij!
+enemy_boss_very_close=Baas heel dichtbij!
+enemy_elite_very_close=Elite heel dichtbij!
+enemy_exploder_nearby=Ontploffer in de buurt
+enemy_boss_nearby=Baas in de buurt
+enemy_elite_nearby=Elite in de buurt
+enemy_nearby_singular=Vijand in de buurt
+enemy_nearby_plural={0} vijanden in de buurt
+
+# === Collectibles ===
+collect_red_sugar=Rode Suiker
+collect_gear=Uitrusting
+collect_buff=Buff
+collect_currency=Valuta
+collect_mineral_vein=Mineraalader
+collect_loot_crate=Buitkist
+collect_xp=XP
+collect_nearby={0} in de buurt{1}
+collect_closer={0} dichterbij{1}
+collect_very_close={0} heel dichtbij{1}
+collect_magnet=Magneet
+collect_speed_boost=Snelheidsboost
+collect_mining_speed=Mijnsnelheid
+collect_berserk=Berserk
+collect_artifact_magnet=Artefactmagneet
+
+# === Action Feedback ===
+action_bought=Gekocht
+action_cannot_afford=Niet genoeg geld
+action_sold=Verkocht
+action_nothing_to_sell=Niets te verkopen
+action_cannot_sell=Kan niet verkopen
+action_max_level=Maximaal niveau bereikt
+action_upgraded_to_max=Verbeterd naar niveau {0}/{1}
+action_upgraded_to=Verbeterd naar niveau {0}
+action_purchased=Gekocht: {0}
+action_rerolled=Opnieuw gerold
+action_reroll_fail=Niet genoeg geld om opnieuw te rollen
+action_healed=Genezen
+action_heal_fail=Niet genoeg geld om te genezen
+action_equipped=Uitgerust: {0}
+action_unequipped=Verwijderd: {0}
+action_gear_upgraded=Verbeterd: {0}
+action_salvaged=Gesloopt: {0}
+
+# === Wallet ===
+wallet_unavailable=Geen portemonnee beschikbaar
+wallet_gold=Goud: {0}
+wallet_no_currency=Geen valuta
+wallet_error=Kan portemonnee niet lezen
+
+# === Equipped Gear (T key) ===
+gear_no_inventory=Geen uitrustingsinventaris
+gear_no_equipped_panel=Geen uitgeruste uitrusting
+gear_equipped_header=Uitgeruste uitrusting
+gear_equipped_none=: Geen
+gear_equipped_error=Kan uitgeruste uitrusting niet lezen
+
+# === Pickups ===
+pickup_healed={0} HP genezen
+pickup_gear_named={0} opgepakt
+pickup_gear_generic=Uitrusting opgepakt
+pickup_loot_crate={0} buitkist
+
+# === HP Reader ===
+hp_no_player=Geen speler gevonden
+hp_format=HP: {0} / {1}
+hp_format_percent=HP: {0}%
+
+# === Objectives ===
+obj_none=Geen doelen
+obj_no_active=Geen actieve doelen
+obj_single=Doel: {0}
+obj_multiple=Doelen: {0}
+
+# === Milestones ===
+milestone_none=Geen mijlpalen
+milestone_empty=Mijlpalen. W en S om te bladeren. Geen mijlpalen in deze categorie.
+milestone_unavailable=Geen mijlpalen beschikbaar
+milestone_header=Mijlpalen. {0} items. W en S om te bladeren. {1}
+milestone_progress=Voortgang: {0}
+milestone_complete=Voltooid
+milestone_reward=Beloning: {0}
+milestone_requires=Vereist: {0}
+
+# === Pause Menu ===
+pause_header=Spel gepauzeerd. Omhoog en omlaag om te navigeren, Enter om te selecteren, Escape om te hervatten. {0}
+pause_weapons=Wapens. {0}
+pause_artifacts=Artefacten. {0}
+pause_stats=Statistieken. {0}
+pause_level=Niveau {0}
+pause_resume=Hervatten
+pause_menu=Menu
+pause_settings=Instellingen
+pause_no_info=Geen informatie beschikbaar
+
+# === End Screen ===
+end_header=Eindscherm. Pijltjes omhoog en omlaag om te navigeren, Enter om te selecteren. {0}
+end_rank_xp=Rang-XP: {0}
+end_endless_rank_xp=Eindeloos Rang-XP: {0}
+end_hazard=Gevaar: {0}
+end_stages=Fasen: {0}
+end_credits=Credits: {0}
+end_endless_credits=Eindeloos Credits: {0}
+end_resources=Grondstoffen:
+end_weapon_report=Wapenrapport.
+end_level=Niveau {0}
+end_damage=Schade: {0}
+end_dps=DPS: {0}
+end_damage_breakdown=Schadeopbouw
+end_total=Totaal: {0}
+end_player_stats=Spelersstatistieken
+end_exploration=Verkenningsstatistieken
+end_no_info=Geen informatie beschikbaar
+end_retry=Opnieuw
+end_continue=Doorgaan
+end_go_endless=Eindeloos spelen
+
+# === Mod Settings Menu ===
+setting_wall_nav=Muurnavigatie
+setting_enemy_detect=Vijanddetectie
+setting_drop_pod=Droppod-baken
+setting_supply_pod=Bevoorradingspod-baken
+setting_hazard=Gevaarswaarschuwing
+setting_collectibles=Verzamelobjecten
+setting_footsteps_toggle=Voetstappen
+setting_footsteps_vol=Voetstappenvolume
+setting_boss_attacks=Baasaanvallen
+setting_drill_beacon=Boorbaken
+setting_enemy_range=Vijanddetectiebereik
+setting_hazard_range=Gevaarswaarschuwingsbereik
+setting_collect_range=Verzamelobjectbereik
+setting_wall_range=Muurdetectiebereik
+setting_max_hazard=Max gevaarswaarschuwingen
+setting_audio_cue_preview=Geluidssignaalvoorbeeld
+setting_save=Wijzigingen opslaan
+setting_cancel=Annuleren
+toggle_on=Aan
+toggle_off=Uit
+setting_meters={0} meter
+setting_multiplier={0}x
+setting_saved=Instellingen opgeslagen
+setting_cancelled=Wijzigingen geannuleerd
+setting_menu_header=Modinstellingen. Omhoog en omlaag om te navigeren, links en rechts om volume aan te passen, Enter om voor te beluisteren of te activeren, F1 of Escape om te sluiten.
+
+# === Audio Cue Names + Descriptions ===
+cue_wall_forward=Muur: Vooruit
+cue_wall_forward_desc=Muur vooruit. Wordt luider naarmate de muur dichterbij is.
+cue_wall_backward=Muur: Achteruit
+cue_wall_backward_desc=Muur achter je. Wordt luider naarmate die dichterbij is.
+cue_wall_sides=Muur: Zijkanten
+cue_wall_sides_desc=Muur links of rechts. Pant naar de betreffende kant.
+cue_enemy_normal=Vijand: Normaal
+cue_enemy_normal_desc=Gewone vijand in de buurt. Piept sneller naarmate die dichterbij komt.
+cue_enemy_elite=Vijand: Elite
+cue_enemy_elite_desc=Elitevijand in de buurt. Langzaam vibrerend piepje, anders dan normaal.
+cue_enemy_boss=Vijand: Baas
+cue_enemy_boss_desc=Baasvijand in de buurt. Diep gerommel, onmiskenbaar.
+cue_enemy_loot=Zeldzame buitvijand
+cue_enemy_loot_desc=Gouden Lootbug of Huuli Hoarder in de buurt. Helder stijgend belgeluid.
+cue_drop_pod=Droppod-baken
+cue_drop_pod_desc=Leidt je naar de extractiepod. Metaalachtige sonarpuls.
+cue_drop_pod_critical=Droppod: Kritiek
+cue_drop_pod_critical_desc=Heel dichtbij de pod, minder dan 8 meter. Snel dubbelpiepje.
+cue_drop_pod_ramp=Droppod: Hellingtoon
+cue_drop_pod_ramp_desc=Op de helling, minder dan 2,5 meter. Continue toon naar de podingang.
+cue_supply_pod=Bevoorradingspod-baken
+cue_supply_pod_desc=Leidt je naar bevoorradingspodzones. Trillende triller.
+cue_drill_beacon=Boorbaken
+cue_drill_beacon_desc=Leidt je naar Bobby de boor tijdens escortmissies. Ritmische stampende puls.
+cue_hazard=Gevaarswaarschuwing
+cue_hazard_desc=Gevaar in de buurt, zoals ontploffers of grondstekels. Sirenealarm.
+cue_red_sugar=Verzamelbaar: Rode Suiker
+cue_red_sugar_desc=Gezondheidsitem in de buurt. Waterdruppelgeluid.
+cue_gear_drop=Verzamelbaar: Uitrustingsdrop
+cue_gear_drop_desc=Wapen- of uitrustingsdrop in de buurt. Rijk tweeledig akkoordpiepje.
+cue_buff=Verzamelbaar: Buff-item
+cue_buff_desc=Buff-item in de buurt. Elektrisch zoemend geluid.
+cue_currency=Verzamelbaar: Valuta
+cue_currency_desc=Goud- of mineraaldrop in de buurt. Kort kristalhelder belgeluid.
+cue_mineral=Verzamelbaar: Mineraalader
+cue_mineral_desc=Mijnbare mineraalader in de buurt. Metaalachtig tikgeluid.
+cue_loot_crate=Verzamelbaar: Buitkist
+cue_loot_crate_desc=Buitkist in de buurt. Glinsterend fonkelpiepje.
+cue_xp=Verzamelbaar: XP in de buurt
+cue_xp_desc=XP-bollen op de grond. Zachte continue toon.
+cue_boss_charge=Baas: Charge
+cue_boss_charge_desc=Baas stormt op je af. 3 snelle agressieve piepjes.
+cue_boss_spikes=Baas: Stekels
+cue_boss_spikes_desc=Baas laat grondstekels verschijnen. 3 gemiddelde diepe piepjes.
+cue_boss_fireball=Baas: Vuurbal
+cue_boss_fireball_desc=Baas vuurt projectielen af. 3 zeer snelle scherpe piepjes.
+cue_boss_heal=Baas: Genezing
+cue_boss_heal_desc=Baas geneest zichzelf. 3 langzame zachte piepjes.
+cue_audio_preview_header=Geluidssignaalvoorbeeld. Omhoog en omlaag om te navigeren, Enter om voor te beluisteren, Escape om terug te gaan. {0}. {1}
+
+# === UI Common ===
+ui_locked=Vergrendeld
+ui_completed=Voltooid
+ui_equipped=Uitgerust
+ui_empty=Leeg
+ui_on=Aan
+ui_off=Uit
+ui_pinned=Vastgezet
+ui_unpinned=Losgemaakt
+ui_active=Actief
+ui_previous=Vorige
+ui_next=Volgende
+ui_new=Nieuw
+ui_favorite=Favoriet
+ui_item=item
+ui_selector=Selectie
+ui_points=punten
+ui_price=Prijs: {0}
+ui_price_currency=Prijs: {0} {1}
+ui_cannot_afford=Niet genoeg geld
+
+# === Save Slot ===
+save_slot=Opslagslot {0}
+
+# === Class Selection ===
+class_unlock_rank=Ontgrendelt bij spelersrang {0}
+class_unlock_requirement=Vergrendeld. Vereist {0} klasse-voltooiingen om te ontgrendelen
+class_weapon=Wapen: {0}
+class_damage_type=Schadetype: {0}
+
+# === Gear ===
+gear_fallback=Uitrusting
+gear_tier=Rang {0}
+gear_stats=Stats: {0}
+gear_upgrade_cost=Verbeteringskosten: {0}
+gear_upgrade_available=Verbetering beschikbaar
+gear_sell_value=Verkoopwaarde: {0}
+gear_sell_available=Verkoop beschikbaar
+gear_level=Niveau {0}/{1}
+gear_level_no_max=Niveau {0}
+gear_cost=Kosten: {0}
+gear_max_level=Maximaal niveau
+gear_slot_armor=Pantser
+gear_slot_companion=Metgezel
+gear_slot_grinder=Grinder
+gear_slot_tank=Tank
+gear_slot_tool=Gereedschap
+gear_slot_weapon_mod=Wapenmod
+
+# === Mission ===
+mission_sector=Sector {0}
+mission_gate=Poort {0}
+mission_node=Missieknooppunt
+mission_high_score=Hoogste score: {0}
+mission_fixed_run=Vaste Run
+mission_hazard=Gevaar {0}
+
+# === Wallet Currencies ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=Artefact Rerolls
+wallet_mutator_rerolls=Mutator Rerolls
+wallet_ommoran_core=Ommoran Core

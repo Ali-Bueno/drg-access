@@ -1,0 +1,363 @@
+# DRG Access Mod - 繁體中文 (zh-tw)
+# 編輯此檔案以自訂模組訊息的繁體中文翻譯。
+# 格式：key=value（每行一個）。以 # 開頭的行為註解。
+
+# === 模組 ===
+mod_loaded=DRG 倖存者無障礙模組已載入
+
+# === 方向（俯視角：上=W，下=S，左=A，右=D） ===
+dir_up=上
+dir_down=下
+dir_left=左
+dir_right=右
+dir_up_left=左上
+dir_up_right=右上
+dir_down_left=左下
+dir_down_right=右下
+dir_ahead=前方
+
+# === 介面公告 ===
+form_main_menu=主選單
+form_play_menu=遊玩選單
+form_settings=設定
+form_gear_inventory=裝備庫存
+form_stat_upgrades=屬性升級
+form_shop=商店
+form_skin_overrides=外觀覆蓋
+form_loading=載入中
+form_level_up=升級
+form_level_up_title=升級：{0}
+form_overclock=超頻
+form_overclock_weapon=超頻：{0}
+form_unlock=解鎖
+form_mastery_unlock=精通解鎖
+form_run_summary=戰績摘要
+form_credits=點數：{0}
+form_xp=經驗值：{0}
+form_rank=等級：{0}
+form_mutator_selection=變異器選擇
+form_gear_found=發現裝備
+form_gear_details=裝備詳情
+form_score=分數
+form_splash_press_key=按任意鍵
+form_brightness_instructions=亮度調整。使用左右方向鍵調整亮度，然後按 Enter 確認
+form_brightness_short=亮度調整。左右方向鍵調整，Enter 確認
+form_brightness_confirmed=亮度已確認
+form_save_slot_selection=存檔欄位選擇
+form_delete_confirm=刪除存檔欄位 {0}？按 Enter 確認，Escape 取消
+form_delete_confirm_generic=刪除存檔欄位？按 Enter 確認，Escape 取消
+form_save_deleted=存檔欄位已刪除
+form_cancelled=已取消
+
+# === 頭目 ===
+boss_charge=衝鋒！
+boss_spikes=地刺！
+boss_fireball=火球！
+boss_healing=治療中！
+boss_appeared=頭目！
+boss_hp_percent=頭目 {0}%
+boss_defeated=頭目已擊敗！
+boss_healed=頭目已治療
+
+# === 降落艙 ===
+pod_inside=已進入降落艙
+pod_almost_inside=即將進入，繼續前進
+pod_near_ramp=靠近降落艙，跟隨音調進入
+pod_very_close=降落艙非常近
+pod_compass_ramp=艙門入口：{0}，{1}
+pod_compass_normal=降落艙：{0}，{1} 公尺
+
+# === 補給區 ===
+zone_inside=在補給區內
+zone_left_activating=離開補給區，請返回區域
+zone_left=離開補給區
+zone_complete=補給區完成
+zone_clearing=清理區域中，{0} 塊礦石待採
+zone_activating=區域啟動中
+zone_rocks_remaining=剩餘 {0} 塊礦石
+zone_all_cleared=所有礦石已清除
+zone_timer=剩餘 {0} 秒
+
+# === 鑽頭信標（鮑比） ===
+drill_stopped=鮑比已停止
+drill_arriving=鮑比到達中
+drill_started=鮑比已啟動
+drill_mining=鮑比正在開採核心石
+drill_broken=鮑比已損壞
+drill_finished=鮑比已完成
+drill_out_of_range=超出鮑比範圍，請靠近
+drill_fuel_critical=燃料危急，百分之十
+drill_fuel_25=燃料百分之二十五
+drill_fuel_50=燃料百分之五十
+drill_progress_halfway=鮑比已完成一半
+drill_progress_percent=鮑比已完成 {0} 百分比
+drill_compass=鮑比：{0}，{1} 公尺
+
+# === 敵人接近 ===
+enemy_exploder_very_close=爆炸蟲非常近！
+enemy_boss_very_close=頭目非常近！
+enemy_elite_very_close=菁英非常近！
+enemy_exploder_nearby=附近有爆炸蟲
+enemy_boss_nearby=附近有頭目
+enemy_elite_nearby=附近有菁英
+enemy_nearby_singular=附近有敵人
+enemy_nearby_plural=附近有 {0} 個敵人
+
+# === 收集物 ===
+collect_red_sugar=紅糖
+collect_gear=裝備
+collect_buff=增益
+collect_currency=貨幣
+collect_mineral_vein=礦脈
+collect_loot_crate=寶箱
+collect_xp=經驗值
+collect_nearby={0} 在附近{1}
+collect_closer={0} 更近了{1}
+collect_very_close={0} 非常近{1}
+collect_magnet=磁鐵
+collect_speed_boost=加速
+collect_mining_speed=採礦加速
+collect_berserk=狂暴
+collect_artifact_magnet=神器磁鐵
+
+# === 操作回饋 ===
+action_bought=已購買
+action_cannot_afford=無法負擔
+action_sold=已出售
+action_nothing_to_sell=無物品可售
+action_cannot_sell=無法出售
+action_max_level=已達最高等級
+action_upgraded_to_max=已升級至等級 {0}/{1}
+action_upgraded_to=已升級至等級 {0}
+action_purchased=已購買 {0}
+action_rerolled=已重骰
+action_reroll_fail=無法負擔重骰
+action_healed=已治療
+action_heal_fail=無法負擔治療
+action_equipped=已裝備 {0}
+action_unequipped=已卸下 {0}
+action_gear_upgraded=已升級 {0}
+action_salvaged=已拆解 {0}
+
+# === 錢包 ===
+wallet_unavailable=無錢包可用
+wallet_gold=金幣：{0}
+wallet_no_currency=無貨幣
+wallet_error=無法讀取錢包
+
+# === 已裝備物品（T 鍵） ===
+gear_no_inventory=無裝備庫存
+gear_no_equipped_panel=無已裝備面板
+gear_equipped_header=已裝備物品
+gear_equipped_none=：無
+gear_equipped_error=無法讀取已裝備物品
+
+# === 拾取 ===
+pickup_healed=治療了 {0} 點生命值
+pickup_gear_named=拾取了 {0}
+pickup_gear_generic=已拾取裝備
+pickup_loot_crate={0} 寶箱
+
+# === 生命值讀取 ===
+hp_no_player=找不到玩家
+hp_format=生命值：{0} / {1}
+hp_format_percent=生命值：{0}%
+
+# === 任務目標 ===
+obj_none=無目標
+obj_no_active=無進行中的目標
+obj_single=目標：{0}
+obj_multiple=目標：{0}
+
+# === 里程碑 ===
+milestone_none=無里程碑
+milestone_empty=里程碑。W 和 S 瀏覽。此類別無里程碑。
+milestone_unavailable=無可用里程碑
+milestone_header=里程碑。{0} 個項目。W 和 S 瀏覽。{1}
+milestone_progress=進度：{0}
+milestone_complete=已完成
+milestone_reward=獎勵：{0}
+milestone_requires=需求：{0}
+
+# === 暫停選單 ===
+pause_header=遊戲已暫停。上下方向鍵導覽，Enter 選擇，Escape 繼續。{0}
+pause_weapons=武器。{0}
+pause_artifacts=神器。{0}
+pause_stats=屬性。{0}
+pause_level=等級 {0}
+pause_resume=繼續
+pause_menu=選單
+pause_settings=設定
+pause_no_info=無可用資訊
+
+# === 結算畫面 ===
+end_header=結算畫面。上下方向鍵導覽，Enter 選擇。{0}
+end_rank_xp=等級經驗值：{0}
+end_endless_rank_xp=無盡等級經驗值：{0}
+end_hazard=危險等級：{0}
+end_stages=關卡數：{0}
+end_credits=點數：{0}
+end_endless_credits=無盡點數：{0}
+end_resources=資源：
+end_weapon_report=武器報告。
+end_level=等級 {0}
+end_damage=傷害：{0}
+end_dps=每秒傷害：{0}
+end_damage_breakdown=傷害分析
+end_total=總計：{0}
+end_player_stats=玩家屬性
+end_exploration=探索統計
+end_no_info=無可用資訊
+end_retry=重試
+end_continue=繼續
+end_go_endless=進入無盡模式
+
+# === 模組設定選單 ===
+setting_wall_nav=牆壁導航
+setting_enemy_detect=敵人偵測
+setting_drop_pod=降落艙信標
+setting_supply_pod=補給艙信標
+setting_hazard=危險警告
+setting_collectibles=收集物
+setting_footsteps_toggle=腳步聲
+setting_footsteps_vol=腳步聲音量
+setting_boss_attacks=頭目攻擊
+setting_drill_beacon=鑽頭信標
+setting_enemy_range=敵人偵測範圍
+setting_hazard_range=危險警告範圍
+setting_collect_range=收集物範圍
+setting_wall_range=牆壁偵測範圍
+setting_max_hazard=最大危險警告數
+setting_audio_cue_preview=音效提示預覽
+setting_save=儲存變更
+setting_cancel=取消
+toggle_on=開
+toggle_off=關
+setting_meters={0} 公尺
+setting_multiplier={0} 倍
+setting_saved=設定已儲存
+setting_cancelled=變更已取消
+setting_menu_header=模組設定。上下方向鍵導覽，左右方向鍵調整音量，Enter 預覽或啟動，F1 或 Escape 關閉。
+
+# === 音效提示名稱與說明 ===
+cue_wall_forward=牆壁：前方
+cue_wall_forward_desc=前方有牆壁。越近越大聲。
+cue_wall_backward=牆壁：後方
+cue_wall_backward_desc=後方有牆壁。越近越大聲。
+cue_wall_sides=牆壁：側面
+cue_wall_sides_desc=左側或右側有牆壁。聲音偏向對應方向。
+cue_enemy_normal=敵人：普通
+cue_enemy_normal_desc=附近有普通敵人。越近嗶聲越快。
+cue_enemy_elite=敵人：菁英
+cue_enemy_elite_desc=附近有菁英敵人。較慢的震動嗶聲，與普通不同。
+cue_enemy_boss=敵人：頭目
+cue_enemy_boss_desc=附近有頭目。低沉隆鳴，清晰可辨。
+cue_enemy_loot=稀有掉落敵人
+cue_enemy_loot_desc=附近有金色掠奪蟲或胡利囤積者。明亮的上升音調。
+cue_drop_pod=降落艙信標
+cue_drop_pod_desc=引導你前往撤離艙。金屬聲納脈衝。
+cue_drop_pod_critical=降落艙：極近
+cue_drop_pod_critical_desc=非常靠近降落艙，不到 8 公尺。快速雙嗶聲。
+cue_drop_pod_ramp=降落艙：斜坡音調
+cue_drop_pod_ramp_desc=在斜坡上，不到 2.5 公尺。朝向艙門的持續音調。
+cue_supply_pod=補給艙信標
+cue_supply_pod_desc=引導你前往補給艙區域。顫動的鳴叫聲。
+cue_drill_beacon=鑽頭信標
+cue_drill_beacon_desc=在護送任務中引導你前往鮑比鑽頭。節奏性脈衝聲。
+cue_hazard=危險警告
+cue_hazard_desc=附近有危險，如爆炸蟲或地刺。警報聲。
+cue_red_sugar=收集物：紅糖
+cue_red_sugar_desc=附近有生命值拾取物。水滴聲。
+cue_gear_drop=收集物：裝備掉落
+cue_gear_drop_desc=附近有武器或裝備掉落。豐富的雙音和弦嗶聲。
+cue_buff=收集物：增益拾取
+cue_buff_desc=附近有增益拾取物。電子嗡鳴聲。
+cue_currency=收集物：貨幣
+cue_currency_desc=附近有金幣或礦物掉落。短促的水晶音。
+cue_mineral=收集物：礦脈
+cue_mineral_desc=附近有可開採的礦脈。金屬碰擊聲。
+cue_loot_crate=收集物：寶箱
+cue_loot_crate_desc=附近有寶箱。閃爍的光芒嗶聲。
+cue_xp=收集物：經驗值
+cue_xp_desc=地上有經驗值球。柔和的持續音調。
+cue_boss_charge=頭目：衝鋒
+cue_boss_charge_desc=頭目正在衝鋒。三聲快速猛烈的嗶聲。
+cue_boss_spikes=頭目：地刺
+cue_boss_spikes_desc=頭目正在召喚地刺。三聲中速低沉的嗶聲。
+cue_boss_fireball=頭目：火球
+cue_boss_fireball_desc=頭目正在發射投射物。三聲極快尖銳的嗶聲。
+cue_boss_heal=頭目：治療
+cue_boss_heal_desc=頭目正在自我治療。三聲緩慢柔和的嗶聲。
+cue_audio_preview_header=音效提示預覽。上下方向鍵導覽，Enter 預覽，Escape 返回。{0}。{1}
+
+# === 介面通用 ===
+ui_locked=已鎖定
+ui_completed=已完成
+ui_equipped=已裝備
+ui_empty=空
+ui_on=開
+ui_off=關
+ui_pinned=已釘選
+ui_unpinned=已取消釘選
+ui_active=啟用
+ui_previous=上一個
+ui_next=下一個
+ui_new=新
+ui_favorite=收藏
+ui_item=物品
+ui_selector=選擇器
+ui_points=點
+ui_price=價格：{0}
+ui_price_currency=價格：{0} {1}
+ui_cannot_afford=無法負擔
+
+# === 存檔欄位 ===
+save_slot=存檔欄位 {0}
+
+# === 職業選擇 ===
+class_unlock_rank=玩家等級 {0} 時解鎖
+class_unlock_requirement=已鎖定。需要 {0} 次職業通關才能解鎖
+class_weapon=武器：{0}
+class_damage_type=傷害類型：{0}
+
+# === 裝備 ===
+gear_fallback=裝備
+gear_tier=階 {0}
+gear_stats=屬性：{0}
+gear_upgrade_cost=升級費用：{0}
+gear_upgrade_available=可升級
+gear_sell_value=出售價值：{0}
+gear_sell_available=可出售
+gear_level=等級 {0}/{1}
+gear_level_no_max=等級 {0}
+gear_cost=花費：{0}
+gear_max_level=最高等級
+gear_slot_armor=護甲
+gear_slot_companion=夥伴
+gear_slot_grinder=研磨器
+gear_slot_tank=坦克
+gear_slot_tool=工具
+gear_slot_weapon_mod=武器模組
+
+# === 任務 ===
+mission_sector=區域 {0}
+mission_gate=關卡 {0}
+mission_node=任務節點
+mission_high_score=最高分：{0}
+mission_fixed_run=固定路線
+mission_hazard=危險等級 {0}
+
+# === 錢包貨幣 ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=神器重骰
+wallet_mutator_rerolls=變異器重骰
+wallet_ommoran_core=Ommoran Core

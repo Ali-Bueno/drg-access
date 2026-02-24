@@ -1,0 +1,363 @@
+# DRG Access Mod - Български (bg)
+# Редактирайте този файл, за да персонализирате съобщенията на мода за вашия език.
+# Формат: ключ=стойност (по един на ред). Редовете, започващи с #, са коментари.
+
+# === Мод ===
+mod_loaded=Модът за достъпност на DRG Survivor е зареден
+
+# === Посоки (отгоре: горе=W, долу=S, ляво=A, дясно=D) ===
+dir_up=горе
+dir_down=долу
+dir_left=ляво
+dir_right=дясно
+dir_up_left=горе-ляво
+dir_up_right=горе-дясно
+dir_down_left=долу-ляво
+dir_down_right=долу-дясно
+dir_ahead=напред
+
+# === Обявяване на форми ===
+form_main_menu=Главно меню
+form_play_menu=Меню за игра
+form_settings=Настройки
+form_gear_inventory=Инвентар за екипировка
+form_stat_upgrades=Подобрения на статистики
+form_shop=Магазин
+form_skin_overrides=Промяна на скинове
+form_loading=Зареждане
+form_level_up=Ново ниво
+form_level_up_title=Ново ниво: {0}
+form_overclock=Овърклок
+form_overclock_weapon=Овърклок: {0}
+form_unlock=Отключване
+form_mastery_unlock=Отключване на майсторство
+form_run_summary=Обобщение на рунда
+form_credits=Кредити: {0}
+form_xp=Опит: {0}
+form_rank=Ранг: {0}
+form_mutator_selection=Избор на мутатор
+form_gear_found=Намерена екипировка
+form_gear_details=Детайли за екипировка
+form_score=Резултат
+form_splash_press_key=Натиснете произволен клавиш
+form_brightness_instructions=Настройка на яркостта. Използвайте стрелки наляво и надясно, за да регулирате яркостта, след което натиснете Enter за потвърждение
+form_brightness_short=Настройка на яркостта. Стрелки наляво и надясно за регулиране, Enter за потвърждение
+form_brightness_confirmed=Яркостта е потвърдена
+form_save_slot_selection=Избор на слот за запис
+form_delete_confirm=Изтриване на слот {0}? Натиснете Enter за потвърждение, Escape за отказ
+form_delete_confirm_generic=Изтриване на слота за запис? Натиснете Enter за потвърждение, Escape за отказ
+form_save_deleted=Слотът за запис е изтрит
+form_cancelled=Отменено
+
+# === Бос ===
+boss_charge=Атака!
+boss_spikes=Шипове!
+boss_fireball=Огнена топка!
+boss_healing=Лечение!
+boss_appeared=Бос!
+boss_hp_percent=Бос {0}%
+boss_defeated=Босът е победен!
+boss_healed=Босът се излекува
+
+# === Капсула ===
+pod_inside=Вътре в капсулата
+pod_almost_inside=Почти вътре, продължавайте
+pod_near_ramp=Близо до капсулата, следвайте тона навътре
+pod_very_close=Капсулата е много близо
+pod_compass_ramp=Вход на капсулата: {0}, {1}
+pod_compass_normal=Капсула: {0}, {1} метра
+
+# === Зона за доставка ===
+zone_inside=Вътре в зоната за доставка
+zone_left_activating=Напуснахте зоната за доставка, върнете се
+zone_left=Напуснахте зоната за доставка
+zone_complete=Зоната за доставка е завършена
+zone_clearing=Изчистване на зоната, {0} скали за копаене
+zone_activating=Зоната се активира
+zone_rocks_remaining=Остават {0} скали
+zone_all_cleared=Всички скали са изчистени
+zone_timer=Остават {0} секунди
+
+# === Сигнал за сонда (Bobby) ===
+drill_stopped=Bobby спря
+drill_arriving=Bobby пристига
+drill_started=Bobby тръгна
+drill_mining=Bobby копае сърцевинния камък
+drill_broken=Bobby е повреден
+drill_finished=Bobby приключи
+drill_out_of_range=Извън обхвата на Bobby, приближете се
+drill_fuel_critical=Критично гориво, 10 процента
+drill_fuel_25=Гориво 25 процента
+drill_fuel_50=Гориво 50 процента
+drill_progress_halfway=Bobby е на половината път
+drill_progress_percent=Bobby е на {0} процента от пътя
+drill_compass=Bobby: {0}, {1} метра
+
+# === Близост на врагове ===
+enemy_exploder_very_close=Експлозив много близо!
+enemy_boss_very_close=Бос много близо!
+enemy_elite_very_close=Елит много близо!
+enemy_exploder_nearby=Експлозив наблизо
+enemy_boss_nearby=Бос наблизо
+enemy_elite_nearby=Елит наблизо
+enemy_nearby_singular=Враг наблизо
+enemy_nearby_plural={0} врагове наблизо
+
+# === Предмети за събиране ===
+collect_red_sugar=Червена захар
+collect_gear=Екипировка
+collect_buff=Усилване
+collect_currency=Валута
+collect_mineral_vein=Минерална жила
+collect_loot_crate=Сандък с плячка
+collect_xp=Опит
+collect_nearby={0} наблизо{1}
+collect_closer={0} по-близо{1}
+collect_very_close={0} много близо{1}
+collect_magnet=Магнит
+collect_speed_boost=Увеличение на скоростта
+collect_mining_speed=Скорост на копаене
+collect_berserk=Берсерк
+collect_artifact_magnet=Магнит за артефакти
+
+# === Обратна връзка за действия ===
+action_bought=Купено
+action_cannot_afford=Не можете да си позволите
+action_sold=Продадено
+action_nothing_to_sell=Няма какво да продадете
+action_cannot_sell=Не може да се продаде
+action_max_level=Максимално ниво достигнато
+action_upgraded_to_max=Подобрено до ниво {0}/{1}
+action_upgraded_to=Подобрено до ниво {0}
+action_purchased=Закупено: {0}
+action_rerolled=Презаредено
+action_reroll_fail=Не можете да си позволите презареждане
+action_healed=Излекувано
+action_heal_fail=Не можете да си позволите лечение
+action_equipped=Екипирано: {0}
+action_unequipped=Свалено: {0}
+action_gear_upgraded=Подобрено: {0}
+action_salvaged=Разглобено: {0}
+
+# === Портфейл ===
+wallet_unavailable=Няма наличен портфейл
+wallet_gold=Злато: {0}
+wallet_no_currency=Няма валута
+wallet_error=Не може да се прочете портфейлът
+
+# === Екипирана екипировка (клавиш T) ===
+gear_no_inventory=Няма инвентар за екипировка
+gear_no_equipped_panel=Няма панел с екипирани предмети
+gear_equipped_header=Екипирана екипировка
+gear_equipped_none=: Няма
+gear_equipped_error=Не може да се прочете екипираната екипировка
+
+# === Вдигнати предмети ===
+pickup_healed=Излекувано {0} HP
+pickup_gear_named=Вдигнато: {0}
+pickup_gear_generic=Екипировка вдигната
+pickup_loot_crate={0} сандък с плячка
+
+# === Четец на HP ===
+hp_no_player=Няма намерен играч
+hp_format=HP: {0} / {1}
+hp_format_percent=HP: {0}%
+
+# === Цели ===
+obj_none=Няма цели
+obj_no_active=Няма активни цели
+obj_single=Цел: {0}
+obj_multiple=Цели: {0}
+
+# === Етапи ===
+milestone_none=Няма етапи
+milestone_empty=Етапи. W и S за разглеждане. Няма етапи в тази категория.
+milestone_unavailable=Няма налични етапи
+milestone_header=Етапи. {0} елемента. W и S за разглеждане. {1}
+milestone_progress=Напредък: {0}
+milestone_complete=Завършено
+milestone_reward=Награда: {0}
+milestone_requires=Изисква: {0}
+
+# === Меню за пауза ===
+pause_header=Играта е на пауза. Горе и долу за навигация, Enter за избор, Escape за продължаване. {0}
+pause_weapons=Оръжия. {0}
+pause_artifacts=Артефакти. {0}
+pause_stats=Статистики. {0}
+pause_level=Ниво {0}
+pause_resume=Продължаване
+pause_menu=Меню
+pause_settings=Настройки
+pause_no_info=Няма налична информация
+
+# === Краен екран ===
+end_header=Краен екран. Стрелки горе и долу за навигация, Enter за избор. {0}
+end_rank_xp=Опит за ранг: {0}
+end_endless_rank_xp=Опит за безкраен ранг: {0}
+end_hazard=Опасност: {0}
+end_stages=Етапи: {0}
+end_credits=Кредити: {0}
+end_endless_credits=Безкрайни кредити: {0}
+end_resources=Ресурси:
+end_weapon_report=Отчет за оръжия.
+end_level=Ниво {0}
+end_damage=Щети: {0}
+end_dps=ДПС: {0}
+end_damage_breakdown=Разбивка на щетите
+end_total=Общо: {0}
+end_player_stats=Статистики на играча
+end_exploration=Статистики за изследване
+end_no_info=Няма налична информация
+end_retry=Повторение
+end_continue=Продължаване
+end_go_endless=Безкраен режим
+
+# === Меню с настройки на мода ===
+setting_wall_nav=Навигация по стени
+setting_enemy_detect=Засичане на врагове
+setting_drop_pod=Сигнал за капсула
+setting_supply_pod=Сигнал за доставка
+setting_hazard=Предупреждение за опасност
+setting_collectibles=Предмети за събиране
+setting_footsteps_toggle=Стъпки
+setting_footsteps_vol=Сила на звука на стъпките
+setting_boss_attacks=Атаки на бос
+setting_drill_beacon=Сигнал за сонда
+setting_enemy_range=Обхват за засичане на врагове
+setting_hazard_range=Обхват за предупреждение за опасност
+setting_collect_range=Обхват за предмети за събиране
+setting_wall_range=Обхват за засичане на стени
+setting_max_hazard=Максимум предупреждения за опасност
+setting_audio_cue_preview=Преглед на аудио сигнали
+setting_save=Запазване на промените
+setting_cancel=Отказ
+toggle_on=Включено
+toggle_off=Изключено
+setting_meters={0} метра
+setting_multiplier={0}x
+setting_saved=Настройките са запазени
+setting_cancelled=Промените са отменени
+setting_menu_header=Настройки на мода. Горе и долу за навигация, ляво и дясно за регулиране на звука, Enter за преглед или активиране, F1 или Escape за затваряне.
+
+# === Имена и описания на аудио сигнали ===
+cue_wall_forward=Стена: Напред
+cue_wall_forward_desc=Стена отпред. Звукът е по-силен, колкото по-близо е стената.
+cue_wall_backward=Стена: Назад
+cue_wall_backward_desc=Стена зад вас. Звукът е по-силен, колкото по-близо е.
+cue_wall_sides=Стена: Странично
+cue_wall_sides_desc=Стена отляво или отдясно. Панира се към съответната страна.
+cue_enemy_normal=Враг: Обикновен
+cue_enemy_normal_desc=Обикновен враг наблизо. Бипка ускорява при приближаване.
+cue_enemy_elite=Враг: Елит
+cue_enemy_elite_desc=Елитен враг наблизо. Бавна вибрираща бипка, различна от обикновената.
+cue_enemy_boss=Враг: Бос
+cue_enemy_boss_desc=Бос наблизо. Дълбок тътен, безпогрешен.
+cue_enemy_loot=Рядък враг с плячка
+cue_enemy_loot_desc=Златна бъгче или Хуули хордър наблизо. Ярък възходящ звънец.
+cue_drop_pod=Сигнал за капсула
+cue_drop_pod_desc=Насочва ви към капсулата за извличане. Метален сонарен импулс.
+cue_drop_pod_critical=Капсула: Критично
+cue_drop_pod_critical_desc=Много близо до капсулата, под 8 метра. Бърза двойна бипка.
+cue_drop_pod_ramp=Капсула: Тон на рампата
+cue_drop_pod_ramp_desc=На рампата, под 2.5 метра. Непрекъснат тон към входа на капсулата.
+cue_supply_pod=Сигнал за доставка
+cue_supply_pod_desc=Насочва ви към зоните за доставка. Вълнообразна трела.
+cue_drill_beacon=Сигнал за сонда
+cue_drill_beacon_desc=Насочва ви към Bobby по време на мисии за ескорт. Ритмичен пулсиращ звук.
+cue_hazard=Предупреждение за опасност
+cue_hazard_desc=Опасност наблизо, като експлозиви или шипове от земята. Сиренна аларма.
+cue_red_sugar=Предмет: Червена захар
+cue_red_sugar_desc=Лечебен предмет наблизо. Звук на водна капка.
+cue_gear_drop=Предмет: Екипировка
+cue_gear_drop_desc=Оръжие или екипировка наблизо. Богат двутонен акорд.
+cue_buff=Предмет: Усилване
+cue_buff_desc=Усилване наблизо. Електрически бръмчащ тон.
+cue_currency=Предмет: Валута
+cue_currency_desc=Злато или минерали наблизо. Кратък кристален звънец.
+cue_mineral=Предмет: Минерална жила
+cue_mineral_desc=Минерална жила за копаене наблизо. Метален звън.
+cue_loot_crate=Предмет: Сандък с плячка
+cue_loot_crate_desc=Сандък с плячка наблизо. Блестяща мъждукаща бипка.
+cue_xp=Предмет: Опит наблизо
+cue_xp_desc=Сфери с опит на земята. Мек непрекъснат тон.
+cue_boss_charge=Бос: Атака
+cue_boss_charge_desc=Босът атакува. 3 бързи агресивни бипки.
+cue_boss_spikes=Бос: Шипове
+cue_boss_spikes_desc=Босът създава шипове от земята. 3 средни дълбоки бипки.
+cue_boss_fireball=Бос: Огнена топка
+cue_boss_fireball_desc=Босът изстрелва снаряди. 3 много бързи остри бипки.
+cue_boss_heal=Бос: Лечение
+cue_boss_heal_desc=Босът се лекува. 3 бавни меки бипки.
+cue_audio_preview_header=Преглед на аудио сигнали. Горе и долу за навигация, Enter за преглед, Escape за назад. {0}. {1}
+
+# === Общ потребителски интерфейс ===
+ui_locked=Заключено
+ui_completed=Завършено
+ui_equipped=Екипирано
+ui_empty=Празно
+ui_on=Включено
+ui_off=Изключено
+ui_pinned=Закачено
+ui_unpinned=Откачено
+ui_active=Активно
+ui_previous=Предишно
+ui_next=Следващо
+ui_new=Ново
+ui_favorite=Любимо
+ui_item=предмет
+ui_selector=Селектор
+ui_points=точки
+ui_price=Цена: {0}
+ui_price_currency=Цена: {0} {1}
+ui_cannot_afford=Не можете да си позволите
+
+# === Слот за запис ===
+save_slot=Слот за запис {0}
+
+# === Избор на клас ===
+class_unlock_rank=Отключва се на ранг {0}
+class_unlock_requirement=Заключено. Изисква {0} завършвания на клас за отключване
+class_weapon=Оръжие: {0}
+class_damage_type=Тип щети: {0}
+
+# === Екипировка ===
+gear_fallback=Екипировка
+gear_tier=Ниво {0}
+gear_stats=Статистики: {0}
+gear_upgrade_cost=Цена за подобрение: {0}
+gear_upgrade_available=Налично подобрение
+gear_sell_value=Стойност за продажба: {0}
+gear_sell_available=Налична продажба
+gear_level=Ниво {0}/{1}
+gear_level_no_max=Ниво {0}
+gear_cost=Цена: {0}
+gear_max_level=Максимално ниво
+gear_slot_armor=Броня
+gear_slot_companion=Спътник
+gear_slot_grinder=Мелачка
+gear_slot_tank=Танк
+gear_slot_tool=Инструмент
+gear_slot_weapon_mod=Модификация на оръжие
+
+# === Мисия ===
+mission_sector=Сектор {0}
+mission_gate=Врата {0}
+mission_node=Точка на мисия
+mission_high_score=Най-висок резултат: {0}
+mission_fixed_run=Фиксиран рунд
+mission_hazard=Опасност {0}
+
+# === Валути на портфейла ===
+wallet_credits=Кредити
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Енергийно ядро
+wallet_artifact_rerolls=Презареждания на артефакти
+wallet_mutator_rerolls=Презареждания на мутатори
+wallet_ommoran_core=Ommoran Core

@@ -1,0 +1,363 @@
+# DRG Access Mod - Türkçe (tr)
+# Mod mesajlarını dilinize uyarlamak için bu dosyayı düzenleyin.
+# Biçim: anahtar=değer (satır başına bir tane). # ile başlayan satırlar yorumdur.
+
+# === Mod ===
+mod_loaded=DRG Survivor Erişilebilirlik modu yüklendi
+
+# === Directions (top-down: up=W, down=S, left=A, right=D) ===
+dir_up=yukarı
+dir_down=aşağı
+dir_left=sol
+dir_right=sağ
+dir_up_left=sol yukarı
+dir_up_right=sağ yukarı
+dir_down_left=sol aşağı
+dir_down_right=sağ aşağı
+dir_ahead=ileride
+
+# === Form Announcements ===
+form_main_menu=Ana Menü
+form_play_menu=Oyna Menüsü
+form_settings=Ayarlar
+form_gear_inventory=Teçhizat Envanteri
+form_stat_upgrades=Özellik Geliştirmeleri
+form_shop=Mağaza
+form_skin_overrides=Görünüm Ayarları
+form_loading=Yükleniyor
+form_level_up=Seviye Atladı
+form_level_up_title=Seviye Atladı: {0}
+form_overclock=Hız Aşırtma
+form_overclock_weapon=Hız Aşırtma: {0}
+form_unlock=Kilit Açıldı
+form_mastery_unlock=Ustalık Kilidi Açıldı
+form_run_summary=Sefer Özeti
+form_credits=Kredi: {0}
+form_xp=XP: {0}
+form_rank=Rütbe: {0}
+form_mutator_selection=Mutatör Seçimi
+form_gear_found=Teçhizat Bulundu
+form_gear_details=Teçhizat Detayları
+form_score=Skor
+form_splash_press_key=Herhangi bir tuşa basın
+form_brightness_instructions=Parlaklık Ayarı. Sol ve sağ oklarla parlaklığı ayarlayın, ardından Enter ile onaylayın
+form_brightness_short=Parlaklık Ayarı. Sol ve sağ oklarla ayarlayın, Enter ile onaylayın
+form_brightness_confirmed=Parlaklık onaylandı
+form_save_slot_selection=Kayıt Yuvası Seçimi
+form_delete_confirm=Kayıt yuvası {0} silinsin mi? Onaylamak için Enter, iptal için Escape
+form_delete_confirm_generic=Kayıt yuvası silinsin mi? Onaylamak için Enter, iptal için Escape
+form_save_deleted=Kayıt yuvası silindi
+form_cancelled=İptal edildi
+
+# === Boss ===
+boss_charge=Hücum!
+boss_spikes=Dikenler!
+boss_fireball=Ateş topu!
+boss_healing=İyileşiyor!
+boss_appeared=Boss!
+boss_hp_percent=Boss %{0}
+boss_defeated=Boss yenildi!
+boss_healed=Boss iyileşti
+
+# === Drop Pod ===
+pod_inside=Kapsülün içinde
+pod_almost_inside=Neredeyse içeride, devam et
+pod_near_ramp=Kapsülün yakınında, sesi takip et
+pod_very_close=Kapsül çok yakın
+pod_compass_ramp=Kapsül girişi: {0}, {1}
+pod_compass_normal=Kapsül: {0}, {1} metre
+
+# === Supply Zone ===
+zone_inside=Tedarik bölgesinin içinde
+zone_left_activating=Tedarik bölgesinden çıktın, geri dön
+zone_left=Tedarik bölgesinden çıktın
+zone_complete=Tedarik bölgesi tamamlandı
+zone_clearing=Bölge temizleniyor, {0} kaya kazılacak
+zone_activating=Bölge aktifleşiyor
+zone_rocks_remaining={0} kaya kaldı
+zone_all_cleared=Tüm kayalar temizlendi
+zone_timer={0} saniye kaldı
+
+# === Drill Beacon (Bobby) ===
+drill_stopped=Bobby durdu
+drill_arriving=Bobby geliyor
+drill_started=Bobby başladı
+drill_mining=Bobby kalp taşını kazıyor
+drill_broken=Bobby bozuldu
+drill_finished=Bobby tamamlandı
+drill_out_of_range=Bobby'nin menzili dışında, yaklaş
+drill_fuel_critical=Yakıt kritik, yüzde 10
+drill_fuel_25=Yakıt yüzde 25
+drill_fuel_50=Yakıt yüzde 50
+drill_progress_halfway=Bobby yarı yolda
+drill_progress_percent=Bobby yüzde {0} tamamlandı
+drill_compass=Bobby: {0}, {1} metre
+
+# === Enemy Proximity ===
+enemy_exploder_very_close=Patlayıcı çok yakın!
+enemy_boss_very_close=Boss çok yakın!
+enemy_elite_very_close=Elit çok yakın!
+enemy_exploder_nearby=Patlayıcı yakında
+enemy_boss_nearby=Boss yakında
+enemy_elite_nearby=Elit yakında
+enemy_nearby_singular=Düşman yakında
+enemy_nearby_plural={0} düşman yakında
+
+# === Collectibles ===
+collect_red_sugar=Kırmızı Şeker
+collect_gear=Teçhizat
+collect_buff=Güçlendirme
+collect_currency=Para
+collect_mineral_vein=Mineral Damarı
+collect_loot_crate=Ganimet Sandığı
+collect_xp=XP
+collect_nearby={0} yakında{1}
+collect_closer={0} daha yakın{1}
+collect_very_close={0} çok yakın{1}
+collect_magnet=Mıknatıs
+collect_speed_boost=Hız Artışı
+collect_mining_speed=Kazma Hızı
+collect_berserk=Çılgınlık
+collect_artifact_magnet=Eser Mıknatısı
+
+# === Action Feedback ===
+action_bought=Satın alındı
+action_cannot_afford=Yeterli para yok
+action_sold=Satıldı
+action_nothing_to_sell=Satılacak bir şey yok
+action_cannot_sell=Satılamaz
+action_max_level=Maksimum seviyeye ulaşıldı
+action_upgraded_to_max=Seviye {0}/{1} yükseltildi
+action_upgraded_to=Seviye {0} yükseltildi
+action_purchased={0} satın alındı
+action_rerolled=Yenilendi
+action_reroll_fail=Yenileme için yeterli para yok
+action_healed=İyileştirildi
+action_heal_fail=İyileşme için yeterli para yok
+action_equipped={0} kuşanıldı
+action_unequipped={0} çıkarıldı
+action_gear_upgraded={0} yükseltildi
+action_salvaged={0} parçalandı
+
+# === Wallet ===
+wallet_unavailable=Cüzdan bulunamadı
+wallet_gold=Altın: {0}
+wallet_no_currency=Para yok
+wallet_error=Cüzdan okunamadı
+
+# === Equipped Gear (T key) ===
+gear_no_inventory=Teçhizat envanteri yok
+gear_no_equipped_panel=Kuşanılmış teçhizat paneli yok
+gear_equipped_header=Kuşanılmış teçhizat
+gear_equipped_none=: Yok
+gear_equipped_error=Kuşanılmış teçhizat okunamadı
+
+# === Pickups ===
+pickup_healed={0} can iyileştirildi
+pickup_gear_named={0} toplandı
+pickup_gear_generic=Teçhizat toplandı
+pickup_loot_crate={0} ganimet sandığı
+
+# === HP Reader ===
+hp_no_player=Oyuncu bulunamadı
+hp_format=Can: {0} / {1}
+hp_format_percent=Can: %{0}
+
+# === Objectives ===
+obj_none=Görev yok
+obj_no_active=Aktif görev yok
+obj_single=Görev: {0}
+obj_multiple=Görevler: {0}
+
+# === Milestones ===
+milestone_none=Başarım yok
+milestone_empty=Başarımlar. W ve S ile gezin. Bu kategoride başarım yok.
+milestone_unavailable=Başarım mevcut değil
+milestone_header=Başarımlar. {0} öge. W ve S ile gezin. {1}
+milestone_progress=İlerleme: {0}
+milestone_complete=Tamamlandı
+milestone_reward=Ödül: {0}
+milestone_requires=Gereksinim: {0}
+
+# === Pause Menu ===
+pause_header=Oyun Duraklatıldı. Yukarı ve aşağı okla gezin, Enter ile seçin, Escape ile devam edin. {0}
+pause_weapons=Silahlar. {0}
+pause_artifacts=Eserler. {0}
+pause_stats=İstatistikler. {0}
+pause_level=Seviye {0}
+pause_resume=Devam Et
+pause_menu=Menü
+pause_settings=Ayarlar
+pause_no_info=Bilgi mevcut değil
+
+# === End Screen ===
+end_header=Bitiş ekranı. Yukarı ve aşağı okla gezin, Enter ile seçin. {0}
+end_rank_xp=Rütbe XP: {0}
+end_endless_rank_xp=Sonsuz Mod Rütbe XP: {0}
+end_hazard=Tehlike: {0}
+end_stages=Aşamalar: {0}
+end_credits=Kredi: {0}
+end_endless_credits=Sonsuz Mod Kredisi: {0}
+end_resources=Kaynaklar:
+end_weapon_report=Silah Raporu.
+end_level=Seviye {0}
+end_damage=Hasar: {0}
+end_dps=DPS: {0}
+end_damage_breakdown=Hasar Dağılımı
+end_total=Toplam: {0}
+end_player_stats=Oyuncu İstatistikleri
+end_exploration=Keşif İstatistikleri
+end_no_info=Bilgi mevcut değil
+end_retry=Tekrar Dene
+end_continue=Devam Et
+end_go_endless=Sonsuz Moda Geç
+
+# === Mod Settings Menu ===
+setting_wall_nav=Duvar Navigasyonu
+setting_enemy_detect=Düşman Algılama
+setting_drop_pod=Kapsül İşareti
+setting_supply_pod=Tedarik Kapsülü İşareti
+setting_hazard=Tehlike Uyarısı
+setting_collectibles=Toplanabilirler
+setting_footsteps_toggle=Ayak Sesleri
+setting_footsteps_vol=Ayak Sesleri Sesi
+setting_boss_attacks=Boss Saldırıları
+setting_drill_beacon=Matkap İşareti
+setting_enemy_range=Düşman Algılama Mesafesi
+setting_hazard_range=Tehlike Uyarı Mesafesi
+setting_collect_range=Toplanabilir Mesafesi
+setting_wall_range=Duvar Algılama Mesafesi
+setting_max_hazard=Maksimum Tehlike Uyarısı
+setting_audio_cue_preview=Ses İpucu Önizleme
+setting_save=Değişiklikleri Kaydet
+setting_cancel=İptal
+toggle_on=Açık
+toggle_off=Kapalı
+setting_meters={0} metre
+setting_multiplier={0}x
+setting_saved=Ayarlar kaydedildi
+setting_cancelled=Değişiklikler iptal edildi
+setting_menu_header=Mod ayarları. Yukarı ve aşağı okla gezin, sol ve sağ okla ses seviyesini ayarlayın, Enter ile önizleme veya etkinleştirme, F1 veya Escape ile kapatın.
+
+# === Audio Cue Names + Descriptions ===
+cue_wall_forward=Duvar: İleri
+cue_wall_forward_desc=Önünüzde duvar var. Duvar yaklaştıkça ses yükselir.
+cue_wall_backward=Duvar: Geri
+cue_wall_backward_desc=Arkanızda duvar var. Yaklaştıkça ses yükselir.
+cue_wall_sides=Duvar: Yanlar
+cue_wall_sides_desc=Sol veya sağda duvar var. Ses ilgili tarafa kayar.
+cue_enemy_normal=Düşman: Normal
+cue_enemy_normal_desc=Yakınlarda normal düşman. Yaklaştıkça bip sıklaşır.
+cue_enemy_elite=Düşman: Elit
+cue_enemy_elite_desc=Yakınlarda elit düşman. Titreşimli yavaş bip, normalden farklı.
+cue_enemy_boss=Düşman: Boss
+cue_enemy_boss_desc=Yakınlarda boss. Derin gümbürtü, kolayca ayırt edilir.
+cue_enemy_loot=Nadir Ganimet Düşmanı
+cue_enemy_loot_desc=Altın Lootbug veya Huuli Hoarder yakında. Parlak tırmanışlı zil sesi.
+cue_drop_pod=Kapsül İşareti
+cue_drop_pod_desc=Çıkış kapsülüne yönlendirir. Metalik sonar sesi.
+cue_drop_pod_critical=Kapsül: Kritik Yakınlık
+cue_drop_pod_critical_desc=Kapsüle çok yakın, 8 metreden az. Hızlı çift bip.
+cue_drop_pod_ramp=Kapsül: Rampa Sesi
+cue_drop_pod_ramp_desc=Rampada, 2.5 metreden yakın. Kapsül girişine yönelen sürekli ses.
+cue_supply_pod=Tedarik Kapsülü İşareti
+cue_supply_pod_desc=Tedarik kapsülü bölgelerine yönlendirir. Dalgalı tril sesi.
+cue_drill_beacon=Matkap İşareti
+cue_drill_beacon_desc=Eskort görevlerinde Bobby matkabına yönlendirir. Ritmik çekiç darbesi.
+cue_hazard=Tehlike Uyarısı
+cue_hazard_desc=Patlayıcılar veya yer dikenleri gibi tehlikeler yakında. Siren alarmı.
+cue_red_sugar=Toplanabilir: Kırmızı Şeker
+cue_red_sugar_desc=Yakınlarda can toplama. Damla sesi.
+cue_gear_drop=Toplanabilir: Teçhizat
+cue_gear_drop_desc=Yakınlarda silah veya ekipman. Zengin çift tonlu akor bipi.
+cue_buff=Toplanabilir: Güçlendirme
+cue_buff_desc=Yakınlarda güçlendirme. Elektrikli vızıltılı ses.
+cue_currency=Toplanabilir: Para
+cue_currency_desc=Yakınlarda altın veya mineral. Kısa kristal zil sesi.
+cue_mineral=Toplanabilir: Mineral Damarı
+cue_mineral_desc=Yakınlarda kazılabilir mineral damarı. Metalik tıkırtı.
+cue_loot_crate=Toplanabilir: Ganimet Sandığı
+cue_loot_crate_desc=Yakınlarda ganimet sandığı. Parıldayan ışıltı bipi.
+cue_xp=Toplanabilir: Yakın XP
+cue_xp_desc=Yerdeki XP küreleri. Hafif sürekli ses.
+cue_boss_charge=Boss: Hücum
+cue_boss_charge_desc=Boss size hücum ediyor. 3 hızlı saldırgan bip.
+cue_boss_spikes=Boss: Dikenler
+cue_boss_spikes_desc=Boss yerden diken çıkarıyor. 3 orta hızda derin bip.
+cue_boss_fireball=Boss: Ateş Topu
+cue_boss_fireball_desc=Boss mermi ateşliyor. 3 çok hızlı keskin bip.
+cue_boss_heal=Boss: İyileşme
+cue_boss_heal_desc=Boss kendini iyileştiriyor. 3 yavaş yumuşak bip.
+cue_audio_preview_header=Ses ipucu önizleme. Yukarı ve aşağı okla gezin, Enter ile dinleyin, Escape ile geri dönün. {0}. {1}
+
+# === Genel Arayüz ===
+ui_locked=Kilitli
+ui_completed=Tamamlandı
+ui_equipped=Kuşanılmış
+ui_empty=Boş
+ui_on=Açık
+ui_off=Kapalı
+ui_pinned=Sabitlenmiş
+ui_unpinned=Sabitlenmemiş
+ui_active=Aktif
+ui_previous=Önceki
+ui_next=Sonraki
+ui_new=Yeni
+ui_favorite=Favori
+ui_item=öge
+ui_selector=Seçici
+ui_points=puan
+ui_price=Fiyat: {0}
+ui_price_currency=Fiyat: {0} {1}
+ui_cannot_afford=Yeterli para yok
+
+# === Kayıt Yuvası ===
+save_slot=Kayıt Yuvası {0}
+
+# === Sınıf Seçimi ===
+class_unlock_rank=Oyuncu rütbesi {0} ile açılır
+class_unlock_requirement=Kilitli. Açmak için {0} sınıf tamamlaması gerekli
+class_weapon=Silah: {0}
+class_damage_type=Hasar türü: {0}
+
+# === Teçhizat ===
+gear_fallback=Teçhizat
+gear_tier=Kademe {0}
+gear_stats=İstatistikler: {0}
+gear_upgrade_cost=Yükseltme maliyeti: {0}
+gear_upgrade_available=Yükseltme mevcut
+gear_sell_value=Satış değeri: {0}
+gear_sell_available=Satış mevcut
+gear_level=Seviye {0}/{1}
+gear_level_no_max=Seviye {0}
+gear_cost=Maliyet: {0}
+gear_max_level=Maksimum seviye
+gear_slot_armor=Zırh
+gear_slot_companion=Yoldaş
+gear_slot_grinder=Öğütücü
+gear_slot_tank=Tank
+gear_slot_tool=Alet
+gear_slot_weapon_mod=Silah Modifikasyonu
+
+# === Görev ===
+mission_sector=Sektör {0}
+mission_gate=Kapı {0}
+mission_node=Görev Noktası
+mission_high_score=En yüksek skor: {0}
+mission_fixed_run=Sabit Sefer
+mission_hazard=Tehlike {0}
+
+# === Cüzdan Para Birimleri ===
+wallet_credits=Kredi
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Güç Çekirdeği
+wallet_artifact_rerolls=Eser Yenilemeleri
+wallet_mutator_rerolls=Mutatör Yenilemeleri
+wallet_ommoran_core=Ommoran Core

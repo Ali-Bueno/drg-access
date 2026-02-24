@@ -28,13 +28,13 @@ public static partial class UIButtonPatch
 
                     if (isLocked)
                     {
-                        result += ", Locked";
+                        result += ", " + ModLocalization.Get("ui_locked");
 
                         // Find unlock rank requirement from the page
                         int unlockRank = GetClassUnlockRank(classButton.dwarf);
                         if (unlockRank > 0)
                         {
-                            result += $". Unlocks at player rank {unlockRank}";
+                            result += ". " + ModLocalization.Get("class_unlock_rank", unlockRank);
                         }
                     }
                     else
@@ -118,11 +118,11 @@ public static partial class UIButtonPatch
                         int unlockValue = artifactButton.classUnlockValue;
                         if (unlockValue > 0)
                         {
-                            result += $", Locked. Requires {unlockValue} class completions to unlock";
+                            result += ", " + ModLocalization.Get("class_unlock_requirement", unlockValue);
                         }
                         else
                         {
-                            result += ", Locked";
+                            result += ", " + ModLocalization.Get("ui_locked");
                         }
                     }
                     else
@@ -150,7 +150,7 @@ public static partial class UIButtonPatch
                         string weaponInfo = GetWeaponInfo(artifactData.StarterWeapon);
                         if (!string.IsNullOrEmpty(weaponInfo))
                         {
-                            result += ". Weapon: " + weaponInfo;
+                            result += ". " + ModLocalization.Get("class_weapon", weaponInfo);
                         }
                     }
 
@@ -206,7 +206,7 @@ public static partial class UIButtonPatch
             if (!string.IsNullOrEmpty(damageTypeText))
             {
                 if (sb.Length > 0) sb.Append(". ");
-                sb.Append("Damage type: " + damageTypeText);
+                sb.Append(ModLocalization.Get("class_damage_type", damageTypeText));
             }
 
             return sb.Length > 0 ? sb.ToString() : null;

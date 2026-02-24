@@ -1,5 +1,6 @@
 using HarmonyLib;
 using DRS.UI;
+using drgAccess.Helpers;
 
 namespace drgAccess.Patches;
 
@@ -16,7 +17,7 @@ public static class UISliderTogglePatch
         try
         {
             bool isToggled = __instance.IsToggled;
-            string state = isToggled ? "On" : "Off";
+            string state = isToggled ? ModLocalization.Get("ui_on") : ModLocalization.Get("ui_off");
             string label = UISettingsPatch.GetControlLabel(__instance.transform);
             string msg = !string.IsNullOrEmpty(label)
                 ? $"{label}: {state}"

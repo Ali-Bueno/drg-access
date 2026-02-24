@@ -120,10 +120,10 @@ public class MilestoneReaderComponent : MonoBehaviour
             var uiMilestones = milestoneForm.uiMilestones;
             if (uiMilestones == null || uiMilestones.Count == 0)
             {
-                items.Add("No milestones");
+                items.Add(ModLocalization.Get("milestone_none"));
                 isActive = true;
                 selectedIndex = 0;
-                ScreenReader.Interrupt("Milestones. W and S to browse. No milestones in this category.");
+                ScreenReader.Interrupt(ModLocalization.Get("milestone_empty"));
                 return;
             }
 
@@ -153,12 +153,12 @@ public class MilestoneReaderComponent : MonoBehaviour
         }
 
         if (items.Count == 0)
-            items.Add("No milestones available");
+            items.Add(ModLocalization.Get("milestone_unavailable"));
 
         isActive = true;
         selectedIndex = 0;
 
-        string announcement = $"Milestones. {items.Count} items. W and S to browse. {items[0]}";
+        string announcement = ModLocalization.Get("milestone_header", items.Count, items[0]);
         ScreenReader.Interrupt(announcement);
     }
 
@@ -186,14 +186,14 @@ public class MilestoneReaderComponent : MonoBehaviour
         if (!string.IsNullOrEmpty(progress))
         {
             if (sb.Length > 0) sb.Append(". ");
-            sb.Append($"Progress: {progress}");
+            sb.Append(ModLocalization.Get("milestone_progress", progress));
         }
 
         // Completion status
         if (isComplete)
         {
             if (sb.Length > 0) sb.Append(". ");
-            sb.Append("Complete");
+            sb.Append(ModLocalization.Get("milestone_complete"));
         }
 
         // Reward
@@ -201,7 +201,7 @@ public class MilestoneReaderComponent : MonoBehaviour
         if (!string.IsNullOrEmpty(reward))
         {
             if (sb.Length > 0) sb.Append(". ");
-            sb.Append($"Reward: {reward}");
+            sb.Append(ModLocalization.Get("milestone_reward", reward));
         }
 
         // Requirements
@@ -220,7 +220,7 @@ public class MilestoneReaderComponent : MonoBehaviour
                     if (!string.IsNullOrEmpty(reqText))
                     {
                         if (sb.Length > 0) sb.Append(". ");
-                        sb.Append($"Requires: {reqText}");
+                        sb.Append(ModLocalization.Get("milestone_requires", reqText));
                     }
                 }
             }

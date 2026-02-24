@@ -20,6 +20,9 @@ public class Plugin : BasePlugin
         // Load mod configuration
         Helpers.ModConfig.Load();
 
+        // Initialize localization (detects game language, loads strings)
+        Helpers.ModLocalization.Init();
+
         // Initialize Tolk for screen reader support
         InitializeTolk();
 
@@ -50,7 +53,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.ObjectiveReaderComponent>();
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded successfully!");
-        ScreenReader.Say("DRG Survivor Accessibility mod loaded");
+        ScreenReader.Say(Helpers.ModLocalization.Get("mod_loaded"));
     }
 
     private void InitializeTolk()

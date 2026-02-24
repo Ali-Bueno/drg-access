@@ -1,0 +1,363 @@
+# DRG Access Mod - Русский (ru)
+# Отредактируйте этот файл, чтобы настроить сообщения мода для вашего языка.
+# Формат: ключ=значение (по одному на строку). Строки, начинающиеся с #, являются комментариями.
+
+# === Мод ===
+mod_loaded=Мод доступности DRG Survivor загружен
+
+# === Направления (вид сверху: вверх=W, вниз=S, влево=A, вправо=D) ===
+dir_up=вверх
+dir_down=вниз
+dir_left=влево
+dir_right=вправо
+dir_up_left=вверх-влево
+dir_up_right=вверх-вправо
+dir_down_left=вниз-влево
+dir_down_right=вниз-вправо
+dir_ahead=впереди
+
+# === Объявления форм ===
+form_main_menu=Главное меню
+form_play_menu=Меню игры
+form_settings=Настройки
+form_gear_inventory=Инвентарь снаряжения
+form_stat_upgrades=Улучшение характеристик
+form_shop=Магазин
+form_skin_overrides=Выбор скинов
+form_loading=Загрузка
+form_level_up=Повышение уровня
+form_level_up_title=Повышение уровня: {0}
+form_overclock=Разгон
+form_overclock_weapon=Разгон: {0}
+form_unlock=Разблокировка
+form_mastery_unlock=Разблокировка мастерства
+form_run_summary=Итоги забега
+form_credits=Кредиты: {0}
+form_xp=Опыт: {0}
+form_rank=Ранг: {0}
+form_mutator_selection=Выбор мутаторов
+form_gear_found=Найдено снаряжение
+form_gear_details=Детали снаряжения
+form_score=Счёт
+form_splash_press_key=Нажмите любую клавишу
+form_brightness_instructions=Настройка яркости. Используйте стрелки влево и вправо для регулировки яркости, затем нажмите Enter для подтверждения
+form_brightness_short=Настройка яркости. Стрелки влево-вправо для регулировки, Enter для подтверждения
+form_brightness_confirmed=Яркость подтверждена
+form_save_slot_selection=Выбор слота сохранения
+form_delete_confirm=Удалить слот сохранения {0}? Нажмите Enter для подтверждения, Escape для отмены
+form_delete_confirm_generic=Удалить слот сохранения? Нажмите Enter для подтверждения, Escape для отмены
+form_save_deleted=Слот сохранения удалён
+form_cancelled=Отменено
+
+# === Босс ===
+boss_charge=Атака!
+boss_spikes=Шипы!
+boss_fireball=Огненный шар!
+boss_healing=Лечение!
+boss_appeared=Босс!
+boss_hp_percent=Босс {0}%
+boss_defeated=Босс повержен!
+boss_healed=Босс исцелился
+
+# === Капсула ===
+pod_inside=Внутри капсулы
+pod_almost_inside=Почти внутри, продолжайте
+pod_near_ramp=Рядом с капсулой, следуйте за звуком внутрь
+pod_very_close=Капсула очень близко
+pod_compass_ramp=Вход в капсулу: {0}, {1}
+pod_compass_normal=Капсула: {0}, {1} метров
+
+# === Зона снабжения ===
+zone_inside=Внутри зоны снабжения
+zone_left_activating=Покинули зону снабжения, вернитесь в зону
+zone_left=Покинули зону снабжения
+zone_complete=Зона снабжения завершена
+zone_clearing=Очистка зоны, {0} камней для добычи
+zone_activating=Зона активируется
+zone_rocks_remaining=Осталось камней: {0}
+zone_all_cleared=Все камни очищены
+zone_timer=Осталось {0} секунд
+
+# === Маяк бура (Bobby) ===
+drill_stopped=Bobby остановился
+drill_arriving=Bobby прибывает
+drill_started=Bobby начал
+drill_mining=Bobby добывает сердце камня
+drill_broken=Bobby сломан
+drill_finished=Bobby завершил
+drill_out_of_range=Вне зоны Bobby, подойдите ближе
+drill_fuel_critical=Топливо критическое, 10 процентов
+drill_fuel_25=Топливо 25 процентов
+drill_fuel_50=Топливо 50 процентов
+drill_progress_halfway=Bobby на полпути
+drill_progress_percent=Bobby прошёл {0} процентов
+drill_compass=Bobby: {0}, {1} метров
+
+# === Близость врагов ===
+enemy_exploder_very_close=Взрывник очень близко!
+enemy_boss_very_close=Босс очень близко!
+enemy_elite_very_close=Элитный очень близко!
+enemy_exploder_nearby=Взрывник рядом
+enemy_boss_nearby=Босс рядом
+enemy_elite_nearby=Элитный рядом
+enemy_nearby_singular=Враг рядом
+enemy_nearby_plural=Врагов рядом: {0}
+
+# === Предметы ===
+collect_red_sugar=Красный сахар
+collect_gear=Снаряжение
+collect_buff=Усиление
+collect_currency=Валюта
+collect_mineral_vein=Минеральная жила
+collect_loot_crate=Сундук с добычей
+collect_xp=Опыт
+collect_nearby={0} рядом{1}
+collect_closer={0} ближе{1}
+collect_very_close={0} очень близко{1}
+collect_magnet=Магнит
+collect_speed_boost=Ускорение
+collect_mining_speed=Скорость добычи
+collect_berserk=Берсерк
+collect_artifact_magnet=Магнит артефактов
+
+# === Обратная связь действий ===
+action_bought=Куплено
+action_cannot_afford=Недостаточно средств
+action_sold=Продано
+action_nothing_to_sell=Нечего продавать
+action_cannot_sell=Невозможно продать
+action_max_level=Максимальный уровень достигнут
+action_upgraded_to_max=Улучшено до уровня {0}/{1}
+action_upgraded_to=Улучшено до уровня {0}
+action_purchased=Куплено: {0}
+action_rerolled=Обновлено
+action_reroll_fail=Недостаточно средств для обновления
+action_healed=Вылечено
+action_heal_fail=Недостаточно средств для лечения
+action_equipped=Экипировано: {0}
+action_unequipped=Снято: {0}
+action_gear_upgraded=Улучшено: {0}
+action_salvaged=Разобрано: {0}
+
+# === Кошелёк ===
+wallet_unavailable=Кошелёк недоступен
+wallet_gold=Золото: {0}
+wallet_no_currency=Нет валюты
+wallet_error=Не удалось прочитать кошелёк
+
+# === Экипированное снаряжение (клавиша T) ===
+gear_no_inventory=Нет инвентаря снаряжения
+gear_no_equipped_panel=Нет панели экипировки
+gear_equipped_header=Экипированное снаряжение
+gear_equipped_none=: Нет
+gear_equipped_error=Не удалось прочитать экипировку
+
+# === Подбор предметов ===
+pickup_healed=Вылечено {0} ОЗ
+pickup_gear_named=Подобрано: {0}
+pickup_gear_generic=Снаряжение подобрано
+pickup_loot_crate=Сундук с добычей: {0}
+
+# === Чтение ОЗ ===
+hp_no_player=Игрок не найден
+hp_format=ОЗ: {0} / {1}
+hp_format_percent=ОЗ: {0}%
+
+# === Задания ===
+obj_none=Нет заданий
+obj_no_active=Нет активных заданий
+obj_single=Задание: {0}
+obj_multiple=Задания: {0}
+
+# === Вехи ===
+milestone_none=Нет вех
+milestone_empty=Вехи. W и S для навигации. В этой категории нет вех.
+milestone_unavailable=Вехи недоступны
+milestone_header=Вехи. Элементов: {0}. W и S для навигации. {1}
+milestone_progress=Прогресс: {0}
+milestone_complete=Завершено
+milestone_reward=Награда: {0}
+milestone_requires=Требуется: {0}
+
+# === Меню паузы ===
+pause_header=Игра на паузе. Вверх и вниз для навигации, Enter для выбора, Escape для возобновления. {0}
+pause_weapons=Оружие. {0}
+pause_artifacts=Артефакты. {0}
+pause_stats=Характеристики. {0}
+pause_level=Уровень {0}
+pause_resume=Продолжить
+pause_menu=Меню
+pause_settings=Настройки
+pause_no_info=Информация недоступна
+
+# === Экран конца ===
+end_header=Экран результатов. Стрелки вверх-вниз для навигации, Enter для выбора. {0}
+end_rank_xp=Опыт ранга: {0}
+end_endless_rank_xp=Опыт бесконечного режима: {0}
+end_hazard=Опасность: {0}
+end_stages=Этапы: {0}
+end_credits=Кредиты: {0}
+end_endless_credits=Кредиты бесконечного режима: {0}
+end_resources=Ресурсы:
+end_weapon_report=Отчёт по оружию.
+end_level=Уровень {0}
+end_damage=Урон: {0}
+end_dps=УВС: {0}
+end_damage_breakdown=Распределение урона
+end_total=Всего: {0}
+end_player_stats=Характеристики игрока
+end_exploration=Статистика исследования
+end_no_info=Информация недоступна
+end_retry=Повторить
+end_continue=Продолжить
+end_go_endless=Бесконечный режим
+
+# === Меню настроек мода ===
+setting_wall_nav=Навигация по стенам
+setting_enemy_detect=Обнаружение врагов
+setting_drop_pod=Маяк капсулы
+setting_supply_pod=Маяк снабжения
+setting_hazard=Предупреждение об опасности
+setting_collectibles=Предметы
+setting_footsteps_toggle=Шаги
+setting_footsteps_vol=Громкость шагов
+setting_boss_attacks=Атаки босса
+setting_drill_beacon=Маяк бура
+setting_enemy_range=Дальность обнаружения врагов
+setting_hazard_range=Дальность предупреждения об опасности
+setting_collect_range=Дальность обнаружения предметов
+setting_wall_range=Дальность обнаружения стен
+setting_max_hazard=Макс. предупреждений об опасности
+setting_audio_cue_preview=Предпрослушивание звуковых сигналов
+setting_save=Сохранить изменения
+setting_cancel=Отмена
+toggle_on=Вкл
+toggle_off=Выкл
+setting_meters={0} метров
+setting_multiplier={0}x
+setting_saved=Настройки сохранены
+setting_cancelled=Изменения отменены
+setting_menu_header=Настройки мода. Вверх-вниз для навигации, влево-вправо для регулировки громкости, Enter для предпрослушивания или активации, F1 или Escape для закрытия.
+
+# === Названия и описания звуковых сигналов ===
+cue_wall_forward=Стена: Впереди
+cue_wall_forward_desc=Стена впереди. Громкость увеличивается при приближении.
+cue_wall_backward=Стена: Позади
+cue_wall_backward_desc=Стена позади вас. Громкость увеличивается при приближении.
+cue_wall_sides=Стена: По бокам
+cue_wall_sides_desc=Стена слева или справа. Звук смещается в соответствующую сторону.
+cue_enemy_normal=Враг: Обычный
+cue_enemy_normal_desc=Обычный враг рядом. Пикает быстрее при приближении.
+cue_enemy_elite=Враг: Элитный
+cue_enemy_elite_desc=Элитный враг рядом. Медленный вибрирующий сигнал, отличается от обычного.
+cue_enemy_boss=Враг: Босс
+cue_enemy_boss_desc=Босс рядом. Глубокий гул, не спутать ни с чем.
+cue_enemy_loot=Редкий добычный враг
+cue_enemy_loot_desc=Золотой жук или Хуули-собиратель рядом. Яркий восходящий перезвон.
+cue_drop_pod=Маяк капсулы
+cue_drop_pod_desc=Ведёт к капсуле эвакуации. Металлический сонарный импульс.
+cue_drop_pod_critical=Капсула: Критическое расстояние
+cue_drop_pod_critical_desc=Очень близко к капсуле, менее 8 метров. Быстрый двойной сигнал.
+cue_drop_pod_ramp=Капсула: Тон рампы
+cue_drop_pod_ramp_desc=На рампе, менее 2,5 метров. Непрерывный тон к входу в капсулу.
+cue_supply_pod=Маяк снабжения
+cue_supply_pod_desc=Ведёт к зонам снабжения. Трель с вибрацией.
+cue_drill_beacon=Маяк бура
+cue_drill_beacon_desc=Ведёт к буру Bobby на миссиях сопровождения. Ритмичный стучащий импульс.
+cue_hazard=Предупреждение об опасности
+cue_hazard_desc=Опасность рядом, например взрывники или шипы. Сирена тревоги.
+cue_red_sugar=Предмет: Красный сахар
+cue_red_sugar_desc=Лечебный предмет рядом. Звук падающей капли.
+cue_gear_drop=Предмет: Снаряжение
+cue_gear_drop_desc=Оружие или экипировка рядом. Богатый двухтональный аккорд.
+cue_buff=Предмет: Усиление
+cue_buff_desc=Усиление рядом. Электрический жужжащий тон.
+cue_currency=Предмет: Валюта
+cue_currency_desc=Золото или минерал рядом. Короткий кристаллический перезвон.
+cue_mineral=Предмет: Минеральная жила
+cue_mineral_desc=Добываемая минеральная жила рядом. Металлический звон.
+cue_loot_crate=Предмет: Сундук с добычей
+cue_loot_crate_desc=Сундук с добычей рядом. Мерцающий искристый сигнал.
+cue_xp=Предмет: Опыт рядом
+cue_xp_desc=Сферы опыта на земле. Мягкий непрерывный тон.
+cue_boss_charge=Босс: Атака
+cue_boss_charge_desc=Босс бросается на вас. 3 быстрых агрессивных сигнала.
+cue_boss_spikes=Босс: Шипы
+cue_boss_spikes_desc=Босс создаёт шипы из земли. 3 средних глубоких сигнала.
+cue_boss_fireball=Босс: Огненный шар
+cue_boss_fireball_desc=Босс стреляет снарядами. 3 очень быстрых резких сигнала.
+cue_boss_heal=Босс: Лечение
+cue_boss_heal_desc=Босс лечит себя. 3 медленных мягких сигнала.
+cue_audio_preview_header=Предпрослушивание звуковых сигналов. Вверх-вниз для навигации, Enter для прослушивания, Escape для возврата. {0}. {1}
+
+# === Общие элементы интерфейса ===
+ui_locked=Заблокировано
+ui_completed=Завершено
+ui_equipped=Экипировано
+ui_empty=Пусто
+ui_on=Вкл
+ui_off=Выкл
+ui_pinned=Закреплено
+ui_unpinned=Откреплено
+ui_active=Активно
+ui_previous=Предыдущий
+ui_next=Следующий
+ui_new=Новый
+ui_favorite=Избранное
+ui_item=предмет
+ui_selector=Выбор
+ui_points=очки
+ui_price=Цена: {0}
+ui_price_currency=Цена: {0} {1}
+ui_cannot_afford=Недостаточно средств
+
+# === Слот сохранения ===
+save_slot=Слот сохранения {0}
+
+# === Выбор класса ===
+class_unlock_rank=Открывается на ранге игрока {0}
+class_unlock_requirement=Заблокировано. Требуется {0} прохождений классов для разблокировки
+class_weapon=Оружие: {0}
+class_damage_type=Тип урона: {0}
+
+# === Снаряжение ===
+gear_fallback=Снаряжение
+gear_tier=Уровень {0}
+gear_stats=Характеристики: {0}
+gear_upgrade_cost=Стоимость улучшения: {0}
+gear_upgrade_available=Доступно улучшение
+gear_sell_value=Стоимость продажи: {0}
+gear_sell_available=Доступна продажа
+gear_level=Уровень {0}/{1}
+gear_level_no_max=Уровень {0}
+gear_cost=Стоимость: {0}
+gear_max_level=Максимальный уровень
+gear_slot_armor=Броня
+gear_slot_companion=Компаньон
+gear_slot_grinder=Дробилка
+gear_slot_tank=Танк
+gear_slot_tool=Инструмент
+gear_slot_weapon_mod=Модуль оружия
+
+# === Миссия ===
+mission_sector=Сектор {0}
+mission_gate=Врата {0}
+mission_node=Узел миссии
+mission_high_score=Рекорд: {0}
+mission_fixed_run=Фиксированный забег
+mission_hazard=Опасность {0}
+
+# === Валюты кошелька ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=Перебросы артефактов
+wallet_mutator_rerolls=Перебросы мутаторов
+wallet_ommoran_core=Ommoran Core

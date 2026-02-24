@@ -2,6 +2,46 @@ CHANGELOG
 =========
 
 
+v0.6.0 - February 24, 2026
+---------------------------
+
+New Features:
+
+  - Full Mod Localization: All mod-specific messages (screen reader
+    announcements, settings labels, audio cue descriptions, form
+    announcements, gameplay alerts, etc.) are now localized in 22
+    languages matching the game's supported locales:
+      * English, German, French, Spanish (Spain), Spanish (Latin America),
+        Italian, Portuguese (Portugal), Portuguese (Brazil), Russian,
+        Japanese, Korean, Chinese (Simplified), Chinese (Traditional),
+        Dutch, Bulgarian, Czech, Hungarian, Polish, Romanian, Slovak,
+        Turkish, Ukrainian
+
+  - Automatic Language Detection: The mod automatically detects the game's
+    current language setting and loads the matching translation file. If a
+    translation is missing for a key, it falls back to English.
+
+  - Runtime Language Switching: When the player changes the game language
+    in settings, mod messages update automatically without restarting.
+
+  - Editable Translation Files: All translations are stored in plain text
+    files (localization/*.txt) using a simple key=value format. Users can
+    freely edit these files to customize or correct any mod message.
+
+    Note: Translations were generated with AI assistance. If you'd like to
+    improve a translation, feel free to edit the .txt file for your
+    language. If you'd like your improvements included in the official mod,
+    please let me know!
+
+  - ~360 localized string keys covering: form/menu announcements, boss
+    attack telegraphs, drop pod/supply zone/drill beacon, enemy proximity,
+    collectible proximity, action feedback, wallet, pickups, HP reader,
+    objectives, milestones, pause/end screen reader, mod settings menu,
+    audio cue previews, gear inventory labels, mission/sector/gate labels,
+    save slot text, and all common UI terms (Locked, Equipped, On/Off,
+    Pinned/Unpinned, etc.)
+
+
 v0.5.8 - February 24, 2026
 ---------------------------
 

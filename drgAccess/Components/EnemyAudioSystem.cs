@@ -716,7 +716,7 @@ namespace drgAccess.Components
                 // Priority 1: Explosive very close (interrupt)
                 if (closestExploderDistance < VERY_CLOSE_THRESHOLD && currentTime >= nextVeryCloseAnnounceTime)
                 {
-                    ScreenReader.Interrupt("Explosive very close!");
+                    ScreenReader.Interrupt(ModLocalization.Get("enemy_exploder_very_close"));
                     nextVeryCloseAnnounceTime = currentTime + VERY_CLOSE_ANNOUNCE_COOLDOWN;
                     nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
                     return;
@@ -725,7 +725,7 @@ namespace drgAccess.Components
                 // Priority 2: Boss very close (interrupt)
                 if (closestBossDistance < VERY_CLOSE_THRESHOLD && currentTime >= nextVeryCloseAnnounceTime)
                 {
-                    ScreenReader.Interrupt("Boss very close!");
+                    ScreenReader.Interrupt(ModLocalization.Get("enemy_boss_very_close"));
                     nextVeryCloseAnnounceTime = currentTime + VERY_CLOSE_ANNOUNCE_COOLDOWN;
                     nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
                     return;
@@ -734,7 +734,7 @@ namespace drgAccess.Components
                 // Priority 3: Elite very close (interrupt)
                 if (closestEliteDistance < VERY_CLOSE_THRESHOLD && currentTime >= nextVeryCloseAnnounceTime)
                 {
-                    ScreenReader.Interrupt("Elite very close!");
+                    ScreenReader.Interrupt(ModLocalization.Get("enemy_elite_very_close"));
                     nextVeryCloseAnnounceTime = currentTime + VERY_CLOSE_ANNOUNCE_COOLDOWN;
                     nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
                     return;
@@ -745,19 +745,19 @@ namespace drgAccess.Components
                 {
                     if (closestExploderDistance < NEARBY_THRESHOLD)
                     {
-                        ScreenReader.Say("Explosive nearby");
+                        ScreenReader.Say(ModLocalization.Get("enemy_exploder_nearby"));
                         nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
                         return;
                     }
                     if (closestBossDistance < NEARBY_THRESHOLD)
                     {
-                        ScreenReader.Say("Boss nearby");
+                        ScreenReader.Say(ModLocalization.Get("enemy_boss_nearby"));
                         nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
                         return;
                     }
                     if (closestEliteDistance < NEARBY_THRESHOLD)
                     {
-                        ScreenReader.Say("Elite nearby");
+                        ScreenReader.Say(ModLocalization.Get("enemy_elite_nearby"));
                         nextSpecialAnnounceTime = currentTime + SPECIAL_ANNOUNCE_COOLDOWN;
                         return;
                     }
@@ -769,9 +769,9 @@ namespace drgAccess.Components
                     if (nearbyEnemyCount > 0 && !wasEnemyNearby)
                     {
                         if (nearbyEnemyCount == 1)
-                            ScreenReader.Say("Enemy nearby");
+                            ScreenReader.Say(ModLocalization.Get("enemy_nearby_singular"));
                         else
-                            ScreenReader.Say($"{nearbyEnemyCount} enemies nearby");
+                            ScreenReader.Say(ModLocalization.Get("enemy_nearby_plural", nearbyEnemyCount));
                         nextGeneralAnnounceTime = currentTime + GENERAL_ANNOUNCE_COOLDOWN;
                     }
                 }

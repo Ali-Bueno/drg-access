@@ -1,0 +1,363 @@
+# DRG Access Mod - 한국어 (ko)
+# 이 파일을 편집하여 모드 메시지를 한국어로 변경할 수 있습니다.
+# 형식: key=value (한 줄에 하나). #으로 시작하는 줄은 주석입니다.
+
+# === 모드 ===
+mod_loaded=DRG Survivor 접근성 모드 로드 완료
+
+# === 방향 (탑다운: 위=W, 아래=S, 왼쪽=A, 오른쪽=D) ===
+dir_up=위
+dir_down=아래
+dir_left=왼쪽
+dir_right=오른쪽
+dir_up_left=왼쪽 위
+dir_up_right=오른쪽 위
+dir_down_left=왼쪽 아래
+dir_down_right=오른쪽 아래
+dir_ahead=전방
+
+# === 화면 알림 ===
+form_main_menu=메인 메뉴
+form_play_menu=플레이 메뉴
+form_settings=설정
+form_gear_inventory=장비 보관함
+form_stat_upgrades=스탯 강화
+form_shop=상점
+form_skin_overrides=스킨 변경
+form_loading=로딩 중
+form_level_up=레벨 업
+form_level_up_title=레벨 업: {0}
+form_overclock=오버클럭
+form_overclock_weapon=오버클럭: {0}
+form_unlock=잠금 해제
+form_mastery_unlock=마스터리 잠금 해제
+form_run_summary=런 요약
+form_credits=크레딧: {0}
+form_xp=경험치: {0}
+form_rank=랭크: {0}
+form_mutator_selection=변이 선택
+form_gear_found=장비 획득
+form_gear_details=장비 상세
+form_score=점수
+form_splash_press_key=아무 키나 누르세요
+form_brightness_instructions=밝기 조정. 좌우 화살표로 밝기를 조정한 후 Enter로 확인하세요
+form_brightness_short=밝기 조정. 좌우 화살표로 조정, Enter로 확인
+form_brightness_confirmed=밝기 확인 완료
+form_save_slot_selection=세이브 슬롯 선택
+form_delete_confirm=세이브 슬롯 {0} 삭제? Enter로 확인, Escape로 취소
+form_delete_confirm_generic=세이브 슬롯 삭제? Enter로 확인, Escape로 취소
+form_save_deleted=세이브 슬롯 삭제 완료
+form_cancelled=취소됨
+
+# === 보스 ===
+boss_charge=돌진!
+boss_spikes=가시!
+boss_fireball=화염구!
+boss_healing=회복 중!
+boss_appeared=보스!
+boss_hp_percent=보스 {0}%
+boss_defeated=보스 처치!
+boss_healed=보스 회복
+
+# === 드롭 포드 ===
+pod_inside=포드 내부
+pod_almost_inside=거의 도착, 계속 이동
+pod_near_ramp=포드 근처, 소리를 따라 들어가세요
+pod_very_close=드롭 포드 매우 가까움
+pod_compass_ramp=포드 입구: {0}, {1}
+pod_compass_normal=드롭 포드: {0}, {1}미터
+
+# === 보급 구역 ===
+zone_inside=보급 구역 내부
+zone_left_activating=보급 구역 이탈, 구역으로 돌아가세요
+zone_left=보급 구역 이탈
+zone_complete=보급 구역 완료
+zone_clearing=구역 정리 중, 채굴할 바위 {0}개
+zone_activating=구역 활성화 중
+zone_rocks_remaining=바위 {0}개 남음
+zone_all_cleared=모든 바위 제거 완료
+zone_timer={0}초 남음
+
+# === 드릴 비콘 (바비) ===
+drill_stopped=바비 정지
+drill_arriving=바비 도착 중
+drill_started=바비 시작
+drill_mining=바비가 하트스톤을 채굴 중
+drill_broken=바비 고장
+drill_finished=바비 완료
+drill_out_of_range=바비 범위 밖, 가까이 가세요
+drill_fuel_critical=연료 위험, 10퍼센트
+drill_fuel_25=연료 25퍼센트
+drill_fuel_50=연료 50퍼센트
+drill_progress_halfway=바비 절반 완료
+drill_progress_percent=바비 {0}퍼센트 진행
+drill_compass=바비: {0}, {1}미터
+
+# === 적 근접 ===
+enemy_exploder_very_close=폭발충 매우 가까움!
+enemy_boss_very_close=보스 매우 가까움!
+enemy_elite_very_close=정예 매우 가까움!
+enemy_exploder_nearby=폭발충 근처
+enemy_boss_nearby=보스 근처
+enemy_elite_nearby=정예 근처
+enemy_nearby_singular=적 근처
+enemy_nearby_plural=적 {0}마리 근처
+
+# === 수집품 ===
+collect_red_sugar=레드 슈가
+collect_gear=장비
+collect_buff=버프
+collect_currency=재화
+collect_mineral_vein=광맥
+collect_loot_crate=전리품 상자
+collect_xp=경험치
+collect_nearby={0} 근처{1}
+collect_closer={0} 가까워짐{1}
+collect_very_close={0} 매우 가까움{1}
+collect_magnet=자석
+collect_speed_boost=이동속도 증가
+collect_mining_speed=채굴속도 증가
+collect_berserk=광폭화
+collect_artifact_magnet=아티팩트 자석
+
+# === 행동 피드백 ===
+action_bought=구매 완료
+action_cannot_afford=자원 부족
+action_sold=판매 완료
+action_nothing_to_sell=판매할 것 없음
+action_cannot_sell=판매 불가
+action_max_level=최대 레벨 도달
+action_upgraded_to_max=레벨 {0}/{1}로 강화 완료
+action_upgraded_to=레벨 {0}로 강화 완료
+action_purchased={0} 구매 완료
+action_rerolled=리롤 완료
+action_reroll_fail=리롤 자원 부족
+action_healed=회복 완료
+action_heal_fail=회복 자원 부족
+action_equipped={0} 장착
+action_unequipped={0} 해제
+action_gear_upgraded={0} 강화 완료
+action_salvaged={0} 분해 완료
+
+# === 지갑 ===
+wallet_unavailable=지갑 정보 없음
+wallet_gold=골드: {0}
+wallet_no_currency=재화 없음
+wallet_error=지갑 정보를 읽을 수 없음
+
+# === 장착 장비 (T 키) ===
+gear_no_inventory=장비 보관함 없음
+gear_no_equipped_panel=장착 장비 패널 없음
+gear_equipped_header=장착 중인 장비
+gear_equipped_none=: 없음
+gear_equipped_error=장착 장비를 읽을 수 없음
+
+# === 획득 ===
+pickup_healed={0} HP 회복
+pickup_gear_named={0} 획득
+pickup_gear_generic=장비 획득
+pickup_loot_crate={0} 전리품 상자
+
+# === HP 읽기 ===
+hp_no_player=플레이어를 찾을 수 없음
+hp_format=HP: {0} / {1}
+hp_format_percent=HP: {0}%
+
+# === 목표 ===
+obj_none=목표 없음
+obj_no_active=진행 중인 목표 없음
+obj_single=목표: {0}
+obj_multiple=목표: {0}
+
+# === 마일스톤 ===
+milestone_none=마일스톤 없음
+milestone_empty=마일스톤. W와 S로 탐색. 이 카테고리에 마일스톤이 없습니다.
+milestone_unavailable=사용 가능한 마일스톤 없음
+milestone_header=마일스톤. {0}개 항목. W와 S로 탐색. {1}
+milestone_progress=진행: {0}
+milestone_complete=완료
+milestone_reward=보상: {0}
+milestone_requires=요구 사항: {0}
+
+# === 일시정지 메뉴 ===
+pause_header=일시정지. 위아래로 탐색, Enter로 선택, Escape로 재개. {0}
+pause_weapons=무기. {0}
+pause_artifacts=아티팩트. {0}
+pause_stats=스탯. {0}
+pause_level=레벨 {0}
+pause_resume=재개
+pause_menu=메뉴
+pause_settings=설정
+pause_no_info=정보 없음
+
+# === 종료 화면 ===
+end_header=종료 화면. 위아래 화살표로 탐색, Enter로 선택. {0}
+end_rank_xp=랭크 경험치: {0}
+end_endless_rank_xp=끝없는 모드 랭크 경험치: {0}
+end_hazard=위험도: {0}
+end_stages=스테이지: {0}
+end_credits=크레딧: {0}
+end_endless_credits=끝없는 모드 크레딧: {0}
+end_resources=자원:
+end_weapon_report=무기 보고서.
+end_level=레벨 {0}
+end_damage=피해량: {0}
+end_dps=초당 피해량: {0}
+end_damage_breakdown=피해 유형 분석
+end_total=합계: {0}
+end_player_stats=플레이어 스탯
+end_exploration=탐사 스탯
+end_no_info=정보 없음
+end_retry=재시도
+end_continue=계속
+end_go_endless=끝없는 모드
+
+# === 모드 설정 메뉴 ===
+setting_wall_nav=벽 탐지
+setting_enemy_detect=적 탐지
+setting_drop_pod=드롭 포드 비콘
+setting_supply_pod=보급 포드 비콘
+setting_hazard=위험 경고
+setting_collectibles=수집품
+setting_footsteps_toggle=발소리
+setting_footsteps_vol=발소리 볼륨
+setting_boss_attacks=보스 공격
+setting_drill_beacon=드릴 비콘
+setting_enemy_range=적 탐지 범위
+setting_hazard_range=위험 경고 범위
+setting_collect_range=수집품 범위
+setting_wall_range=벽 탐지 범위
+setting_max_hazard=최대 위험 경고 수
+setting_audio_cue_preview=오디오 큐 미리듣기
+setting_save=변경 저장
+setting_cancel=취소
+toggle_on=켜짐
+toggle_off=꺼짐
+setting_meters={0}미터
+setting_multiplier={0}배
+setting_saved=설정 저장 완료
+setting_cancelled=변경 취소됨
+setting_menu_header=모드 설정. 위아래로 탐색, 좌우로 값 조정, Enter로 미리듣기 또는 활성화, F1 또는 Escape로 닫기.
+
+# === 오디오 큐 이름 + 설명 ===
+cue_wall_forward=벽: 전방
+cue_wall_forward_desc=전방에 벽. 가까울수록 소리가 커집니다.
+cue_wall_backward=벽: 후방
+cue_wall_backward_desc=뒤에 벽. 가까울수록 소리가 커집니다.
+cue_wall_sides=벽: 측면
+cue_wall_sides_desc=좌측 또는 우측에 벽. 해당 방향으로 패닝됩니다.
+cue_enemy_normal=적: 일반
+cue_enemy_normal_desc=일반 적 근처. 가까울수록 빠르게 울립니다.
+cue_enemy_elite=적: 정예
+cue_enemy_elite_desc=정예 적 근처. 일반과 구별되는 느린 진동음.
+cue_enemy_boss=적: 보스
+cue_enemy_boss_desc=보스 적 근처. 깊은 울림, 확실히 구별 가능.
+cue_enemy_loot=희귀 전리품 적
+cue_enemy_loot_desc=황금 전리벌레 또는 훌리 호더 근처. 밝은 상승 차임.
+cue_drop_pod=드롭 포드 비콘
+cue_drop_pod_desc=추출 포드로 안내. 금속성 소나 핑.
+cue_drop_pod_critical=드롭 포드: 긴급
+cue_drop_pod_critical_desc=포드 매우 가까움, 8미터 이내. 빠른 이중 비프.
+cue_drop_pod_ramp=드롭 포드: 램프 톤
+cue_drop_pod_ramp_desc=램프 위, 2.5미터 이내. 포드 입구를 향한 연속 톤.
+cue_supply_pod=보급 포드 비콘
+cue_supply_pod_desc=보급 포드 구역으로 안내. 떨리는 트릴.
+cue_drill_beacon=드릴 비콘
+cue_drill_beacon_desc=호위 임무 중 바비 드릴로 안내. 리드미컬한 펄스.
+cue_hazard=위험 경고
+cue_hazard_desc=폭발충이나 지면 가시 등 위험 근처. 사이렌 경보.
+cue_red_sugar=수집품: 레드 슈가
+cue_red_sugar_desc=체력 회복 아이템 근처. 물방울 소리.
+cue_gear_drop=수집품: 장비 드롭
+cue_gear_drop_desc=무기 또는 장비 드롭 근처. 풍부한 이중 화음 비프.
+cue_buff=수집품: 버프
+cue_buff_desc=버프 아이템 근처. 전기적 윙윙 소리.
+cue_currency=수집품: 재화
+cue_currency_desc=골드 또는 광물 드롭 근처. 짧은 수정 차임.
+cue_mineral=수집품: 광맥
+cue_mineral_desc=채굴 가능한 광맥 근처. 금속 부딪히는 소리.
+cue_loot_crate=수집품: 전리품 상자
+cue_loot_crate_desc=전리품 상자 근처. 반짝이는 빛 소리 비프.
+cue_xp=수집품: 경험치
+cue_xp_desc=바닥의 경험치 구슬. 부드러운 연속 톤.
+cue_boss_charge=보스: 돌진
+cue_boss_charge_desc=보스 돌진 중. 3회 빠른 공격적 비프.
+cue_boss_spikes=보스: 가시
+cue_boss_spikes_desc=보스가 지면 가시 생성 중. 3회 중간 깊은 비프.
+cue_boss_fireball=보스: 화염구
+cue_boss_fireball_desc=보스가 투사체 발사 중. 3회 매우 빠른 날카로운 비프.
+cue_boss_heal=보스: 회복
+cue_boss_heal_desc=보스 자가 회복 중. 3회 느린 부드러운 비프.
+cue_audio_preview_header=오디오 큐 미리듣기. 위아래로 탐색, Enter로 재생, Escape로 돌아가기. {0}. {1}
+
+# === UI 공통 ===
+ui_locked=잠김
+ui_completed=완료
+ui_equipped=장착 중
+ui_empty=비어 있음
+ui_on=켜짐
+ui_off=꺼짐
+ui_pinned=고정됨
+ui_unpinned=고정 해제
+ui_active=활성
+ui_previous=이전
+ui_next=다음
+ui_new=신규
+ui_favorite=즐겨찾기
+ui_item=아이템
+ui_selector=선택기
+ui_points=포인트
+ui_price=가격: {0}
+ui_price_currency=가격: {0} {1}
+ui_cannot_afford=자원 부족
+
+# === 세이브 슬롯 ===
+save_slot=세이브 슬롯 {0}
+
+# === 클래스 선택 ===
+class_unlock_rank=플레이어 랭크 {0}에서 잠금 해제
+class_unlock_requirement=잠김. 잠금 해제에 클래스 완료 {0}회 필요
+class_weapon=무기: {0}
+class_damage_type=피해 유형: {0}
+
+# === 장비 ===
+gear_fallback=장비
+gear_tier=티어 {0}
+gear_stats=스탯: {0}
+gear_upgrade_cost=강화 비용: {0}
+gear_upgrade_available=강화 가능
+gear_sell_value=판매 가치: {0}
+gear_sell_available=판매 가능
+gear_level=레벨 {0}/{1}
+gear_level_no_max=레벨 {0}
+gear_cost=비용: {0}
+gear_max_level=최대 레벨
+gear_slot_armor=방어구
+gear_slot_companion=동료
+gear_slot_grinder=분쇄기
+gear_slot_tank=탱크
+gear_slot_tool=도구
+gear_slot_weapon_mod=무기 모드
+
+# === 미션 ===
+mission_sector=섹터 {0}
+mission_gate=게이트 {0}
+mission_node=미션 노드
+mission_high_score=최고 점수: {0}
+mission_fixed_run=고정 런
+mission_hazard=위험도 {0}
+
+# === 지갑 재화 ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=아티팩트 리롤
+wallet_mutator_rerolls=변이 리롤
+wallet_ommoran_core=Ommoran Core

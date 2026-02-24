@@ -52,7 +52,7 @@ public class HPReaderComponent : MonoBehaviour
             var player = cachedGameController.player;
             if (player == null)
             {
-                ScreenReader.Interrupt("No player found");
+                ScreenReader.Interrupt(ModLocalization.Get("hp_no_player"));
                 return;
             }
 
@@ -75,12 +75,12 @@ public class HPReaderComponent : MonoBehaviour
             {
                 int current = Mathf.RoundToInt(fraction * maxHp);
                 int max = Mathf.RoundToInt(maxHp);
-                ScreenReader.Interrupt($"HP: {current} / {max}");
+                ScreenReader.Interrupt(ModLocalization.Get("hp_format", current, max));
             }
             else
             {
                 int percent = Mathf.RoundToInt(fraction * 100f);
-                ScreenReader.Interrupt($"HP: {percent}%");
+                ScreenReader.Interrupt(ModLocalization.Get("hp_format_percent", percent));
             }
         }
         catch (Exception e)

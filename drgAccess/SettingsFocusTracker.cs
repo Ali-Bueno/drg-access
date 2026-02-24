@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DRS.UI;
 using TMPro;
+using drgAccess.Helpers;
 
 namespace drgAccess;
 
@@ -60,7 +61,7 @@ public class SettingsFocusTracker : MonoBehaviour
                     if (Time.frameCount <= LastToggleAnnouncedFrame + 1) return;
 
                     string label = Patches.UISettingsPatch.GetControlLabel(toggle.transform);
-                    string state = toggle.isOn ? "On" : "Off";
+                    string state = toggle.isOn ? ModLocalization.Get("ui_on") : ModLocalization.Get("ui_off");
                     string msg = !string.IsNullOrEmpty(label) ? $"{label}: {state}" : state;
                     ScreenReader.Interrupt(msg);
                 }
@@ -110,7 +111,7 @@ public class SettingsFocusTracker : MonoBehaviour
             {
                 _lastToggleState = toggle.isOn;
                 string label = Patches.UISettingsPatch.GetControlLabel(toggle.transform);
-                string state = toggle.isOn ? "On" : "Off";
+                string state = toggle.isOn ? ModLocalization.Get("ui_on") : ModLocalization.Get("ui_off");
                 string msg = !string.IsNullOrEmpty(label)
                     ? $"{label}: {state}"
                     : state;

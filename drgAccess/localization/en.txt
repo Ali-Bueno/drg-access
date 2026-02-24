@@ -1,0 +1,363 @@
+# DRG Access Mod - English (en)
+# Edit this file to customize mod messages for your language.
+# Format: key=value (one per line). Lines starting with # are comments.
+
+# === Mod ===
+mod_loaded=DRG Survivor Accessibility mod loaded
+
+# === Directions (top-down: up=W, down=S, left=A, right=D) ===
+dir_up=up
+dir_down=down
+dir_left=left
+dir_right=right
+dir_up_left=up-left
+dir_up_right=up-right
+dir_down_left=down-left
+dir_down_right=down-right
+dir_ahead=ahead
+
+# === Form Announcements ===
+form_main_menu=Main Menu
+form_play_menu=Play Menu
+form_settings=Settings
+form_gear_inventory=Gear Inventory
+form_stat_upgrades=Stat Upgrades
+form_shop=Shop
+form_skin_overrides=Skin Overrides
+form_loading=Loading
+form_level_up=Level Up
+form_level_up_title=Level Up: {0}
+form_overclock=Overclock
+form_overclock_weapon=Overclock: {0}
+form_unlock=Unlock
+form_mastery_unlock=Mastery Unlock
+form_run_summary=Run Summary
+form_credits=Credits: {0}
+form_xp=XP: {0}
+form_rank=Rank: {0}
+form_mutator_selection=Mutator Selection
+form_gear_found=Gear Found
+form_gear_details=Gear Details
+form_score=Score
+form_splash_press_key=Press any key
+form_brightness_instructions=Brightness Adjustment. Use left and right arrows to adjust brightness, then press Enter to confirm
+form_brightness_short=Brightness Adjustment. Use left and right arrows to adjust, Enter to confirm
+form_brightness_confirmed=Brightness confirmed
+form_save_slot_selection=Save Slot Selection
+form_delete_confirm=Delete Save Slot {0}? Press Enter to confirm, Escape to cancel
+form_delete_confirm_generic=Delete save slot? Press Enter to confirm, Escape to cancel
+form_save_deleted=Save slot deleted
+form_cancelled=Cancelled
+
+# === Boss ===
+boss_charge=Charge!
+boss_spikes=Spikes!
+boss_fireball=Fireball!
+boss_healing=Healing!
+boss_appeared=Boss!
+boss_hp_percent=Boss {0}%
+boss_defeated=Boss defeated!
+boss_healed=Boss healed
+
+# === Drop Pod ===
+pod_inside=Inside the pod
+pod_almost_inside=Almost inside, keep going
+pod_near_ramp=Near the pod, follow the tone inside
+pod_very_close=Drop pod very close
+pod_compass_ramp=Pod entrance: {0}, {1}
+pod_compass_normal=Drop pod: {0}, {1} meters
+
+# === Supply Zone ===
+zone_inside=Inside supply zone
+zone_left_activating=Left supply zone, return to zone
+zone_left=Left supply zone
+zone_complete=Supply zone complete
+zone_clearing=Clearing zone, {0} rocks to mine
+zone_activating=Zone activating
+zone_rocks_remaining={0} rocks remaining
+zone_all_cleared=All rocks cleared
+zone_timer={0} seconds remaining
+
+# === Drill Beacon (Bobby) ===
+drill_stopped=Bobby stopped
+drill_arriving=Bobby arriving
+drill_started=Bobby started
+drill_mining=Bobby mining the heartstone
+drill_broken=Bobby is broken
+drill_finished=Bobby finished
+drill_out_of_range=Out of Bobby's range, get closer
+drill_fuel_critical=Fuel critical, 10 percent
+drill_fuel_25=Fuel 25 percent
+drill_fuel_50=Fuel 50 percent
+drill_progress_halfway=Bobby halfway there
+drill_progress_percent=Bobby {0} percent of the way
+drill_compass=Bobby: {0}, {1} meters
+
+# === Enemy Proximity ===
+enemy_exploder_very_close=Explosive very close!
+enemy_boss_very_close=Boss very close!
+enemy_elite_very_close=Elite very close!
+enemy_exploder_nearby=Explosive nearby
+enemy_boss_nearby=Boss nearby
+enemy_elite_nearby=Elite nearby
+enemy_nearby_singular=Enemy nearby
+enemy_nearby_plural={0} enemies nearby
+
+# === Collectibles ===
+collect_red_sugar=Red Sugar
+collect_gear=Gear
+collect_buff=Buff
+collect_currency=Currency
+collect_mineral_vein=Mineral Vein
+collect_loot_crate=Loot Crate
+collect_xp=XP
+collect_nearby={0} nearby{1}
+collect_closer={0} closer{1}
+collect_very_close={0} very close{1}
+collect_magnet=Magnet
+collect_speed_boost=Speed Boost
+collect_mining_speed=Mining Speed
+collect_berserk=Berserk
+collect_artifact_magnet=Artifact Magnet
+
+# === Action Feedback ===
+action_bought=Bought
+action_cannot_afford=Cannot afford
+action_sold=Sold
+action_nothing_to_sell=Nothing to sell
+action_cannot_sell=Cannot sell
+action_max_level=Max level reached
+action_upgraded_to_max=Upgraded to level {0}/{1}
+action_upgraded_to=Upgraded to level {0}
+action_purchased=Purchased {0}
+action_rerolled=Rerolled
+action_reroll_fail=Cannot afford reroll
+action_healed=Healed
+action_heal_fail=Cannot afford heal
+action_equipped=Equipped {0}
+action_unequipped=Unequipped {0}
+action_gear_upgraded=Upgraded {0}
+action_salvaged=Salvaged {0}
+
+# === Wallet ===
+wallet_unavailable=No wallet available
+wallet_gold=Gold: {0}
+wallet_no_currency=No currency
+wallet_error=Cannot read wallet
+
+# === Equipped Gear (T key) ===
+gear_no_inventory=No gear inventory
+gear_no_equipped_panel=No equipped gear panel
+gear_equipped_header=Equipped gear
+gear_equipped_none=: None
+gear_equipped_error=Cannot read equipped gear
+
+# === Pickups ===
+pickup_healed=Healed {0} HP
+pickup_gear_named=Picked up {0}
+pickup_gear_generic=Gear picked up
+pickup_loot_crate={0} loot crate
+
+# === HP Reader ===
+hp_no_player=No player found
+hp_format=HP: {0} / {1}
+hp_format_percent=HP: {0}%
+
+# === Objectives ===
+obj_none=No objectives
+obj_no_active=No active objectives
+obj_single=Objective: {0}
+obj_multiple=Objectives: {0}
+
+# === Milestones ===
+milestone_none=No milestones
+milestone_empty=Milestones. W and S to browse. No milestones in this category.
+milestone_unavailable=No milestones available
+milestone_header=Milestones. {0} items. W and S to browse. {1}
+milestone_progress=Progress: {0}
+milestone_complete=Complete
+milestone_reward=Reward: {0}
+milestone_requires=Requires: {0}
+
+# === Pause Menu ===
+pause_header=Game Paused. Up and down to navigate, Enter to select, Escape to resume. {0}
+pause_weapons=Weapons. {0}
+pause_artifacts=Artifacts. {0}
+pause_stats=Stats. {0}
+pause_level=Level {0}
+pause_resume=Resume
+pause_menu=Menu
+pause_settings=Settings
+pause_no_info=No information available
+
+# === End Screen ===
+end_header=End screen. Up and down arrows to navigate, Enter to select. {0}
+end_rank_xp=Rank XP: {0}
+end_endless_rank_xp=Endless Rank XP: {0}
+end_hazard=Hazard: {0}
+end_stages=Stages: {0}
+end_credits=Credits: {0}
+end_endless_credits=Endless Credits: {0}
+end_resources=Resources:
+end_weapon_report=Weapon Report.
+end_level=Level {0}
+end_damage=Damage: {0}
+end_dps=DPS: {0}
+end_damage_breakdown=Damage Breakdown
+end_total=Total: {0}
+end_player_stats=Player Stats
+end_exploration=Exploration Stats
+end_no_info=No information available
+end_retry=Retry
+end_continue=Continue
+end_go_endless=Go Endless
+
+# === Mod Settings Menu ===
+setting_wall_nav=Wall Navigation
+setting_enemy_detect=Enemy Detection
+setting_drop_pod=Drop Pod Beacon
+setting_supply_pod=Supply Pod Beacon
+setting_hazard=Hazard Warning
+setting_collectibles=Collectibles
+setting_footsteps_toggle=Footsteps
+setting_footsteps_vol=Footsteps Volume
+setting_boss_attacks=Boss Attacks
+setting_drill_beacon=Drill Beacon
+setting_enemy_range=Enemy Detection Range
+setting_hazard_range=Hazard Warning Range
+setting_collect_range=Collectible Range
+setting_wall_range=Wall Detection Range
+setting_max_hazard=Max Hazard Warnings
+setting_audio_cue_preview=Audio Cue Preview
+setting_save=Save Changes
+setting_cancel=Cancel
+toggle_on=On
+toggle_off=Off
+setting_meters={0} meters
+setting_multiplier={0}x
+setting_saved=Settings saved
+setting_cancelled=Changes cancelled
+setting_menu_header=Mod settings. Up and down to navigate, left and right to adjust volume, Enter to preview or activate, F1 or Escape to close.
+
+# === Audio Cue Names + Descriptions ===
+cue_wall_forward=Wall: Forward
+cue_wall_forward_desc=Wall ahead. Gets louder the closer the wall is.
+cue_wall_backward=Wall: Backward
+cue_wall_backward_desc=Wall behind you. Gets louder the closer it is.
+cue_wall_sides=Wall: Sides
+cue_wall_sides_desc=Wall to the left or right. Pans to the corresponding side.
+cue_enemy_normal=Enemy: Normal
+cue_enemy_normal_desc=Regular enemy nearby. Beeps faster the closer it gets.
+cue_enemy_elite=Enemy: Elite
+cue_enemy_elite_desc=Elite enemy nearby. Slower vibrating beep, distinct from normal.
+cue_enemy_boss=Enemy: Boss
+cue_enemy_boss_desc=Boss enemy nearby. Deep rumble, unmistakable.
+cue_enemy_loot=Rare Loot Enemy
+cue_enemy_loot_desc=Golden Lootbug or Huuli Hoarder nearby. Bright ascending chime.
+cue_drop_pod=Drop Pod Beacon
+cue_drop_pod_desc=Guides you to the extraction pod. Metallic sonar ping.
+cue_drop_pod_critical=Drop Pod: Critical
+cue_drop_pod_critical_desc=Very close to the pod, under 8 meters. Fast double-beep.
+cue_drop_pod_ramp=Drop Pod: Ramp Tone
+cue_drop_pod_ramp_desc=On the ramp, under 2.5 meters. Continuous tone toward pod entrance.
+cue_supply_pod=Supply Pod Beacon
+cue_supply_pod_desc=Guides you to supply pod zones. Warbling trill.
+cue_drill_beacon=Drill Beacon
+cue_drill_beacon_desc=Guides you to Bobby the drill during escort missions. Rhythmic chugging pulse.
+cue_hazard=Hazard Warning
+cue_hazard_desc=Danger nearby, like exploders or ground spikes. Siren alarm.
+cue_red_sugar=Collectible: Red Sugar
+cue_red_sugar_desc=Health pickup nearby. Water-drop bloop sound.
+cue_gear_drop=Collectible: Gear Drop
+cue_gear_drop_desc=Weapon or equipment drop nearby. Rich two-tone chord beep.
+cue_buff=Collectible: Buff Pickup
+cue_buff_desc=Buff pickup nearby. Electric buzzy tone.
+cue_currency=Collectible: Currency
+cue_currency_desc=Gold or mineral drop nearby. Short crystalline chime.
+cue_mineral=Collectible: Mineral Vein
+cue_mineral_desc=Mineable mineral vein nearby. Metallic clink.
+cue_loot_crate=Collectible: Loot Crate
+cue_loot_crate_desc=Loot crate nearby. Shimmering sparkle beep.
+cue_xp=Collectible: XP Nearby
+cue_xp_desc=XP orbs on the ground. Soft continuous tone.
+cue_boss_charge=Boss: Charge
+cue_boss_charge_desc=Boss charging at you. 3 fast aggressive beeps.
+cue_boss_spikes=Boss: Spikes
+cue_boss_spikes_desc=Boss spawning ground spikes. 3 medium deep beeps.
+cue_boss_fireball=Boss: Fireball
+cue_boss_fireball_desc=Boss firing projectiles. 3 very fast sharp beeps.
+cue_boss_heal=Boss: Heal
+cue_boss_heal_desc=Boss healing itself. 3 slow gentle beeps.
+cue_audio_preview_header=Audio cue preview. Up and down to navigate, Enter to preview, Escape to go back. {0}. {1}
+
+# === UI Common ===
+ui_locked=Locked
+ui_completed=Completed
+ui_equipped=Equipped
+ui_empty=Empty
+ui_on=On
+ui_off=Off
+ui_pinned=Pinned
+ui_unpinned=Unpinned
+ui_active=Active
+ui_previous=Previous
+ui_next=Next
+ui_new=New
+ui_favorite=Favorite
+ui_item=item
+ui_selector=Selector
+ui_points=points
+ui_price=Price: {0}
+ui_price_currency=Price: {0} {1}
+ui_cannot_afford=Cannot afford
+
+# === Save Slot ===
+save_slot=Save Slot {0}
+
+# === Class Selection ===
+class_unlock_rank=Unlocks at player rank {0}
+class_unlock_requirement=Locked. Requires {0} class completions to unlock
+class_weapon=Weapon: {0}
+class_damage_type=Damage type: {0}
+
+# === Gear ===
+gear_fallback=Gear
+gear_tier=Tier {0}
+gear_stats=Stats: {0}
+gear_upgrade_cost=Upgrade cost: {0}
+gear_upgrade_available=Upgrade available
+gear_sell_value=Sell value: {0}
+gear_sell_available=Sell available
+gear_level=Level {0}/{1}
+gear_level_no_max=Level {0}
+gear_cost=Cost: {0}
+gear_max_level=Max level
+gear_slot_armor=Armor
+gear_slot_companion=Companion
+gear_slot_grinder=Grinder
+gear_slot_tank=Tank
+gear_slot_tool=Tool
+gear_slot_weapon_mod=Weapon Mod
+
+# === Mission ===
+mission_sector=Sector {0}
+mission_gate=Gate {0}
+mission_node=Mission Node
+mission_high_score=High score: {0}
+mission_fixed_run=Fixed Run
+mission_hazard=Hazard {0}
+
+# === Wallet Currencies ===
+wallet_credits=Credits
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Power Core
+wallet_artifact_rerolls=Artifact Rerolls
+wallet_mutator_rerolls=Mutator Rerolls
+wallet_ommoran_core=Ommoran Core

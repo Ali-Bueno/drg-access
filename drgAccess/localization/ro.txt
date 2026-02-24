@@ -1,0 +1,363 @@
+# DRG Access Mod - Română (ro)
+# Editează acest fișier pentru a personaliza mesajele modului în limba ta.
+# Format: cheie=valoare (una pe linie). Liniile care încep cu # sunt comentarii.
+
+# === Mod ===
+mod_loaded=Modul de accesibilitate DRG Survivor încărcat
+
+# === Directions (top-down: sus=W, jos=S, stânga=A, dreapta=D) ===
+dir_up=sus
+dir_down=jos
+dir_left=stânga
+dir_right=dreapta
+dir_up_left=stânga-sus
+dir_up_right=dreapta-sus
+dir_down_left=stânga-jos
+dir_down_right=dreapta-jos
+dir_ahead=înainte
+
+# === Form Announcements ===
+form_main_menu=Meniu principal
+form_play_menu=Meniu de joc
+form_settings=Setări
+form_gear_inventory=Inventar echipament
+form_stat_upgrades=Îmbunătățiri statistici
+form_shop=Magazin
+form_skin_overrides=Schimbări de aspect
+form_loading=Se încarcă
+form_level_up=Nivel nou
+form_level_up_title=Nivel nou: {0}
+form_overclock=Supratactare
+form_overclock_weapon=Supratactare: {0}
+form_unlock=Deblocare
+form_mastery_unlock=Deblocare maestrie
+form_run_summary=Rezumatul rundei
+form_credits=Credite: {0}
+form_xp=XP: {0}
+form_rank=Rang: {0}
+form_mutator_selection=Selectare mutator
+form_gear_found=Echipament găsit
+form_gear_details=Detalii echipament
+form_score=Scor
+form_splash_press_key=Apasă orice tastă
+form_brightness_instructions=Reglare luminozitate. Folosește săgețile stânga și dreapta pentru a regla, apoi apasă Enter pentru a confirma
+form_brightness_short=Reglare luminozitate. Stânga și dreapta pentru a regla, Enter pentru a confirma
+form_brightness_confirmed=Luminozitate confirmată
+form_save_slot_selection=Selectare slot de salvare
+form_delete_confirm=Ștergi slotul de salvare {0}? Apasă Enter pentru a confirma, Escape pentru a anula
+form_delete_confirm_generic=Ștergi slotul de salvare? Apasă Enter pentru a confirma, Escape pentru a anula
+form_save_deleted=Slot de salvare șters
+form_cancelled=Anulat
+
+# === Boss ===
+boss_charge=Atac!
+boss_spikes=Țepi!
+boss_fireball=Minge de foc!
+boss_healing=Se vindecă!
+boss_appeared=Boss!
+boss_hp_percent=Boss {0}%
+boss_defeated=Boss învins!
+boss_healed=Boss vindecat
+
+# === Drop Pod ===
+pod_inside=În interiorul capsulei
+pod_almost_inside=Aproape înăuntru, continuă
+pod_near_ramp=Lângă capsulă, urmează tonul înăuntru
+pod_very_close=Capsulă foarte aproape
+pod_compass_ramp=Intrare capsulă: {0}, {1}
+pod_compass_normal=Capsulă: {0}, {1} metri
+
+# === Supply Zone ===
+zone_inside=În zona de aprovizionare
+zone_left_activating=Ai ieșit din zonă, întoarce-te
+zone_left=Ai ieșit din zonă
+zone_complete=Zonă de aprovizionare completă
+zone_clearing=Curățare zonă, {0} roci de minat
+zone_activating=Zonă în curs de activare
+zone_rocks_remaining={0} roci rămase
+zone_all_cleared=Toate rocile curățate
+zone_timer={0} secunde rămase
+
+# === Drill Beacon (Bobby) ===
+drill_stopped=Bobby s-a oprit
+drill_arriving=Bobby sosește
+drill_started=Bobby a pornit
+drill_mining=Bobby minează piatra inimii
+drill_broken=Bobby este stricat
+drill_finished=Bobby a terminat
+drill_out_of_range=În afara razei lui Bobby, apropie-te
+drill_fuel_critical=Combustibil critic, 10 procente
+drill_fuel_25=Combustibil 25 procente
+drill_fuel_50=Combustibil 50 procente
+drill_progress_halfway=Bobby la jumătatea drumului
+drill_progress_percent=Bobby {0} procente din drum
+drill_compass=Bobby: {0}, {1} metri
+
+# === Enemy Proximity ===
+enemy_exploder_very_close=Exploziv foarte aproape!
+enemy_boss_very_close=Boss foarte aproape!
+enemy_elite_very_close=Elită foarte aproape!
+enemy_exploder_nearby=Exploziv în apropiere
+enemy_boss_nearby=Boss în apropiere
+enemy_elite_nearby=Elită în apropiere
+enemy_nearby_singular=Inamic în apropiere
+enemy_nearby_plural={0} inamici în apropiere
+
+# === Collectibles ===
+collect_red_sugar=Zahăr Roșu
+collect_gear=Echipament
+collect_buff=Potențiator
+collect_currency=Monedă
+collect_mineral_vein=Filon de minereu
+collect_loot_crate=Cufăr de pradă
+collect_xp=XP
+collect_nearby={0} în apropiere{1}
+collect_closer={0} mai aproape{1}
+collect_very_close={0} foarte aproape{1}
+collect_magnet=Magnet
+collect_speed_boost=Viteză mărită
+collect_mining_speed=Viteză de minerit
+collect_berserk=Berserk
+collect_artifact_magnet=Magnet de artefacte
+
+# === Action Feedback ===
+action_bought=Cumpărat
+action_cannot_afford=Fonduri insuficiente
+action_sold=Vândut
+action_nothing_to_sell=Nimic de vândut
+action_cannot_sell=Nu se poate vinde
+action_max_level=Nivel maxim atins
+action_upgraded_to_max=Îmbunătățit la nivelul {0}/{1}
+action_upgraded_to=Îmbunătățit la nivelul {0}
+action_purchased=Achiziționat {0}
+action_rerolled=Regenerat
+action_reroll_fail=Fonduri insuficiente pentru regenerare
+action_healed=Vindecat
+action_heal_fail=Fonduri insuficiente pentru vindecare
+action_equipped=Echipat {0}
+action_unequipped=Dezechipat {0}
+action_gear_upgraded=Îmbunătățit {0}
+action_salvaged=Reciclat {0}
+
+# === Wallet ===
+wallet_unavailable=Portofel indisponibil
+wallet_gold=Aur: {0}
+wallet_no_currency=Fără monedă
+wallet_error=Nu se poate citi portofelul
+
+# === Equipped Gear (T key) ===
+gear_no_inventory=Fără inventar de echipament
+gear_no_equipped_panel=Fără panou de echipament
+gear_equipped_header=Echipament purtat
+gear_equipped_none=: Nimic
+gear_equipped_error=Nu se poate citi echipamentul purtat
+
+# === Pickups ===
+pickup_healed=Vindecat {0} HP
+pickup_gear_named=Ai ridicat {0}
+pickup_gear_generic=Echipament ridicat
+pickup_loot_crate=Cufăr de pradă {0}
+
+# === HP Reader ===
+hp_no_player=Niciun jucător găsit
+hp_format=HP: {0} / {1}
+hp_format_percent=HP: {0}%
+
+# === Objectives ===
+obj_none=Fără obiective
+obj_no_active=Niciun obiectiv activ
+obj_single=Obiectiv: {0}
+obj_multiple=Obiective: {0}
+
+# === Milestones ===
+milestone_none=Fără realizări
+milestone_empty=Realizări. W și S pentru a naviga. Nicio realizare în această categorie.
+milestone_unavailable=Nicio realizare disponibilă
+milestone_header=Realizări. {0} elemente. W și S pentru a naviga. {1}
+milestone_progress=Progres: {0}
+milestone_complete=Complet
+milestone_reward=Recompensă: {0}
+milestone_requires=Necesită: {0}
+
+# === Pause Menu ===
+pause_header=Joc în pauză. Sus și jos pentru a naviga, Enter pentru a selecta, Escape pentru a relua. {0}
+pause_weapons=Arme. {0}
+pause_artifacts=Artefacte. {0}
+pause_stats=Statistici. {0}
+pause_level=Nivel {0}
+pause_resume=Reluare
+pause_menu=Meniu
+pause_settings=Setări
+pause_no_info=Nicio informație disponibilă
+
+# === End Screen ===
+end_header=Ecran final. Săgețile sus și jos pentru a naviga, Enter pentru a selecta. {0}
+end_rank_xp=XP de rang: {0}
+end_endless_rank_xp=XP de rang fără sfârșit: {0}
+end_hazard=Pericol: {0}
+end_stages=Etape: {0}
+end_credits=Credite: {0}
+end_endless_credits=Credite fără sfârșit: {0}
+end_resources=Resurse:
+end_weapon_report=Raport arme.
+end_level=Nivel {0}
+end_damage=Daune: {0}
+end_dps=DPS: {0}
+end_damage_breakdown=Defalcarea daunelor
+end_total=Total: {0}
+end_player_stats=Statistici jucător
+end_exploration=Statistici explorare
+end_no_info=Nicio informație disponibilă
+end_retry=Reîncearcă
+end_continue=Continuă
+end_go_endless=Joacă fără sfârșit
+
+# === Mod Settings Menu ===
+setting_wall_nav=Navigare pereți
+setting_enemy_detect=Detectare inamici
+setting_drop_pod=Baliză capsulă
+setting_supply_pod=Baliză aprovizionare
+setting_hazard=Avertizare pericol
+setting_collectibles=Obiecte colectabile
+setting_footsteps_toggle=Pași
+setting_footsteps_vol=Volum pași
+setting_boss_attacks=Atacuri de boss
+setting_drill_beacon=Baliză foreză
+setting_enemy_range=Raza de detectare inamici
+setting_hazard_range=Raza de avertizare pericol
+setting_collect_range=Raza de colectare
+setting_wall_range=Raza de detectare pereți
+setting_max_hazard=Avertizări de pericol simultane
+setting_audio_cue_preview=Previzualizare indicii audio
+setting_save=Salvează modificările
+setting_cancel=Anulează
+toggle_on=Activat
+toggle_off=Dezactivat
+setting_meters={0} metri
+setting_multiplier={0}x
+setting_saved=Setări salvate
+setting_cancelled=Modificări anulate
+setting_menu_header=Setări mod. Sus și jos pentru a naviga, stânga și dreapta pentru a regla volumul, Enter pentru a previzualiza sau activa, F1 sau Escape pentru a închide.
+
+# === Audio Cue Names + Descriptions ===
+cue_wall_forward=Perete: Înainte
+cue_wall_forward_desc=Perete în față. Devine mai tare pe măsură ce te apropii.
+cue_wall_backward=Perete: Înapoi
+cue_wall_backward_desc=Perete în spate. Devine mai tare pe măsură ce te apropii.
+cue_wall_sides=Perete: Lateral
+cue_wall_sides_desc=Perete în stânga sau dreapta. Sunetul se mută spre partea corespunzătoare.
+cue_enemy_normal=Inamic: Normal
+cue_enemy_normal_desc=Inamic obișnuit în apropiere. Bipuri mai rapide pe măsură ce se apropie.
+cue_enemy_elite=Inamic: Elită
+cue_enemy_elite_desc=Inamic de elită în apropiere. Bipuri cu vibrație lentă, distinct de cel normal.
+cue_enemy_boss=Inamic: Boss
+cue_enemy_boss_desc=Boss în apropiere. Vuiet profund, inconfundabil.
+cue_enemy_loot=Inamic rar cu pradă
+cue_enemy_loot_desc=Lootbug auriu sau Huuli Hoarder în apropiere. Clopoțel ascendent strălucitor.
+cue_drop_pod=Baliză capsulă
+cue_drop_pod_desc=Te ghidează spre capsula de extracție. Ping sonar metalic.
+cue_drop_pod_critical=Capsulă: Critic
+cue_drop_pod_critical_desc=Foarte aproape de capsulă, sub 8 metri. Bipuri duble rapide.
+cue_drop_pod_ramp=Capsulă: Ton rampă
+cue_drop_pod_ramp_desc=Pe rampă, sub 2,5 metri. Ton continuu spre intrarea capsulei.
+cue_supply_pod=Baliză aprovizionare
+cue_supply_pod_desc=Te ghidează spre zonele de aprovizionare. Tril ondulat.
+cue_drill_beacon=Baliză foreză
+cue_drill_beacon_desc=Te ghidează spre Bobby în misiunile de escortă. Puls ritmic de foreză.
+cue_hazard=Avertizare pericol
+cue_hazard_desc=Pericol în apropiere, precum explozivi sau țepi din sol. Alarmă sirenă.
+cue_red_sugar=Colectabil: Zahăr Roșu
+cue_red_sugar_desc=Obiect de vindecare în apropiere. Sunet de picătură de apă.
+cue_gear_drop=Colectabil: Echipament
+cue_gear_drop_desc=Armă sau echipament în apropiere. Bipuri cu acord bogat pe două tonuri.
+cue_buff=Colectabil: Potențiator
+cue_buff_desc=Potențiator în apropiere. Ton electric cu bâzâit.
+cue_currency=Colectabil: Monedă
+cue_currency_desc=Aur sau minerale în apropiere. Clopoțel cristalin scurt.
+cue_mineral=Colectabil: Filon de minereu
+cue_mineral_desc=Filon de minereu în apropiere. Clinchet metalic.
+cue_loot_crate=Colectabil: Cufăr de pradă
+cue_loot_crate_desc=Cufăr de pradă în apropiere. Bipuri sclipitoare.
+cue_xp=Colectabil: XP în apropiere
+cue_xp_desc=Orbi de XP pe sol. Ton continuu ușor.
+cue_boss_charge=Boss: Atac
+cue_boss_charge_desc=Bossul se aruncă spre tine. 3 bipuri rapide agresive.
+cue_boss_spikes=Boss: Țepi
+cue_boss_spikes_desc=Bossul generează țepi din sol. 3 bipuri medii adânci.
+cue_boss_fireball=Boss: Minge de foc
+cue_boss_fireball_desc=Bossul trage proiectile. 3 bipuri foarte rapide ascuțite.
+cue_boss_heal=Boss: Vindecare
+cue_boss_heal_desc=Bossul se vindecă. 3 bipuri lente blânde.
+cue_audio_preview_header=Previzualizare indicii audio. Sus și jos pentru a naviga, Enter pentru a previzualiza, Escape pentru a te întoarce. {0}. {1}
+
+# === Interfață comună ===
+ui_locked=Blocat
+ui_completed=Completat
+ui_equipped=Echipat
+ui_empty=Gol
+ui_on=Activat
+ui_off=Dezactivat
+ui_pinned=Fixat
+ui_unpinned=Nefixat
+ui_active=Activ
+ui_previous=Anterior
+ui_next=Următor
+ui_new=Nou
+ui_favorite=Favorit
+ui_item=obiect
+ui_selector=Selector
+ui_points=puncte
+ui_price=Preț: {0}
+ui_price_currency=Preț: {0} {1}
+ui_cannot_afford=Fonduri insuficiente
+
+# === Slot de salvare ===
+save_slot=Slot de salvare {0}
+
+# === Selectare clasă ===
+class_unlock_rank=Se deblochează la rangul {0}
+class_unlock_requirement=Blocat. Necesită {0} completări de clasă pentru deblocare
+class_weapon=Armă: {0}
+class_damage_type=Tip de daune: {0}
+
+# === Echipament ===
+gear_fallback=Echipament
+gear_tier=Nivel {0}
+gear_stats=Statistici: {0}
+gear_upgrade_cost=Cost îmbunătățire: {0}
+gear_upgrade_available=Îmbunătățire disponibilă
+gear_sell_value=Valoare de vânzare: {0}
+gear_sell_available=Vânzare disponibilă
+gear_level=Nivel {0}/{1}
+gear_level_no_max=Nivel {0}
+gear_cost=Cost: {0}
+gear_max_level=Nivel maxim
+gear_slot_armor=Armură
+gear_slot_companion=Companion
+gear_slot_grinder=Tocător
+gear_slot_tank=Tanc
+gear_slot_tool=Unealtă
+gear_slot_weapon_mod=Modificare armă
+
+# === Misiune ===
+mission_sector=Sector {0}
+mission_gate=Poartă {0}
+mission_node=Nod de misiune
+mission_high_score=Scor maxim: {0}
+mission_fixed_run=Cursă fixată
+mission_hazard=Pericol {0}
+
+# === Monede portofel ===
+wallet_credits=Credite
+wallet_morkite=Morkite
+wallet_nitra=Nitra
+wallet_bismor=Bismor
+wallet_croppa=Croppa
+wallet_enor_pearl=Enor Pearl
+wallet_jadiz=Jadiz
+wallet_magnite=Magnite
+wallet_umanite=Umanite
+wallet_power_core=Nucleu de energie
+wallet_artifact_rerolls=Regenerări artefacte
+wallet_mutator_rerolls=Regenerări mutatoare
+wallet_ommoran_core=Ommoran Core

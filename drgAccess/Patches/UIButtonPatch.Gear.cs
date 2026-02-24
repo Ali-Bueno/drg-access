@@ -43,7 +43,7 @@ public static partial class UIButtonPatch
                 // Equipped status (announced early so user knows before stats/costs)
                 if (CachedGearManager != null)
                 {
-                    try { if (CachedGearManager.IsGearEquippedOnAny(gear)) sb.Append(", Equipped"); }
+                    try { if (CachedGearManager.IsGearEquippedOnAny(gear)) sb.Append(", " + ModLocalization.Get("ui_equipped")); }
                     catch { }
                 }
 
@@ -57,13 +57,13 @@ public static partial class UIButtonPatch
             }
 
             if (sb.Length == 0)
-                sb.Append("Gear");
+                sb.Append(ModLocalization.Get("gear_fallback"));
 
             // Tier
             var tierText = button.tierText;
             if (tierText != null && !string.IsNullOrEmpty(tierText.text))
             {
-                sb.Append(", Tier " + TextHelper.CleanText(tierText.text));
+                sb.Append(", " + ModLocalization.Get("gear_tier", TextHelper.CleanText(tierText.text)));
             }
 
             // Stats from gear view
@@ -74,15 +74,17 @@ public static partial class UIButtonPatch
                     var statMods = gear.StatMods;
                     if (statMods != null && statMods.Count > 0)
                     {
-                        sb.Append(". Stats: ");
+                        var statSb = new StringBuilder();
                         for (int i = 0; i < statMods.Count; i++)
                         {
                             var mod = statMods[i];
                             if (mod == null) continue;
-                            if (i > 0) sb.Append(", ");
+                            if (statSb.Length > 0) statSb.Append(", ");
                             string statName = LocalizationHelper.GetStatTypeName(mod.StatType);
-                            sb.Append($"{statName}: {LocalizationHelper.FormatStatValue(mod.StatType, mod.value, showSign: true)}");
+                            statSb.Append($"{statName}: {LocalizationHelper.FormatStatValue(mod.StatType, mod.value, showSign: true)}");
                         }
+                        if (statSb.Length > 0)
+                            sb.Append(". " + ModLocalization.Get("gear_stats", statSb.ToString()));
                     }
                 }
                 catch { /* StatMods not available */ }
@@ -112,17 +114,16 @@ public static partial class UIButtonPatch
                         && CachedGearEconomy.TryGetUpgradeCost(gear, out List<CurrencyValue> costs)
                         && costs != null && costs.Count > 0)
                     {
-                        sb.Append(". Upgrade cost: ");
-                        sb.Append(FormatCurrencyList(costs));
+                        sb.Append(". " + ModLocalization.Get("gear_upgrade_cost", FormatCurrencyList(costs)));
                         if (CachedGearWallet != null && !CachedGearWallet.CanAfford(costs))
-                            sb.Append(", Cannot afford");
+                            sb.Append(", " + ModLocalization.Get("ui_cannot_afford"));
                     }
                     else
                     {
-                        sb.Append(", Upgrade available");
+                        sb.Append(", " + ModLocalization.Get("gear_upgrade_available"));
                     }
                 }
-                catch { sb.Append(", Upgrade available"); }
+                catch { sb.Append(", " + ModLocalization.Get("gear_upgrade_available")); }
             }
 
             // Salvage value (when in sell tab)
@@ -134,25 +135,24 @@ public static partial class UIButtonPatch
                         && CachedGearEconomy.TryGetSalvageValue(gear, out List<CurrencyValue> values)
                         && values != null && values.Count > 0)
                     {
-                        sb.Append(". Sell value: ");
-                        sb.Append(FormatCurrencyList(values));
+                        sb.Append(". " + ModLocalization.Get("gear_sell_value", FormatCurrencyList(values)));
                     }
                     else
                     {
-                        sb.Append(", Sell available");
+                        sb.Append(", " + ModLocalization.Get("gear_sell_available"));
                     }
                 }
-                catch { sb.Append(", Sell available"); }
+                catch { sb.Append(", " + ModLocalization.Get("gear_sell_available")); }
             }
 
             if (button.isFavorite != null && button.isFavorite.activeSelf)
             {
-                sb.Append(", Favorite");
+                sb.Append(", " + ModLocalization.Get("ui_favorite"));
             }
 
             if (button.isNew != null && button.isNew.activeSelf)
             {
-                sb.Append(", New");
+                sb.Append(", " + ModLocalization.Get("ui_new"));
             }
 
             return sb.ToString();
@@ -213,9 +213,9 @@ public static partial class UIButtonPatch
                 int maxLevel = data.Levels != null ? data.Levels.Length : 0;
 
                 if (maxLevel > 0)
-                    sb.Append($", Level {level2}/{maxLevel}");
+                    sb.Append(", " + ModLocalization.Get("gear_level", level2, maxLevel));
                 else
-                    sb.Append($", Level {level2}");
+                    sb.Append(", " + ModLocalization.Get("gear_level_no_max", level2));
 
                 // Read price for next level
                 if (level2 < maxLevel)
@@ -225,29 +225,30 @@ public static partial class UIButtonPatch
                         var prices = data.GetPrice(level2);
                         if (prices != null && prices.Count > 0)
                         {
-                            sb.Append(", Cost: ");
+                            var costSb = new StringBuilder();
                             for (int i = 0; i < prices.Count; i++)
                             {
                                 var cv = prices[i];
                                 if (cv != null)
                                 {
-                                    if (i > 0) sb.Append(", ");
-                                    sb.Append($"{cv.Value} {cv.Type}");
+                                    if (costSb.Length > 0) costSb.Append(", ");
+                                    costSb.Append($"{cv.Value} {cv.Type}");
                                 }
                             }
+                            sb.Append(", " + ModLocalization.Get("gear_cost", costSb.ToString()));
                         }
                     }
                     catch { /* Price reading failed, skip */ }
                 }
                 else
                 {
-                    sb.Append(", Max level");
+                    sb.Append(", " + ModLocalization.Get("gear_max_level"));
                 }
             }
 
             if (!button.canAfford)
             {
-                sb.Append(", Cannot afford");
+                sb.Append(", " + ModLocalization.Get("ui_cannot_afford"));
             }
 
             return sb.Length > 0 ? sb.ToString() : null;

@@ -116,4 +116,13 @@
     <Message Text="Copied sound files to $(BepInExDir)\plugins\drgAccess\sounds" Importance="high" />
   </Target>
 
+  <!-- Copy localization files to plugins folder -->
+  <Target Name="CopyLocalizationToPlugins" AfterTargets="Build">
+    <ItemGroup>
+      <LangFiles Include="localization\*.txt" />
+    </ItemGroup>
+    <Copy SourceFiles="@(LangFiles)" DestinationFiles="@(LangFiles->'$(BepInExDir)\plugins\drgAccess\%(Identity)')" />
+    <Message Text="Copied localization files to $(BepInExDir)\plugins\drgAccess\localization" Importance="high" />
+  </Target>
+
 </Project>

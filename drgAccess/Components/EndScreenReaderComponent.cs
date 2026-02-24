@@ -164,15 +164,14 @@ public class EndScreenReaderComponent : MonoBehaviour
         CollectButtons();
 
         if (items.Count == 0)
-            items.Add(new EndScreenItem { Text = "No information available" });
+            items.Add(new EndScreenItem { Text = ModLocalization.Get("end_no_info") });
 
         BlockEventSystem();
 
         isActive = true;
         selectedIndex = 0;
 
-        ScreenReader.Interrupt(
-            $"End screen. Up and down arrows to navigate, Enter to select. {items[0].Text}");
+        ScreenReader.Interrupt(ModLocalization.Get("end_header", items[0].Text));
     }
 
     private string GetText(TMP_Text field)
@@ -239,14 +238,14 @@ public class EndScreenReaderComponent : MonoBehaviour
         if (!string.IsNullOrEmpty(rankXp))
         {
             if (sb.Length > 0) sb.Append(". ");
-            sb.Append($"Rank XP: {rankXp}");
+            sb.Append(ModLocalization.Get("end_rank_xp", rankXp));
         }
 
         string endlessRankXp = GetText(endScreen.endlessRankXpText);
         if (!string.IsNullOrEmpty(endlessRankXp))
         {
             if (sb.Length > 0) sb.Append(". ");
-            sb.Append($"Endless Rank XP: {endlessRankXp}");
+            sb.Append(ModLocalization.Get("end_endless_rank_xp", endlessRankXp));
         }
 
         if (sb.Length > 0) AddItem(sb.ToString());
@@ -276,14 +275,14 @@ public class EndScreenReaderComponent : MonoBehaviour
             if (!string.IsNullOrEmpty(hazard))
             {
                 if (sb.Length > 0) sb.Append(". ");
-                sb.Append($"Hazard: {hazard}");
+                sb.Append(ModLocalization.Get("end_hazard", hazard));
             }
 
             string stage = GetText(endScreen.endlessScoreStageCounterText);
             if (!string.IsNullOrEmpty(stage))
             {
                 if (sb.Length > 0) sb.Append(". ");
-                sb.Append($"Stages: {stage}");
+                sb.Append(ModLocalization.Get("end_stages", stage));
             }
         }
 
@@ -296,13 +295,13 @@ public class EndScreenReaderComponent : MonoBehaviour
 
         string credits = GetText(endScreen.creditsText);
         if (!string.IsNullOrEmpty(credits))
-            sb.Append($"Credits: {credits}");
+            sb.Append(ModLocalization.Get("end_credits", credits));
 
         string endlessCredits = GetText(endScreen.endlessCreditsText);
         if (!string.IsNullOrEmpty(endlessCredits))
         {
             if (sb.Length > 0) sb.Append(". ");
-            sb.Append($"Endless Credits: {endlessCredits}");
+            sb.Append(ModLocalization.Get("end_endless_credits", endlessCredits));
         }
 
         if (sb.Length > 0) AddItem(sb.ToString());
@@ -315,7 +314,7 @@ public class EndScreenReaderComponent : MonoBehaviour
             var resources = endScreen.craftingResourceStats;
             if (resources == null || resources.Length == 0) return;
 
-            var sb = new StringBuilder("Resources: ");
+            var sb = new StringBuilder(ModLocalization.Get("end_resources") + " ");
             bool hasAny = false;
 
             for (int i = 0; i < resources.Length; i++)
@@ -362,7 +361,7 @@ public class EndScreenReaderComponent : MonoBehaviour
 
                 if (first)
                 {
-                    sb.Append("Weapon Report. ");
+                    sb.Append(ModLocalization.Get("end_weapon_report") + " ");
                     first = false;
                 }
 
@@ -373,7 +372,7 @@ public class EndScreenReaderComponent : MonoBehaviour
                 if (!string.IsNullOrEmpty(level))
                 {
                     if (!string.IsNullOrEmpty(name)) sb.Append(", ");
-                    sb.Append($"Level {level}");
+                    sb.Append(ModLocalization.Get("end_level", level));
                 }
 
                 string stacks = GetText(weapon.stacksText);
@@ -382,11 +381,11 @@ public class EndScreenReaderComponent : MonoBehaviour
 
                 string damage = GetText(weapon.damageText);
                 if (!string.IsNullOrEmpty(damage))
-                    sb.Append($", Damage: {damage}");
+                    sb.Append($", {ModLocalization.Get("end_damage", damage)}");
 
                 string dps = GetText(weapon.dpsText);
                 if (!string.IsNullOrEmpty(dps))
-                    sb.Append($", DPS: {dps}");
+                    sb.Append($", {ModLocalization.Get("end_dps", dps)}");
 
                 if (sb.Length > 0) AddItem(sb.ToString());
             }
@@ -408,10 +407,10 @@ public class EndScreenReaderComponent : MonoBehaviour
                 (damageTypes == null || damageTypes.Length == 0))
                 return;
 
-            var sb = new StringBuilder("Damage Breakdown");
+            var sb = new StringBuilder(ModLocalization.Get("end_damage_breakdown"));
 
             if (!string.IsNullOrEmpty(totalDmg))
-                sb.Append($". Total: {totalDmg}");
+                sb.Append($". {ModLocalization.Get("end_total", totalDmg)}");
 
             if (damageTypes != null)
             {
@@ -447,7 +446,7 @@ public class EndScreenReaderComponent : MonoBehaviour
             var stats = endScreen.playerStats;
             if (stats == null || stats.Length == 0) return;
 
-            var sb = new StringBuilder("Player Stats");
+            var sb = new StringBuilder(ModLocalization.Get("end_player_stats"));
             bool hasAny = false;
 
             for (int i = 0; i < stats.Length; i++)
@@ -482,7 +481,7 @@ public class EndScreenReaderComponent : MonoBehaviour
             var stats = endScreen.diveStats;
             if (stats == null || stats.Length == 0) return;
 
-            var sb = new StringBuilder("Exploration Stats");
+            var sb = new StringBuilder(ModLocalization.Get("end_exploration"));
             bool hasAny = false;
 
             for (int i = 0; i < stats.Length; i++)
@@ -520,14 +519,14 @@ public class EndScreenReaderComponent : MonoBehaviour
             var retry = endScreen.retryButton;
             if (retry != null && IsVisible(retry))
             {
-                string label = GetButtonLabel(retry) ?? "Retry";
+                string label = GetButtonLabel(retry) ?? ModLocalization.Get("end_retry");
                 AddItem(label, () => { try { screen.OnRetryButton(); } catch { } });
             }
         }
         catch { }
 
         // Continue button (back to main menu) - no field, connected via Inspector
-        AddItem("Continue", () => { try { screen.OnMenuButton(); } catch { } });
+        AddItem(ModLocalization.Get("end_continue"), () => { try { screen.OnMenuButton(); } catch { } });
 
         // Endless button (only in endless mode)
         try
@@ -535,7 +534,7 @@ public class EndScreenReaderComponent : MonoBehaviour
             var endless = endScreen.endlessButton;
             if (endless != null && IsVisible(endless))
             {
-                string label = GetButtonLabel(endless) ?? "Go Endless";
+                string label = GetButtonLabel(endless) ?? ModLocalization.Get("end_go_endless");
                 AddItem(label, () => { try { screen.OnEndlessButton(); } catch { } });
             }
         }

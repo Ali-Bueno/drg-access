@@ -195,6 +195,9 @@ public static class UISettingsPatch
                 : value ?? label ?? "";
             if (!string.IsNullOrEmpty(msg))
                 ScreenReader.Interrupt(msg);
+
+            // Check if locale changed (handles language selector changes)
+            ModLocalization.RefreshLocale();
         }
         catch (System.Exception ex)
         {
@@ -269,7 +272,7 @@ public static class UISettingsPatch
         try
         {
             if (toggle == null) return;
-            string stateText = toggle.isOn ? "On" : "Off";
+            string stateText = toggle.isOn ? ModLocalization.Get("ui_on") : ModLocalization.Get("ui_off");
             string label = GetControlLabel(toggle.transform);
             string msg = !string.IsNullOrEmpty(label)
                 ? $"{label}: {stateText}"

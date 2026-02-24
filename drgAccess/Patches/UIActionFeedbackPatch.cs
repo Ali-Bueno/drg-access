@@ -22,7 +22,7 @@ public static class MineralBuyPatch
             if (__instance.wallet != null)
                 WalletReader.CachedWallet = __instance.wallet;
 
-            ScreenReader.Interrupt(__result ? "Bought" : "Cannot afford");
+            ScreenReader.Interrupt(__result ? ModLocalization.Get("action_bought") : ModLocalization.Get("action_cannot_afford"));
         }
         catch (System.Exception ex)
         {
@@ -44,12 +44,12 @@ public static class MineralSellPatch
 
             if (__result)
             {
-                ScreenReader.Interrupt("Sold");
+                ScreenReader.Interrupt(ModLocalization.Get("action_sold"));
             }
             else
             {
                 int amount = __instance.wallet.GetAmount(__instance.material);
-                ScreenReader.Interrupt(amount <= 0 ? "Nothing to sell" : "Cannot sell");
+                ScreenReader.Interrupt(amount <= 0 ? ModLocalization.Get("action_nothing_to_sell") : ModLocalization.Get("action_cannot_sell"));
             }
         }
         catch (System.Exception ex)
@@ -83,7 +83,7 @@ public static class StatUpgradeClickPatch
             // If couldn't afford before the click, announce it
             // Success case is handled by StatUpgradeSuccessPatch (OnUpgradeSuccess)
             if (!__state)
-                ScreenReader.Interrupt("Cannot afford");
+                ScreenReader.Interrupt(ModLocalization.Get("action_cannot_afford"));
         }
         catch (System.Exception ex)
         {
@@ -111,11 +111,11 @@ public static class StatUpgradeSuccessPatch
 
             string feedback;
             if (maxLevel > 0 && newLevel >= maxLevel)
-                feedback = "Max level reached";
+                feedback = ModLocalization.Get("action_max_level");
             else if (maxLevel > 0)
-                feedback = $"Upgraded to level {newLevel}/{maxLevel}";
+                feedback = ModLocalization.Get("action_upgraded_to_max", newLevel, maxLevel);
             else
-                feedback = $"Upgraded to level {newLevel}";
+                feedback = ModLocalization.Get("action_upgraded_to", newLevel);
 
             ScreenReader.Interrupt(feedback);
         }
@@ -139,7 +139,7 @@ public static class ShopPurchasePatch
             if (skillData != null && !string.IsNullOrEmpty(skillData.Title))
                 name = TextHelper.CleanText(skillData.Title);
 
-            ScreenReader.Interrupt($"Purchased {name}");
+            ScreenReader.Interrupt(ModLocalization.Get("action_purchased", name));
         }
         catch (System.Exception ex)
         {
@@ -162,7 +162,7 @@ public static class ShopRerollPatch
     {
         try
         {
-            ScreenReader.Interrupt(__state ? "Rerolled" : "Cannot afford reroll");
+            ScreenReader.Interrupt(__state ? ModLocalization.Get("action_rerolled") : ModLocalization.Get("action_reroll_fail"));
         }
         catch (System.Exception ex)
         {
@@ -185,7 +185,7 @@ public static class ShopHealPatch
     {
         try
         {
-            ScreenReader.Interrupt(__state ? "Healed" : "Cannot afford heal");
+            ScreenReader.Interrupt(__state ? ModLocalization.Get("action_healed") : ModLocalization.Get("action_heal_fail"));
         }
         catch (System.Exception ex)
         {
@@ -209,7 +209,7 @@ public static class ShopButtonClickPatch
         try
         {
             if (!__state)
-                ScreenReader.Interrupt("Cannot afford");
+                ScreenReader.Interrupt(ModLocalization.Get("action_cannot_afford"));
         }
         catch (System.Exception ex)
         {
@@ -249,7 +249,7 @@ public static class GearEquipPatch
             catch { }
 
             UIButtonPatch.QueueUntilTime = UnityEngine.Time.unscaledTime + 0.5f;
-            ScreenReader.Interrupt($"Equipped {gearName}");
+            ScreenReader.Interrupt(ModLocalization.Get("action_equipped", gearName));
         }
         catch (System.Exception ex)
         {
@@ -288,7 +288,7 @@ public static class GearUnequipPatch
             catch { }
 
             UIButtonPatch.QueueUntilTime = UnityEngine.Time.unscaledTime + 0.5f;
-            ScreenReader.Interrupt($"Unequipped {gearName}");
+            ScreenReader.Interrupt(ModLocalization.Get("action_unequipped", gearName));
         }
         catch (System.Exception ex)
         {
@@ -319,7 +319,7 @@ public static class GearUpgradePatch
             catch { }
 
             UIButtonPatch.QueueUntilTime = UnityEngine.Time.unscaledTime + 0.5f;
-            ScreenReader.Interrupt($"Upgraded {gearName}");
+            ScreenReader.Interrupt(ModLocalization.Get("action_gear_upgraded", gearName));
         }
         catch (System.Exception ex)
         {
@@ -350,7 +350,7 @@ public static class GearSalvagePatch
             catch { }
 
             UIButtonPatch.QueueUntilTime = UnityEngine.Time.unscaledTime + 0.5f;
-            ScreenReader.Interrupt($"Salvaged {gearName}");
+            ScreenReader.Interrupt(ModLocalization.Get("action_salvaged", gearName));
         }
         catch (System.Exception ex)
         {
@@ -379,41 +379,41 @@ public static class WalletReader
             var wallet = CachedWallet;
             if (wallet == null)
             {
-                ScreenReader.Interrupt("No wallet available");
+                ScreenReader.Interrupt(ModLocalization.Get("wallet_unavailable"));
                 return;
             }
 
             var sb = new StringBuilder();
 
             // Main currencies (Gold always shown — it's the primary shop currency)
-            sb.Append($"Gold: {wallet.Gold}");
-            AppendCurrency(sb, "Credits", wallet.Credits);
+            sb.Append(ModLocalization.Get("wallet_gold", wallet.Gold));
+            AppendCurrency(sb, ModLocalization.Get("wallet_credits"), wallet.Credits);
 
             // Minerals
-            AppendCurrency(sb, "Morkite", wallet.Morkite);
-            AppendCurrency(sb, "Nitra", wallet.Nitra);
-            AppendCurrency(sb, "Bismor", wallet.Bismor);
-            AppendCurrency(sb, "Croppa", wallet.Croppa);
-            AppendCurrency(sb, "Enor Pearl", wallet.EnorPearl);
-            AppendCurrency(sb, "Jadiz", wallet.Jadiz);
-            AppendCurrency(sb, "Magnite", wallet.Magnite);
-            AppendCurrency(sb, "Umanite", wallet.Umanite);
+            AppendCurrency(sb, ModLocalization.Get("wallet_morkite"), wallet.Morkite);
+            AppendCurrency(sb, ModLocalization.Get("wallet_nitra"), wallet.Nitra);
+            AppendCurrency(sb, ModLocalization.Get("wallet_bismor"), wallet.Bismor);
+            AppendCurrency(sb, ModLocalization.Get("wallet_croppa"), wallet.Croppa);
+            AppendCurrency(sb, ModLocalization.Get("wallet_enor_pearl"), wallet.EnorPearl);
+            AppendCurrency(sb, ModLocalization.Get("wallet_jadiz"), wallet.Jadiz);
+            AppendCurrency(sb, ModLocalization.Get("wallet_magnite"), wallet.Magnite);
+            AppendCurrency(sb, ModLocalization.Get("wallet_umanite"), wallet.Umanite);
 
             // Special currencies
-            AppendCurrency(sb, "Power Core", wallet.PowerCore);
-            AppendCurrency(sb, "Artifact Rerolls", wallet.ArtifactRerolls);
-            AppendCurrency(sb, "Mutator Rerolls", wallet.MutatorRerolls);
-            AppendCurrency(sb, "Ommoran Core", wallet.OmmoranCures);
+            AppendCurrency(sb, ModLocalization.Get("wallet_power_core"), wallet.PowerCore);
+            AppendCurrency(sb, ModLocalization.Get("wallet_artifact_rerolls"), wallet.ArtifactRerolls);
+            AppendCurrency(sb, ModLocalization.Get("wallet_mutator_rerolls"), wallet.MutatorRerolls);
+            AppendCurrency(sb, ModLocalization.Get("wallet_ommoran_core"), wallet.OmmoranCures);
 
             if (sb.Length == 0)
-                sb.Append("No currency");
+                sb.Append(ModLocalization.Get("wallet_no_currency"));
 
             ScreenReader.Interrupt(sb.ToString());
         }
         catch (System.Exception ex)
         {
             Plugin.Log?.LogError($"WalletReader.ReadWallet error: {ex.Message}");
-            ScreenReader.Interrupt("Cannot read wallet");
+            ScreenReader.Interrupt(ModLocalization.Get("wallet_error"));
         }
     }
 
@@ -438,36 +438,36 @@ public static class EquippedGearReader
             var form = UIFormPatches.CachedGearForm;
             if (form == null)
             {
-                ScreenReader.Interrupt("No gear inventory");
+                ScreenReader.Interrupt(ModLocalization.Get("gear_no_inventory"));
                 return;
             }
 
             var equippedPanel = form.gearEquipped;
             if (equippedPanel == null)
             {
-                ScreenReader.Interrupt("No equipped gear panel");
+                ScreenReader.Interrupt(ModLocalization.Get("gear_no_equipped_panel"));
                 return;
             }
 
-            var sb = new StringBuilder("Equipped gear");
+            var sb = new StringBuilder(ModLocalization.Get("gear_equipped_header"));
             bool hasAny = false;
 
-            AppendSlotGear(sb, equippedPanel.armorSlots, "Armor", ref hasAny);
-            AppendSlotGear(sb, equippedPanel.companionSlots, "Companion", ref hasAny);
-            AppendSlotGear(sb, equippedPanel.grinderSlots, "Grinder", ref hasAny);
-            AppendSlotGear(sb, equippedPanel.tankSlots, "Tank", ref hasAny);
-            AppendSlotGear(sb, equippedPanel.toolSlots, "Tool", ref hasAny);
-            AppendSlotGear(sb, equippedPanel.weaponModSlots, "Weapon Mod", ref hasAny);
+            AppendSlotGear(sb, equippedPanel.armorSlots, ModLocalization.Get("gear_slot_armor"), ref hasAny);
+            AppendSlotGear(sb, equippedPanel.companionSlots, ModLocalization.Get("gear_slot_companion"), ref hasAny);
+            AppendSlotGear(sb, equippedPanel.grinderSlots, ModLocalization.Get("gear_slot_grinder"), ref hasAny);
+            AppendSlotGear(sb, equippedPanel.tankSlots, ModLocalization.Get("gear_slot_tank"), ref hasAny);
+            AppendSlotGear(sb, equippedPanel.toolSlots, ModLocalization.Get("gear_slot_tool"), ref hasAny);
+            AppendSlotGear(sb, equippedPanel.weaponModSlots, ModLocalization.Get("gear_slot_weapon_mod"), ref hasAny);
 
             if (!hasAny)
-                sb.Append(": None");
+                sb.Append(ModLocalization.Get("gear_equipped_none"));
 
             ScreenReader.Interrupt(sb.ToString());
         }
         catch (System.Exception ex)
         {
             Plugin.Log?.LogError($"EquippedGearReader error: {ex.Message}");
-            ScreenReader.Interrupt("Cannot read equipped gear");
+            ScreenReader.Interrupt(ModLocalization.Get("gear_equipped_error"));
         }
     }
 

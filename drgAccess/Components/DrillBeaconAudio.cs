@@ -227,7 +227,7 @@ namespace drgAccess.Components
                         if (animState == Bobby.EAnimState.STOPPED && !announcedStopped)
                         {
                             announcedStopped = true;
-                            ScreenReader.Interrupt("Bobby stopped");
+                            ScreenReader.Interrupt(ModLocalization.Get("drill_stopped"));
                         }
                         else if (animState == Bobby.EAnimState.RUNNING)
                         {
@@ -263,7 +263,7 @@ namespace drgAccess.Components
                     if (!announcedIntro)
                     {
                         announcedIntro = true;
-                        ScreenReader.Say("Bobby arriving");
+                        ScreenReader.Say(ModLocalization.Get("drill_arriving"));
                     }
                     break;
 
@@ -271,7 +271,7 @@ namespace drgAccess.Components
                     if (!announcedEscort)
                     {
                         announcedEscort = true;
-                        ScreenReader.Interrupt("Bobby started");
+                        ScreenReader.Interrupt(ModLocalization.Get("drill_started"));
                         NavMeshPathHelper.Reset();
                     }
                     break;
@@ -280,7 +280,7 @@ namespace drgAccess.Components
                     if (!announcedMiningHeart)
                     {
                         announcedMiningHeart = true;
-                        ScreenReader.Interrupt("Bobby mining the heartstone");
+                        ScreenReader.Interrupt(ModLocalization.Get("drill_mining"));
                     }
                     break;
 
@@ -288,7 +288,7 @@ namespace drgAccess.Components
                     if (!announcedBroken)
                     {
                         announcedBroken = true;
-                        ScreenReader.Interrupt("Bobby is broken");
+                        ScreenReader.Interrupt(ModLocalization.Get("drill_broken"));
                     }
                     break;
 
@@ -296,7 +296,7 @@ namespace drgAccess.Components
                     if (!announcedOutro)
                     {
                         announcedOutro = true;
-                        ScreenReader.Interrupt("Bobby finished");
+                        ScreenReader.Interrupt(ModLocalization.Get("drill_finished"));
                     }
                     break;
             }
@@ -313,7 +313,7 @@ namespace drgAccess.Components
                     if (Time.time - lastOutOfRangeTime > OUT_OF_RANGE_COOLDOWN)
                     {
                         lastOutOfRangeTime = Time.time;
-                        ScreenReader.Interrupt("Out of Bobby's range, get closer");
+                        ScreenReader.Interrupt(ModLocalization.Get("drill_out_of_range"));
                     }
                 }
 
@@ -337,17 +337,17 @@ namespace drgAccess.Components
                     if (fuelPercent <= 0.10f && !announcedFuel10)
                     {
                         announcedFuel10 = true;
-                        ScreenReader.Interrupt("Fuel critical, 10 percent");
+                        ScreenReader.Interrupt(ModLocalization.Get("drill_fuel_critical"));
                     }
                     else if (fuelPercent <= 0.25f && !announcedFuel25)
                     {
                         announcedFuel25 = true;
-                        ScreenReader.Say("Fuel 25 percent");
+                        ScreenReader.Say(ModLocalization.Get("drill_fuel_25"));
                     }
                     else if (fuelPercent <= 0.50f && !announcedFuel50)
                     {
                         announcedFuel50 = true;
-                        ScreenReader.Say("Fuel 50 percent");
+                        ScreenReader.Say(ModLocalization.Get("drill_fuel_50"));
                     }
                 }
                 else if (fuelPercent > lastFuelPercent + 0.05f)
@@ -378,7 +378,7 @@ namespace drgAccess.Components
                     lastProgressMilestone = milestone;
                     lastProgressAnnounceTime = Time.time;
 
-                    string msg = milestone == 50 ? "Bobby halfway there" : $"Bobby {milestone} percent of the way";
+                    string msg = milestone == 50 ? ModLocalization.Get("drill_progress_halfway") : ModLocalization.Get("drill_progress_percent", milestone);
                     ScreenReader.Say(msg);
                 }
             }
@@ -460,7 +460,7 @@ namespace drgAccess.Components
                 string direction = GetScreenDirection(bobbyPos);
                 int meters = Mathf.RoundToInt(distance);
 
-                ScreenReader.Interrupt($"Bobby: {direction}, {meters} meters");
+                ScreenReader.Interrupt(ModLocalization.Get("drill_compass", direction, meters));
             }
             catch (Exception e)
             {
@@ -493,14 +493,14 @@ namespace drgAccess.Components
                 bool isRight = rightDot > 0.38f;
                 bool isLeft = rightDot < -0.38f;
 
-                if (isUp && isRight) return "up-right";
-                if (isUp && isLeft) return "up-left";
-                if (isDown && isRight) return "down-right";
-                if (isDown && isLeft) return "down-left";
-                if (isUp) return "up";
-                if (isDown) return "down";
-                if (isRight) return "right";
-                if (isLeft) return "left";
+                if (isUp && isRight) return ModLocalization.Get("dir_up_right");
+                if (isUp && isLeft) return ModLocalization.Get("dir_up_left");
+                if (isDown && isRight) return ModLocalization.Get("dir_down_right");
+                if (isDown && isLeft) return ModLocalization.Get("dir_down_left");
+                if (isUp) return ModLocalization.Get("dir_up");
+                if (isDown) return ModLocalization.Get("dir_down");
+                if (isRight) return ModLocalization.Get("dir_right");
+                if (isLeft) return ModLocalization.Get("dir_left");
                 return "here";
             }
             catch { return "unknown"; }

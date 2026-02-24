@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.5.8
+- **Current version**: v0.6.0
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -251,6 +251,15 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Announces description + progress for each (e.g. "Objective: Collect 10 Morkite: 7/10")
   - Multiple objectives joined with periods (e.g. "Objectives: Kill 5 elites: 3/5. Collect minerals: 12/20")
 
+- **Mod Localization System**: All mod-specific UI strings are now localized via external text files
+  - 22 languages supported (matching the game's localization): English, German, French, Spanish (Spain), Spanish (Latin America), Italian, Portuguese (Portugal), Portuguese (Brazil), Russian, Japanese, Korean, Chinese Simplified, Chinese Traditional, Dutch, Bulgarian, Czech, Hungarian, Polish, Romanian, Slovak, Turkish, Ukrainian
+  - External `localization/*.txt` files with simple `key=value` format — users can freely edit to customize messages
+  - Automatic locale detection via `UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocale`
+  - Runtime language switching: mod messages update automatically when the player changes the game language in settings
+  - English fallback for any missing keys
+  - `ModLocalization.Get(key)` and `ModLocalization.Get(key, args)` for all mod strings
+  - ~360 localized string keys covering all mod UI: form announcements, boss telegraphs, drop pod/supply zone/drill beacon announcements, enemy proximity, collectible proximity, action feedback, wallet, pickups, HP reader, objectives, milestones, pause/end screen, mod settings menu, audio cue previews, gear labels, mission labels, save slots, and common UI terms
+
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
 
@@ -270,6 +279,7 @@ drgAccess/
 ├── Helpers/
 │   ├── TextHelper.cs              # Shared text cleaning (CleanText, IsJustNumber)
 │   ├── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
+│   ├── ModLocalization.cs         # Mod string localization (loads localization/*.txt, locale detection, Get())
 │   ├── NavMeshPathHelper.cs       # NavMesh pathfinding for beacon guidance around obstacles
 │   ├── AudioDirectionHelper.cs    # Shared forward/behind pitch modulation for all audio cues
 │   ├── InputHelper.cs             # Shared keyboard + gamepad input checking
@@ -313,6 +323,9 @@ drgAccess/
 │   ├── BossAttackPatches.cs        # Boss attack telegraphs + HP threshold announcements
 │   ├── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
 │   └── AudioMasteringPatch.cs     # Master volume sync (SetMasterVolume + OnSaveDataLoaded)
+├── localization/                   # Mod string translations (22 language .txt files)
+│   ├── en.txt                      # English (master/reference)
+│   ├── de.txt, fr.txt, it.txt ...  # 21 other languages
 ├── sounds/
 │   └── footsteps/
 │       ├── stone/                    # 10 stone footstep MP3s
@@ -404,7 +417,7 @@ references/tolk/                   # Tolk DLL references
 
 **Rule of thumb:** Only patch methods that are **declared directly on the target class**, not inherited from base classes. When in doubt, check the decompiled code.
 
-**Localization approach:** Always prefer the game's own localized text. Use `LocalizedString.GetLocalizedString()`, `StatSettingCollection.Get(statType).GetDisplayName`, `UiRarityData.GetRarityName(rarity)`, `LocalizedResources.GearType*` etc. Only mod-created messages (labels like "Stats:", "Level", "Cost:") should be in English. Cache ScriptableObject singletons via `Resources.FindObjectsOfTypeAll<T>()` with a "searched" flag to avoid repeated lookups.
+**Localization approach:** For game data (stat names, rarity names, gear slot types, currency names), prefer the game's own localized text via `LocalizedString.GetLocalizedString()`, `StatSettingCollection`, `UiRarityData`, `LocalizedResources` etc. Cache ScriptableObject singletons via `Resources.FindObjectsOfTypeAll<T>()` with a "searched" flag to avoid repeated lookups. For all mod-specific messages (announcements, labels, screen reader text), use `ModLocalization.Get(key)` with keys defined in `localization/en.txt`. Never hardcode English strings in source code — always use ModLocalization.
 
 **Percentage stat values are stored as fractions** (0.05 = 5%). Always use `LocalizationHelper.FormatStatValue()` which multiplies by 100 for percentage stats. Never format stat values with raw `{value:0}%` directly.
 

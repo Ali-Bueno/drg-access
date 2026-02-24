@@ -352,7 +352,7 @@ public class PauseReaderComponent : MonoBehaviour
         BlockEventSystem();
         isOpen = true;
         ScreenReader.Suppressed = true;
-        SpeakDirect($"Game Paused. {items[selectedIndex].Text}");
+        SpeakDirect(ModLocalization.Get("pause_header", items[selectedIndex].Text));
     }
 
     /// <summary>
@@ -403,14 +403,13 @@ public class PauseReaderComponent : MonoBehaviour
         CollectButtons();
 
         if (items.Count == 0)
-            items.Add(new PauseItem { Text = "No information available" });
+            items.Add(new PauseItem { Text = ModLocalization.Get("pause_no_info") });
 
         BlockEventSystem();
         isOpen = true;
         selectedIndex = 0;
 
-        SpeakDirect(
-            $"Game Paused. Up and down to navigate, Enter to select, Escape to resume. {items[0].Text}");
+        SpeakDirect(ModLocalization.Get("pause_header", items[0].Text));
     }
 
     private void CollectWeapons()
@@ -444,7 +443,7 @@ public class PauseReaderComponent : MonoBehaviour
                 if (level > 0)
                 {
                     if (sb.Length > 0) sb.Append(", ");
-                    sb.Append($"Level {level}");
+                    sb.Append(ModLocalization.Get("pause_level", level));
                 }
 
                 if (details != null)
@@ -481,7 +480,7 @@ public class PauseReaderComponent : MonoBehaviour
                 }
 
                 if (sb.Length > 0)
-                    AddItem(i == 0 ? $"Weapons. {sb}" : sb.ToString());
+                    AddItem(i == 0 ? ModLocalization.Get("pause_weapons", sb) : sb.ToString());
             }
             catch (Exception e)
             {
@@ -526,7 +525,7 @@ public class PauseReaderComponent : MonoBehaviour
 
                 if (sb.Length > 0)
                 {
-                    string text = first ? $"Artifacts. {sb}" : sb.ToString();
+                    string text = first ? ModLocalization.Get("pause_artifacts", sb) : sb.ToString();
                     first = false;
                     AddItem(text);
                 }
@@ -574,7 +573,7 @@ public class PauseReaderComponent : MonoBehaviour
 
                 if (first)
                 {
-                    text = $"Stats. {text}";
+                    text = ModLocalization.Get("pause_stats", text);
                     first = false;
                 }
 
@@ -589,9 +588,9 @@ public class PauseReaderComponent : MonoBehaviour
 
     private void CollectButtons()
     {
-        AddItem("Resume", DoResume);
-        AddItem("Menu", DoMenu);
-        AddItem("Settings", DoSettings);
+        AddItem(ModLocalization.Get("pause_resume"), DoResume);
+        AddItem(ModLocalization.Get("pause_menu"), DoMenu);
+        AddItem(ModLocalization.Get("pause_settings"), DoSettings);
     }
 
     private void AddItem(string text, Action onActivate = null)

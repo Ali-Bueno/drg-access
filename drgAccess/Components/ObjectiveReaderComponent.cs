@@ -51,14 +51,14 @@ public class ObjectiveReaderComponent : MonoBehaviour
             var tracker = UnityEngine.Object.FindObjectOfType<UIObjectiveTracker>();
             if (tracker == null)
             {
-                ScreenReader.Interrupt("No objectives");
+                ScreenReader.Interrupt(ModLocalization.Get("obj_none"));
                 return;
             }
 
             var objectives = tracker.uiObjectives;
             if (objectives == null || objectives.Length == 0)
             {
-                ScreenReader.Interrupt("No objectives");
+                ScreenReader.Interrupt(ModLocalization.Get("obj_none"));
                 return;
             }
 
@@ -84,13 +84,13 @@ public class ObjectiveReaderComponent : MonoBehaviour
 
             if (parts.Count == 0)
             {
-                ScreenReader.Interrupt("No active objectives");
+                ScreenReader.Interrupt(ModLocalization.Get("obj_no_active"));
                 return;
             }
 
             string result = parts.Count == 1
-                ? "Objective: " + parts[0]
-                : "Objectives: " + string.Join(". ", parts);
+                ? ModLocalization.Get("obj_single", parts[0])
+                : ModLocalization.Get("obj_multiple", string.Join(". ", parts));
 
             ScreenReader.Interrupt(result);
         }

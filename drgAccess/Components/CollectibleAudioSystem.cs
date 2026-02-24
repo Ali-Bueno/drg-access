@@ -94,9 +94,10 @@ namespace drgAccess.Components
 
         // Item proximity announcements (zone-based like drop pod)
         private int[] lastItemZone; // 0=none, 1=nearby, 2=closer, 3=very close
-        private static readonly string[] categoryNames =
+        private static readonly string[] categoryNameKeys =
         {
-            "Red Sugar", "Gear", "Buff", "Currency", "Mineral Vein", "Loot Crate", "XP"
+            "collect_red_sugar", "collect_gear", "collect_buff", "collect_currency",
+            "collect_mineral_vein", "collect_loot_crate", "collect_xp"
         };
 
         /// <summary>
@@ -279,11 +280,11 @@ namespace drgAccess.Components
                         {
                             itemName = pickupType switch
                             {
-                                EPickupType.MAGNET => "Magnet",
-                                EPickupType.MOVESPEED => "Speed Boost",
-                                EPickupType.MININGSPEED => "Mining Speed",
-                                EPickupType.BERSERK => "Berserk",
-                                EPickupType.ARTIFACT_MAGNET => "Artifact Magnet",
+                                EPickupType.MAGNET => ModLocalization.Get("collect_magnet"),
+                                EPickupType.MOVESPEED => ModLocalization.Get("collect_speed_boost"),
+                                EPickupType.MININGSPEED => ModLocalization.Get("collect_mining_speed"),
+                                EPickupType.BERSERK => ModLocalization.Get("collect_berserk"),
+                                EPickupType.ARTIFACT_MAGNET => ModLocalization.Get("collect_artifact_magnet"),
                                 EPickupType.CURRENCY => LocalizationHelper.GetCurrencyName(pickup.currencyType),
                                 _ => null
                             };
@@ -524,12 +525,12 @@ namespace drgAccess.Components
                             }
                         }
 
-                        string name = nearestTargets[i].Name ?? categoryNames[i];
+                        string name = nearestTargets[i].Name ?? ModLocalization.Get(categoryNameKeys[i]);
                         string label = zone switch
                         {
-                            1 => $"{name} nearby{direction}",
-                            2 => $"{name} closer{direction}",
-                            3 => $"{name} very close{direction}",
+                            1 => ModLocalization.Get("collect_nearby", name, direction),
+                            2 => ModLocalization.Get("collect_closer", name, direction),
+                            3 => ModLocalization.Get("collect_very_close", name, direction),
                             _ => null
                         };
                         if (label != null)
@@ -563,15 +564,15 @@ namespace drgAccess.Components
             bool isRight = dotRight > diagThreshold;
             bool isLeft = dotRight < -diagThreshold;
 
-            if (isForward && isRight) return "up-right";
-            if (isForward && isLeft) return "up-left";
-            if (isBack && isRight) return "down-right";
-            if (isBack && isLeft) return "down-left";
-            if (isForward) return "up";
-            if (isBack) return "down";
-            if (isRight) return "right";
-            if (isLeft) return "left";
-            return "ahead";
+            if (isForward && isRight) return ModLocalization.Get("dir_up_right");
+            if (isForward && isLeft) return ModLocalization.Get("dir_up_left");
+            if (isBack && isRight) return ModLocalization.Get("dir_down_right");
+            if (isBack && isLeft) return ModLocalization.Get("dir_down_left");
+            if (isForward) return ModLocalization.Get("dir_up");
+            if (isBack) return ModLocalization.Get("dir_down");
+            if (isRight) return ModLocalization.Get("dir_right");
+            if (isLeft) return ModLocalization.Get("dir_left");
+            return ModLocalization.Get("dir_ahead");
         }
 
         private void SilenceAll()

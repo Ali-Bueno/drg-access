@@ -31,7 +31,7 @@ public static class PickupAnnouncementPatches
             int healed = args.ActualHeal;
             if (healed <= 0) return;
 
-            ScreenReader.Say($"Healed {healed} HP");
+            ScreenReader.Say(ModLocalization.Get("pickup_healed", healed));
         }
         catch (System.Exception e)
         {
@@ -88,9 +88,9 @@ public static class PickupAnnouncementPatches
             catch { }
 
             if (!string.IsNullOrEmpty(name))
-                ScreenReader.Say($"Picked up {name}");
+                ScreenReader.Say(ModLocalization.Get("pickup_gear_named", name));
             else
-                ScreenReader.Say("Gear picked up");
+                ScreenReader.Say(ModLocalization.Get("pickup_gear_generic"));
         }
         catch (System.Exception e)
         {
@@ -107,7 +107,7 @@ public static class PickupAnnouncementPatches
             if (args == null) return;
 
             string rarity = LocalizationHelper.GetRarityText(args.Rarity);
-            ScreenReader.Say($"{rarity} loot crate");
+            ScreenReader.Say(ModLocalization.Get("pickup_loot_crate", rarity));
         }
         catch (System.Exception e)
         {

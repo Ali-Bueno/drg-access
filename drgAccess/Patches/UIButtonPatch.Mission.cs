@@ -31,12 +31,12 @@ public static partial class UIButtonPatch
                 if (unlockText != null && !string.IsNullOrEmpty(unlockText.text))
                 {
                     if (sb.Length > 0) sb.Append(". ");
-                    sb.Append("Locked. " + TextHelper.CleanText(unlockText.text));
+                    sb.Append(ModLocalization.Get("ui_locked") + ". " + TextHelper.CleanText(unlockText.text));
                 }
                 else
                 {
                     if (sb.Length > 0) sb.Append(", ");
-                    sb.Append("Locked");
+                    sb.Append(ModLocalization.Get("ui_locked"));
                 }
             }
 
@@ -54,7 +54,7 @@ public static partial class UIButtonPatch
         try
         {
             var sb = new StringBuilder();
-            sb.Append($"Sector {button.sectorNumber}");
+            sb.Append(ModLocalization.Get("mission_sector", button.sectorNumber));
 
             var goalText = button.biomeGoalCountText;
             if (goalText != null && !string.IsNullOrEmpty(goalText.text))
@@ -64,11 +64,11 @@ public static partial class UIButtonPatch
 
             if (button.isLocked)
             {
-                sb.Append(", Locked");
+                sb.Append(", " + ModLocalization.Get("ui_locked"));
             }
             else if (button.nodeCompleted)
             {
-                sb.Append(", Completed");
+                sb.Append(", " + ModLocalization.Get("ui_completed"));
             }
 
             return sb.ToString();
@@ -108,7 +108,7 @@ public static partial class UIButtonPatch
             }
 
             if (sb.Length == 0)
-                sb.Append("Mission Node");
+                sb.Append(ModLocalization.Get("mission_node"));
 
             var reqText = button.biomeGoalRequirementText;
             if (reqText != null && !string.IsNullOrEmpty(reqText.text))
@@ -119,8 +119,7 @@ public static partial class UIButtonPatch
                     // If it's just a number, it's the high score
                     if (TextHelper.IsJustNumber(cleanReq))
                     {
-                        sb.Append(". High score: ");
-                        sb.Append(cleanReq);
+                        sb.Append(". " + ModLocalization.Get("mission_high_score", cleanReq));
                     }
                     else
                     {
@@ -133,11 +132,11 @@ public static partial class UIButtonPatch
 
             if (button.isLocked)
             {
-                sb.Append(", Locked");
+                sb.Append(", " + ModLocalization.Get("ui_locked"));
             }
             else if (button.nodeCompleted)
             {
-                sb.Append(", Completed");
+                sb.Append(", " + ModLocalization.Get("ui_completed"));
             }
 
             return sb.ToString();
@@ -184,15 +183,15 @@ public static partial class UIButtonPatch
         try
         {
             var sb = new StringBuilder();
-            sb.Append($"Gate {button.gateNumber}");
+            sb.Append(ModLocalization.Get("mission_gate", button.gateNumber));
 
             if (button.isLocked)
             {
-                sb.Append(", Locked");
+                sb.Append(", " + ModLocalization.Get("ui_locked"));
             }
             else if (button.nodeCompleted)
             {
-                sb.Append(", Completed");
+                sb.Append(", " + ModLocalization.Get("ui_completed"));
             }
 
             return sb.ToString();
@@ -260,7 +259,7 @@ public static partial class UIButtonPatch
             if (isCompleted)
             {
                 if (sb.Length > 0) sb.Append(", ");
-                sb.Append("Completed");
+                sb.Append(ModLocalization.Get("ui_completed"));
             }
             else
             {
@@ -268,7 +267,7 @@ public static partial class UIButtonPatch
                 if (isLocked)
                 {
                     if (sb.Length > 0) sb.Append(", ");
-                    sb.Append("Locked");
+                    sb.Append(ModLocalization.Get("ui_locked"));
                 }
             }
 
@@ -342,11 +341,11 @@ public static partial class UIButtonPatch
             if (!string.IsNullOrEmpty(runName))
                 sb.Append(runName);
             else
-                sb.Append("Fixed Run");
+                sb.Append(ModLocalization.Get("mission_fixed_run"));
 
             if (button.isLocked)
             {
-                sb.Append(", Locked");
+                sb.Append(", " + ModLocalization.Get("ui_locked"));
             }
 
             return sb.ToString();
