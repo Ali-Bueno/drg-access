@@ -2,6 +2,18 @@ CHANGELOG
 =========
 
 
+v0.6.1 - February 24, 2026
+---------------------------
+
+Bug Fixes:
+
+  - Fixed startup locale detection: The mod could load the wrong language
+    at startup because Unity's LocalizationSettings.SelectedLocale wasn't
+    ready when the BepInEx plugin loaded. The mod now re-checks the locale
+    during the first seconds of gameplay and automatically corrects itself
+    as soon as Unity's localization system is ready.
+
+
 v0.6.0 - February 24, 2026
 ---------------------------
 

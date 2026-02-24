@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.6.0
+- **Current version**: v0.6.1
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip

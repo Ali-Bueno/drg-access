@@ -16,6 +16,9 @@ public static class ModLocalization
     private static Dictionary<string, string> englishStrings;
     private static string currentLocale = "en";
     private static string langDir;
+    // Deferred locale re-check: SelectedLocale isn't ready during Plugin.Load()
+    private static bool startupCheckDone;
+    private static float startupCheckUntil;
 
     /// <summary>
     /// Initialize localization. Call once from Plugin.Load().
@@ -49,6 +52,11 @@ public static class ModLocalization
             }
 
             Plugin.Log?.LogInfo($"[ModLocalization] Loaded {currentStrings.Count} strings for locale '{currentLocale}'");
+
+            // SelectedLocale often isn't ready during Plugin.Load(), so re-check
+            // on each Get() call for the first 15 seconds after startup.
+            startupCheckDone = false;
+            startupCheckUntil = UnityEngine.Time.realtimeSinceStartup + 15f;
         }
         catch (Exception e)
         {
@@ -63,6 +71,27 @@ public static class ModLocalization
     /// </summary>
     public static string Get(string key)
     {
+        // During startup, SelectedLocale may not be ready yet.
+        // Re-check locale on each Get() call until it stabilizes or time expires.
+        if (!startupCheckDone)
+        {
+            if (UnityEngine.Time.realtimeSinceStartup < startupCheckUntil)
+            {
+                string detected = DetectLocale();
+                if (detected != currentLocale)
+                {
+                    Plugin.Log?.LogInfo($"[ModLocalization] Startup re-check: locale changed from '{currentLocale}' to '{detected}'");
+                    currentLocale = detected;
+                    ReloadCurrentLocale();
+                    startupCheckDone = true;
+                }
+            }
+            else
+            {
+                startupCheckDone = true;
+            }
+        }
+
         if (currentStrings != null && currentStrings.TryGetValue(key, out string val))
             return val;
         if (englishStrings != null && englishStrings.TryGetValue(key, out string enVal))
@@ -98,21 +127,28 @@ public static class ModLocalization
             if (newLocale == currentLocale) return;
 
             currentLocale = newLocale;
-            if (currentLocale == "en" || string.IsNullOrEmpty(currentLocale))
-            {
-                currentStrings = englishStrings;
-            }
-            else
-            {
-                string path = Path.Combine(langDir, $"{currentLocale}.txt");
-                currentStrings = File.Exists(path) ? LoadFile(path) : englishStrings;
-            }
-
+            ReloadCurrentLocale();
             Plugin.Log?.LogInfo($"[ModLocalization] Locale changed to '{currentLocale}', {currentStrings.Count} strings loaded");
         }
         catch (Exception e)
         {
             Plugin.Log?.LogError($"[ModLocalization] RefreshLocale error: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Reload the translation file for the current locale.
+    /// </summary>
+    private static void ReloadCurrentLocale()
+    {
+        if (currentLocale == "en" || string.IsNullOrEmpty(currentLocale))
+        {
+            currentStrings = englishStrings;
+        }
+        else
+        {
+            string path = Path.Combine(langDir, $"{currentLocale}.txt");
+            currentStrings = File.Exists(path) ? LoadFile(path) : englishStrings;
         }
     }
 
