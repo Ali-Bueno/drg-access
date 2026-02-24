@@ -88,6 +88,7 @@ namespace drgAccess.Components
             public bool Found;
             public Vector3 Position;
             public float Distance;
+            public string Name; // Specific item name (e.g. "Gold", "Magnet") or null for category default
         }
         private NearestTarget[] nearestTargets;
 
@@ -272,11 +273,29 @@ namespace drgAccess.Components
 
                     if (!nearestTargets[categoryIndex].Found || dist < nearestTargets[categoryIndex].Distance)
                     {
+                        // Get specific item name
+                        string itemName = null;
+                        try
+                        {
+                            itemName = pickupType switch
+                            {
+                                EPickupType.MAGNET => "Magnet",
+                                EPickupType.MOVESPEED => "Speed Boost",
+                                EPickupType.MININGSPEED => "Mining Speed",
+                                EPickupType.BERSERK => "Berserk",
+                                EPickupType.ARTIFACT_MAGNET => "Artifact Magnet",
+                                EPickupType.CURRENCY => LocalizationHelper.GetCurrencyName(pickup.currencyType),
+                                _ => null
+                            };
+                        }
+                        catch { }
+
                         nearestTargets[categoryIndex] = new NearestTarget
                         {
                             Found = true,
                             Position = pos,
-                            Distance = dist
+                            Distance = dist,
+                            Name = itemName
                         };
                     }
                 }
@@ -318,6 +337,7 @@ namespace drgAccess.Components
                 float maxDist = GetEffectiveMaxDistance(4);
                 float nearestDist = float.MaxValue;
                 Vector3 nearestPos = Vector3.zero;
+                string nearestMineralName = null;
 
                 for (int i = cachedMaterialBlocks.Count - 1; i >= 0; i--)
                 {
@@ -341,6 +361,8 @@ namespace drgAccess.Components
                     {
                         nearestDist = dist;
                         nearestPos = block.transform.position;
+                        try { nearestMineralName = LocalizationHelper.GetCurrencyName(block.materialType); }
+                        catch { nearestMineralName = null; }
                     }
                 }
 
@@ -350,7 +372,8 @@ namespace drgAccess.Components
                     {
                         Found = true,
                         Position = nearestPos,
-                        Distance = nearestDist
+                        Distance = nearestDist,
+                        Name = nearestMineralName
                     };
                 }
             }
@@ -501,11 +524,12 @@ namespace drgAccess.Components
                             }
                         }
 
+                        string name = nearestTargets[i].Name ?? categoryNames[i];
                         string label = zone switch
                         {
-                            1 => $"{categoryNames[i]} nearby{direction}",
-                            2 => $"{categoryNames[i]} closer{direction}",
-                            3 => $"{categoryNames[i]} very close{direction}",
+                            1 => $"{name} nearby{direction}",
+                            2 => $"{name} closer{direction}",
+                            3 => $"{name} very close{direction}",
                             _ => null
                         };
                         if (label != null)
