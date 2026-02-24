@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Text;
 using System.Reflection;
 using drgAccess.Helpers;
+using drgAccess.Components;
 
 namespace drgAccess.Patches;
 
@@ -60,6 +61,15 @@ public static class UIFormPatches
             if (visible)
             {
                 ScreenReader.Interrupt("Settings");
+            }
+            else
+            {
+                // Settings closed — if pause reader was suspended for settings, resume it.
+                // UICorePauseForm.Show() may be called native-to-native (IL2CPP bypass),
+                // so we can't rely on the Show patch to resume.
+                var reader = PauseReaderComponent.Instance;
+                if (reader != null && reader.IsSuspendedForSettings)
+                    reader.ResumeFromSettingsClose();
             }
         }
     }

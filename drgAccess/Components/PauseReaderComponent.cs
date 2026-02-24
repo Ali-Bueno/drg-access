@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using Il2CppInterop.Runtime.Injection;
 using drgAccess.Helpers;
+using DRS;
 
 namespace drgAccess.Components;
 
@@ -28,9 +29,17 @@ public class PauseReaderComponent : MonoBehaviour
     private int selectedIndex;
     private int collectDelay = -1;
 
-    // Suspended state (settings open, waiting to return)
+    // Suspended state (overlay open — settings, abort popup, etc. — waiting to return)
     private bool suspended;
+    private bool suspendedForSettings;
     private int suspendPollCounter;
+    private int suspendEscapeDelay;
+
+    // Resume delay (frames to wait before re-opening with existing items)
+    private int resumeDelay = -1;
+
+    // Frame tracking (to skip Cancel on the same frame as Activate)
+    private int activateFrame = -1;
 
     // EventSystem blocking
     private GameObject eventSystemObject;
@@ -40,7 +49,19 @@ public class PauseReaderComponent : MonoBehaviour
     /// True when the pause reader is involved (open, collecting, or suspended).
     /// Used by UIButtonPatch to suppress stray focus announcements.
     /// </summary>
-    public bool IsHandlingPause => isOpen || suspended || collectDelay >= 0;
+    public bool IsHandlingPause => isOpen || suspended || collectDelay >= 0 || resumeDelay >= 0;
+
+    /// <summary>
+    /// True when suspended specifically because user opened Settings from pause menu.
+    /// Used by UIFormPatches to detect when settings closes and resume the reader.
+    /// </summary>
+    public bool IsSuspendedForSettings => suspended && suspendedForSettings;
+
+    /// <summary>
+    /// True when suspended because user opened Menu (abort popup) from pause menu.
+    /// Used by AbortPopupHidePatch to detect when popup closes and resume the reader.
+    /// </summary>
+    public bool IsSuspendedForMenu => suspended && !suspendedForSettings;
 
     private struct PauseItem
     {
@@ -65,16 +86,29 @@ public class PauseReaderComponent : MonoBehaviour
 
     /// <summary>
     /// Called from PauseFormShowPatch when pause form opens.
-    /// Starts the collection delay, then opens the reader.
+    /// If returning from settings (suspended with existing items), resumes immediately.
+    /// Otherwise starts a fresh collection delay.
     /// </summary>
     public void Activate(UICorePauseForm form)
     {
+        // Returning from settings — resume immediately with existing items
+        if ((suspended || resumeDelay >= 0) && items != null && items.Count > 0)
+        {
+            pauseForm = form;
+            suspended = false;
+            resumeDelay = -1;
+            ResumeFromSuspend();
+            return;
+        }
+
         pauseForm = form;
         isOpen = false;
         suspended = false;
+        resumeDelay = -1;
         items = null;
         selectedIndex = 0;
         collectDelay = 10;
+        activateFrame = Time.frameCount;
         ScreenReader.Suppressed = true;
     }
 
@@ -88,6 +122,7 @@ public class PauseReaderComponent : MonoBehaviour
         isOpen = false;
         suspended = false;
         collectDelay = -1;
+        resumeDelay = -1;
         pauseForm = null;
         items = null;
         RestoreEventSystem();
@@ -109,7 +144,7 @@ public class PauseReaderComponent : MonoBehaviour
                 FinishRestore();
             }
 
-            // Safety: if pause form disappeared, clean up
+            // Safety: if pause form disappeared or game unpaused, clean up
             if ((isOpen || collectDelay >= 0) && pauseForm != null)
             {
                 try
@@ -123,38 +158,75 @@ public class PauseReaderComponent : MonoBehaviour
                 catch { Close(); return; }
             }
 
-            // Suspended: poll for settings return
+            // Suspended: waiting for user to return from overlay (settings, popup, etc.)
             if (suspended)
             {
-                if (pauseForm == null)
-                {
-                    Close();
-                    return;
-                }
-
-                // Check if pause form disappeared while suspended
-                try
-                {
-                    if (!pauseForm.gameObject.activeInHierarchy)
-                    {
-                        Close();
-                        return;
-                    }
-                }
+                // Safety: if pause form destroyed, clean up
+                if (pauseForm == null) { Close(); return; }
+                try { var _ = pauseForm.gameObject; }
                 catch { Close(); return; }
 
                 suspendPollCounter++;
-                if (suspendPollCounter % 10 == 0)
+
+                // Let overlay open before processing input
+                if (suspendPollCounter <= 20) return;
+
+                // Settings: resume is handled by UIFormPatches when UISettingsForm closes,
+                // or by Show() patch if it fires. Don't listen for input here.
+                if (suspendedForSettings) return;
+
+                // Non-Settings overlays (popups): resume on user input.
+
+                // Escape-based resume: user pressed Escape to close popup,
+                // wait a few frames for the game to process it, then resume
+                if (suspendEscapeDelay > 0)
                 {
-                    try
+                    suspendEscapeDelay--;
+                    if (suspendEscapeDelay == 0)
                     {
-                        var sf = UnityEngine.Object.FindObjectOfType<UISettingsForm>();
-                        bool settingsOpen = sf != null && sf.gameObject.activeInHierarchy;
-                        if (!settingsOpen)
-                            ResumeFromSettings();
+                        ResumeFromSuspend();
+                        return;
                     }
-                    catch { Close(); }
                 }
+
+                if (InputHelper.Cancel())
+                    suspendEscapeDelay = 8;
+
+                // Navigation-based resume: Up/Down means popup is gone
+                // and user wants the reader back
+                if (InputHelper.NavigateUp() || InputHelper.NavigateDown())
+                {
+                    ResumeFromSuspend();
+                    return;
+                }
+
+                return;
+            }
+
+            // Resume delay: re-open with existing items after returning from settings
+            if (resumeDelay > 0)
+            {
+                resumeDelay--;
+                return;
+            }
+            if (resumeDelay == 0)
+            {
+                resumeDelay = -1;
+                if (items != null && items.Count > 0)
+                {
+                    ResumeFromSuspend();
+                }
+                return;
+            }
+
+            // Handle Cancel during collectDelay (quick Escape before reader opens).
+            // Skip the activation frame — the same Escape that paused the game
+            // would immediately abort the reader via wasPressedThisFrame.
+            if (collectDelay >= 0 && Time.frameCount > activateFrame && InputHelper.Cancel())
+            {
+                var form = pauseForm;
+                Close();
+                ResumeGame(form);
                 return;
             }
 
@@ -215,39 +287,98 @@ public class PauseReaderComponent : MonoBehaviour
     {
         var form = pauseForm;
         Close();
-        try { form?.SetVisibility(false, false); }
-        catch { }
+        ResumeGame(form);
+    }
+
+    /// <summary>
+    /// Properly resumes the game by calling OnBack (which hides the form AND calls UnpauseCore).
+    /// SetVisibility alone only hides the UI without unpausing.
+    /// </summary>
+    private void ResumeGame(UICorePauseForm form)
+    {
+        try
+        {
+            if (form != null)
+                form.OnBack(new UIManager.BackEvent());
+        }
+        catch (Exception e)
+        {
+            Plugin.Log?.LogDebug($"PauseReader ResumeGame OnBack failed: {e.Message}");
+            // Fallback: hide form and unpause manually
+            try { form?.SetVisibility(false, false); } catch { }
+            try
+            {
+                var gc = UnityEngine.Object.FindObjectOfType<GameController>();
+                gc?.UnpauseCore();
+            }
+            catch { }
+        }
     }
 
     private void DoMenu()
     {
-        var form = pauseForm;
-        Close();
-        try { form?.OnMenuButton(); }
+        SuspendForOverlay(forSettings: false);
+        try { pauseForm?.OnMenuButton(); }
         catch { }
     }
 
     private void DoSettings()
     {
-        var form = pauseForm;
-
-        // Suspend: keep state, restore EventSystem so settings can work
-        isOpen = false;
-        suspended = true;
-        suspendPollCounter = 0;
-        RestoreEventSystem();
-        // Keep ScreenReader.Suppressed = true to avoid stray announcements
-
-        try { form?.OnSettingsButton(); }
+        SuspendForOverlay(forSettings: true);
+        try { pauseForm?.OnSettingsButton(); }
         catch { }
     }
 
-    private void ResumeFromSettings()
+    /// <summary>
+    /// Suspends the reader while an overlay (settings, abort popup, etc.) is active.
+    /// Keeps items and selected index intact so we can resume when the overlay closes.
+    /// </summary>
+    private void SuspendForOverlay(bool forSettings)
+    {
+        isOpen = false;
+        suspended = true;
+        suspendedForSettings = forSettings;
+        suspendPollCounter = 0;
+        suspendEscapeDelay = 0;
+        RestoreEventSystem();
+        // Allow overlay to use screen reader (settings patches, popup announcements).
+        // IsHandlingPause still suppresses pause-form-specific button announcements.
+        ScreenReader.Suppressed = false;
+    }
+
+    private void ResumeFromSuspend()
     {
         suspended = false;
         BlockEventSystem();
         isOpen = true;
+        ScreenReader.Suppressed = true;
         SpeakDirect($"Game Paused. {items[selectedIndex].Text}");
+    }
+
+    /// <summary>
+    /// Called from UIFormPatches when UISettingsForm closes (SetVisibility false).
+    /// Resumes the reader with existing items after a short delay.
+    /// </summary>
+    public void ResumeFromSettingsClose()
+    {
+        if (!suspended || !suspendedForSettings) return;
+        // Use resumeDelay to let the pause form re-appear before we block EventSystem
+        suspendedForSettings = false;
+        suspended = false;
+        resumeDelay = 5;
+        ScreenReader.Suppressed = true;
+    }
+
+    /// <summary>
+    /// Called from AbortPopupHidePatch when the abort popup closes (Continue/Escape).
+    /// Resumes the reader with existing items after a short delay.
+    /// </summary>
+    public void ResumeFromOverlayClose()
+    {
+        if (!suspended) return;
+        suspended = false;
+        resumeDelay = 5;
+        ScreenReader.Suppressed = true;
     }
 
     // ===== Data collection =====

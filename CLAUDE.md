@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.5.6
+- **Current version**: v0.5.7
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -177,6 +177,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Sections: Weapons (name, level, stats, tags, upgrades), Artifacts (name, description), Player Stats (individual items), Buttons (Resume, Menu, Settings)
   - Navigate with Up/Down arrows, Enter to select, Escape/B to resume
   - Fixes first-level navigation bug where stats overlay blocked pause menu buttons
+  - **Overlay resume**: Reader properly resumes after opening Settings or Menu (abort popup) from pause. Uses patches on `UISettingsForm.SetVisibility(false)` and `UIAbortPopupForm.HidePopup` to detect overlay close, since `UICorePauseForm.Show()` is called native-to-native (IL2CPP bypass). Short `resumeDelay` lets the pause form re-appear before re-blocking EventSystem
 - **End Screen (Death/Victory Stats)**: Arrow-key navigable reader for post-run statistics
   - Activates when end screen opens, collects all visible text into ordered list
   - Navigate with Up/Down arrows, Enter to activate buttons
@@ -357,6 +358,7 @@ references/tolk/                   # Tolk DLL references
 | `DreadnoughtAnimator` | Boss attack telegraph detection (charge, spikes, fireball, heal) |
 | `UIBossTopBar` | Boss HP tracking (show, updateFill thresholds, death, heal) |
 | `AudioMastering` | Master volume sync (SetMasterVolume, OnSaveDataLoaded) |
+| `UIAbortPopupForm` | Abort popup close detection (HidePopup) for pause reader resume |
 
 ---
 

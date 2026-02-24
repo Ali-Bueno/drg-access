@@ -7,8 +7,6 @@ namespace drgAccess.Patches;
 
 /// <summary>
 /// Activates PauseReaderComponent when the pause form opens.
-/// The reader is fully self-contained (handles its own close/Escape/settings),
-/// so no hide patch is needed.
 /// </summary>
 [HarmonyPatch(typeof(UICorePauseForm), nameof(UICorePauseForm.Show))]
 public static class PauseFormShowPatch
@@ -27,3 +25,26 @@ public static class PauseFormShowPatch
         }
     }
 }
+
+/// <summary>
+/// Resumes PauseReaderComponent when the abort popup closes (user pressed Continue/Escape).
+/// HidePopup is declared on UIAbortPopupForm (overrides base), safe to patch.
+/// </summary>
+[HarmonyPatch(typeof(UIAbortPopupForm), nameof(UIAbortPopupForm.HidePopup))]
+public static class AbortPopupHidePatch
+{
+    public static void Postfix()
+    {
+        try
+        {
+            var reader = PauseReaderComponent.Instance;
+            if (reader != null && reader.IsSuspendedForMenu)
+                reader.ResumeFromOverlayClose();
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log?.LogError($"AbortPopupHidePatch error: {ex.Message}");
+        }
+    }
+}
+

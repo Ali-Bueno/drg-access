@@ -2,6 +2,19 @@ CHANGELOG
 =========
 
 
+v0.5.7 - February 24, 2026
+---------------------------
+
+Bug Fixes:
+
+  - Fixed pause reader not resuming after opening Settings or Menu from
+    the pause screen. Previously, closing Settings or the abort popup
+    would leave the reader stuck — the screen reader would only say
+    "next biome" and the pause stats were no longer navigable. The reader
+    now properly detects when these overlays close and resumes navigation
+    automatically. Re-pausing is no longer needed to restore the reader.
+
+
 v0.5.6 - February 21, 2026
 ---------------------------
 
