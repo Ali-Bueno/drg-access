@@ -232,7 +232,8 @@ public static partial class UIButtonPatch
                                 if (cv != null)
                                 {
                                     if (costSb.Length > 0) costSb.Append(", ");
-                                    costSb.Append($"{cv.Value} {cv.Type}");
+                                    string currencyName = LocalizationHelper.GetCurrencyName(cv.type);
+                                    costSb.Append($"{cv.Value} {currencyName}");
                                 }
                             }
                             sb.Append(", " + ModLocalization.Get("gear_cost", costSb.ToString()));
