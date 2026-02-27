@@ -121,6 +121,8 @@ collect_berserk=Berserk
 collect_artifact_magnet=Íman de Artefactos
 
 # === Action Feedback ===
+action_buy=Comprar
+action_sell=Vender
 action_bought=Comprado
 action_cannot_afford=Sem fundos
 action_sold=Vendido

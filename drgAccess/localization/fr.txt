@@ -121,6 +121,8 @@ collect_berserk=Berserk
 collect_artifact_magnet=Aimant d'artefact
 
 # === Retour d'action ===
+action_buy=Acheter
+action_sell=Vendre
 action_bought=Acheté
 action_cannot_afford=Fonds insuffisants
 action_sold=Vendu

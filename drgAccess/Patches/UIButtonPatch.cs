@@ -614,30 +614,16 @@ public static partial class UIButtonPatch
     {
         try
         {
+            // Cache wallet for localized currency name lookups
+            try { if (button.wallet != null) LocalizationHelper.SetCachedWallet(button.wallet); } catch { }
+
             var sb = new StringBuilder();
 
-            // Read localized text from TMP children instead of enum ToString()
-            var tmps = button.GetComponentsInChildren<TextMeshProUGUI>();
-            if (tmps != null && tmps.Length > 0)
-            {
-                foreach (var tmp in tmps)
-                {
-                    if (tmp == null) continue;
-                    string text = TextHelper.CleanText(tmp.text);
-                    if (!string.IsNullOrEmpty(text))
-                    {
-                        if (sb.Length > 0) sb.Append(", ");
-                        sb.Append(text);
-                    }
-                }
-            }
-
-            // Fallback to enum values if no TMP text found
-            if (sb.Length == 0)
-            {
-                sb.Append(button.material.ToString());
-                sb.Append($", {button.marketAction}");
-            }
+            // Always use localized names (TMP children often contain raw enum text like "BISMOR", "BUY")
+            sb.Append(LocalizationHelper.GetCurrencyName(button.material));
+            string actionKey = button.marketAction == UIMineralMarketButton.EMineralMarketAction.BUY
+                ? "action_buy" : "action_sell";
+            sb.Append($", {ModLocalization.Get(actionKey)}");
 
             // Add price
             int price = button.marketAction == UIMineralMarketButton.EMineralMarketAction.BUY ? button.buyPrice : button.sellPrice;

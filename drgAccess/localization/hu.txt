@@ -121,6 +121,8 @@ collect_berserk=Berserk
 collect_artifact_magnet=Mukincs magnes
 
 # === Action Feedback ===
+action_buy=Vásárlás
+action_sell=Eladás
 action_bought=Megveeve
 action_cannot_afford=Nincs eleg penz
 action_sold=Eladva

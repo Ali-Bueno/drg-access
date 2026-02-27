@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.8.0
+- **Current version**: v0.8.1
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -66,7 +66,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Stat Upgrades**: Reads localized title, description, stat type + correctly formatted value (percentage stats ×100), level, cost, and affordability
 - **Gear Inventory**: Reads gear name, slot type, **equipped status**, rarity, tier, correctly formatted stat mods, and quirk descriptions. "Equipped" is announced early (right after name and slot type) so the user immediately knows the item's status. In upgrade tab: shows upgrade cost with currency names + affordability (via `GearEconomyConfig.TryGetUpgradeCost`). In sell tab: shows salvage value with currency names (via `GearEconomyConfig.TryGetSalvageValue`). Press T to hear a summary of all currently equipped gear organized by slot type
 - **Level-Up Skill Selection**: Reads weapon name (if weapon-specific), skill name, rarity (Common/Uncommon/Rare/Epic/Legendary), stats, and description
-- **Mineral Market**: Reads localized button text instead of raw enum names. Action feedback: "Bought"/"Sold" on success, "Cannot afford"/"Nothing to sell" on failure
+- **Mineral Market**: Reads localized currency names via `Wallet.GetCurrencyName()` and localized Buy/Sell action labels. Action feedback: "Bought"/"Sold" on success, "Cannot afford"/"Nothing to sell" on failure
 - **Action Feedback**: Screen reader announces results when pressing Enter on actionable buttons:
   - Mineral market: "Bought" / "Cannot afford" / "Sold" / "Nothing to sell"
   - Stat upgrades: "Upgraded to level X/Y" / "Max level reached" / "Cannot afford"
@@ -74,7 +74,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Shop: "Purchased [name]" / "Cannot afford" / "Rerolled" / "Cannot afford reroll" / "Healed" / "Cannot afford heal"
 - **Wallet Reading**: Press G in the stat upgrades menu, shop screen, or gear inventory to hear all currency balances (Gold, Credits, minerals, special currencies)
 - **HP Reading**: Press H during gameplay to hear current and max HP (e.g. "HP: 85 / 120")
-- **Localized Game Data**: Stat names, rarity names, gear slot types, and currency names use the game's own localization system (StatSettingCollection, UiRarityData, LocalizedResources) with English fallbacks
+- **Localized Game Data**: Stat names, rarity names, gear slot types, and currency names use the game's own localization system (`StatSettingCollection`, `UiRarityData`, `Wallet.GetCurrencyName()`, `LocalizedResources`) with English fallbacks
 - **Serial Number Cleanup**: Removes "nº XX-XXX-XXX" patterns from all text outputs (Fixed Run descriptions)
 - **Gameplay Audio - Wall Navigation**: Continuous tones for wall detection in 4 directions (forward, back, left, right) with volume based on proximity
   - Forward: 500 Hz (medium tone)
@@ -436,6 +436,7 @@ references/tolk/                   # Tolk DLL references
 | `EscortMissionHandler` | Escort duty TNT phase (SetState PREPARE_TNT, OnTNTProgress) |
 | `TNTDetonator` | TNT detonator activation (OnDetonatorLive for beacon tracking) |
 | `OmmoranHeartstone` | Ommoran Shell state/HP (SetState, SpawnCrystals, OnCrystalDeath) |
+| `Wallet` | Currency name localization (`GetCurrencyName`) — cached for `LocalizationHelper` lookups |
 
 ---
 
@@ -461,7 +462,7 @@ references/tolk/                   # Tolk DLL references
 
 **Rule of thumb:** Only patch methods that are **declared directly on the target class**, not inherited from base classes. When in doubt, check the decompiled code.
 
-**Localization approach:** For game data (stat names, rarity names, gear slot types, currency names), prefer the game's own localized text via `LocalizedString.GetLocalizedString()`, `StatSettingCollection`, `UiRarityData`, `LocalizedResources` etc. Cache ScriptableObject singletons via `Resources.FindObjectsOfTypeAll<T>()` with a "searched" flag to avoid repeated lookups. For all mod-specific messages (announcements, labels, screen reader text), use `ModLocalization.Get(key)` with keys defined in `localization/en.txt`. Never hardcode English strings in source code — always use ModLocalization.
+**Localization approach:** For game data (stat names, rarity names, gear slot types), prefer the game's own localized text via `LocalizedString.GetLocalizedString()`, `StatSettingCollection`, `UiRarityData`, `LocalizedResources` etc. Cache ScriptableObject singletons via `Resources.FindObjectsOfTypeAll<T>()` with a "searched" flag to avoid repeated lookups. For **currency names**, use `Wallet.GetCurrencyName(ECurrency)` as primary lookup (it handles localization natively in IL2CPP) — cached via `LocalizationHelper.SetCachedWallet()` from form patches. Falls back to `LocalizedResources` then English. For all mod-specific messages (announcements, labels, screen reader text), use `ModLocalization.Get(key)` with keys defined in `localization/en.txt`. Never hardcode English strings in source code — always use ModLocalization.
 
 **Percentage stat values are stored as fractions** (0.05 = 5%). Always use `LocalizationHelper.FormatStatValue()` which multiplies by 100 for percentage stats. Never format stat values with raw `{value:0}%` directly.
 

@@ -121,6 +121,8 @@ collect_berserk=狂暴
 collect_artifact_magnet=神器磁鐵
 
 # === 操作回饋 ===
+action_buy=購買
+action_sell=出售
 action_bought=已購買
 action_cannot_afford=無法負擔
 action_sold=已出售

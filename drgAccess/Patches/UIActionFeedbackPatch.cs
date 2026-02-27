@@ -1,5 +1,6 @@
 using HarmonyLib;
 using DRS.UI;
+using Assets.Scripts.Data;
 using drgAccess.Helpers;
 using System.Text;
 
@@ -20,7 +21,10 @@ public static class MineralBuyPatch
         try
         {
             if (__instance.wallet != null)
+            {
                 WalletReader.CachedWallet = __instance.wallet;
+                LocalizationHelper.SetCachedWallet(__instance.wallet);
+            }
 
             ScreenReader.Interrupt(__result ? ModLocalization.Get("action_bought") : ModLocalization.Get("action_cannot_afford"));
         }
@@ -40,7 +44,10 @@ public static class MineralSellPatch
         try
         {
             if (__instance.wallet != null)
+            {
                 WalletReader.CachedWallet = __instance.wallet;
+                LocalizationHelper.SetCachedWallet(__instance.wallet);
+            }
 
             if (__result)
             {
@@ -71,7 +78,10 @@ public static class StatUpgradeClickPatch
             __state = __instance.canAfford;
             var wallet = __instance.wallet;
             if (wallet != null)
+            {
                 WalletReader.CachedWallet = wallet;
+                LocalizationHelper.SetCachedWallet(wallet);
+            }
         }
         catch { }
     }

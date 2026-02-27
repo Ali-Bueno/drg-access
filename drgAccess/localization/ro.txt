@@ -121,6 +121,8 @@ collect_berserk=Berserk
 collect_artifact_magnet=Magnet de artefacte
 
 # === Action Feedback ===
+action_buy=Cumpără
+action_sell=Vinde
 action_bought=Cumpărat
 action_cannot_afford=Fonduri insuficiente
 action_sold=Vândut

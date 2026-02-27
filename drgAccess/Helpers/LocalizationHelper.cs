@@ -236,8 +236,34 @@ public static class LocalizationHelper
 
     // === Currency names ===
 
+    // Cached wallet reference for localized currency name lookups via Wallet.GetCurrencyName()
+    private static Wallet _cachedWallet;
+
+    /// <summary>
+    /// Sets the cached wallet reference used for GetCurrencyName lookups.
+    /// Called from patches that have access to a Wallet instance.
+    /// </summary>
+    public static void SetCachedWallet(Wallet wallet)
+    {
+        if (wallet != null) _cachedWallet = wallet;
+    }
+
     public static string GetCurrencyName(ECurrency currency)
     {
+        // Primary: use the game's own Wallet.GetCurrencyName() which handles localization internally
+        try
+        {
+            var wallet = _cachedWallet;
+            if (wallet != null)
+            {
+                string name = wallet.GetCurrencyName(currency);
+                if (!string.IsNullOrEmpty(name))
+                    return TextHelper.CleanText(name);
+            }
+        }
+        catch { /* Wallet lookup failed, try LocalizedResources */ }
+
+        // Secondary: use LocalizedResources ScriptableObject
         try
         {
             var locRes = GetLocalizedResources();

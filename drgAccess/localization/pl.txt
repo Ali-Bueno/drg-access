@@ -121,6 +121,8 @@ collect_berserk=Szał
 collect_artifact_magnet=Magnes artefaktów
 
 # === Action Feedback ===
+action_buy=Kup
+action_sell=Sprzedaj
 action_bought=Kupiono
 action_cannot_afford=Nie stać cię
 action_sold=Sprzedano

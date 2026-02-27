@@ -2,6 +2,29 @@ CHANGELOG
 =========
 
 
+v0.8.1 - February 27, 2026
+---------------------------
+
+Bug Fixes:
+
+  - Fixed currency names (BISMOR, CREDITS, MORKITE, etc.) showing in
+    English instead of the player's language in stat upgrades, gear
+    upgrade/salvage costs, shop prices, and mineral market buttons.
+    The mod now uses the game's own Wallet.GetCurrencyName() method
+    which handles localization natively, instead of relying on
+    LocalizedResources.GetLocalizedString() which failed silently
+    in IL2CPP.
+
+  - Fixed mineral market buttons displaying raw enum names (e.g.
+    "BISMOR, BUY") instead of localized text. The mod now builds
+    button text using localized currency names and translated
+    Buy/Sell labels instead of reading TMP children which contained
+    unlocalized enum text.
+
+  - Added localized "Buy" and "Sell" labels for the mineral market
+    fallback path in all 22 languages.
+
+
 v0.8.0 - February 27, 2026
 ---------------------------
 

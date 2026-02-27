@@ -168,6 +168,9 @@ public static partial class UIButtonPatch
     {
         try
         {
+            // Cache wallet for localized currency name lookups
+            try { if (button.wallet != null) LocalizationHelper.SetCachedWallet(button.wallet); } catch { }
+
             var sb = new StringBuilder();
             var data = button.data;
             if (data != null)

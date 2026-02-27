@@ -121,6 +121,8 @@ collect_berserk=Çılgınlık
 collect_artifact_magnet=Eser Mıknatısı
 
 # === Action Feedback ===
+action_buy=Satın Al
+action_sell=Sat
 action_bought=Satın alındı
 action_cannot_afford=Yeterli para yok
 action_sold=Satıldı

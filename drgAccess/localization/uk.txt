@@ -121,6 +121,8 @@ collect_berserk=Берсерк
 collect_artifact_magnet=Магніт артефактів
 
 # === Зворотний зв'язок дій ===
+action_buy=Купити
+action_sell=Продати
 action_bought=Куплено
 action_cannot_afford=Недостатньо коштів
 action_sold=Продано

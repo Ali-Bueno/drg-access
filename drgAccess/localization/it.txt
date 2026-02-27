@@ -121,6 +121,8 @@ collect_berserk=Furia
 collect_artifact_magnet=Magnete Artefatti
 
 # === Feedback Azioni ===
+action_buy=Acquista
+action_sell=Vendi
 action_bought=Acquistato
 action_cannot_afford=Non puoi permettertelo
 action_sold=Venduto

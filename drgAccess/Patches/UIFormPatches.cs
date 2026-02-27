@@ -105,7 +105,7 @@ public static class UIFormPatches
             if (visible)
             {
                 ScreenReader.Interrupt(ModLocalization.Get("form_gear_inventory"));
-                try { WalletReader.CachedWallet = __instance.wallet; } catch { }
+                try { WalletReader.CachedWallet = __instance.wallet; LocalizationHelper.SetCachedWallet(__instance.wallet); } catch { }
                 try { UIButtonPatch.CachedGearEconomy = __instance.gearEconomy; } catch { }
                 try { UIButtonPatch.CachedGearWallet = __instance.wallet; } catch { }
                 try { UIButtonPatch.CachedGearManager = __instance.gearManager; } catch { }
@@ -124,7 +124,7 @@ public static class UIFormPatches
             if (visible)
             {
                 ScreenReader.Interrupt(ModLocalization.Get("form_stat_upgrades"));
-                try { WalletReader.CachedWallet = __instance.wallet; } catch { }
+                try { WalletReader.CachedWallet = __instance.wallet; LocalizationHelper.SetCachedWallet(__instance.wallet); } catch { }
             }
         }
     }
@@ -140,7 +140,7 @@ public static class UIFormPatches
             if (visible)
             {
                 ScreenReader.Interrupt(ModLocalization.Get("form_shop"));
-                try { WalletReader.CachedWallet = __instance.wallet; } catch { }
+                try { WalletReader.CachedWallet = __instance.wallet; LocalizationHelper.SetCachedWallet(__instance.wallet); } catch { }
             }
         }
     }

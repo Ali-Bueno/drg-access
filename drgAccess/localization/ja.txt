@@ -121,6 +121,8 @@ collect_berserk=バーサーク
 collect_artifact_magnet=アーティファクトマグネット
 
 # === アクションフィードバック ===
+action_buy=購入
+action_sell=売却
 action_bought=購入
 action_cannot_afford=資金不足
 action_sold=売却

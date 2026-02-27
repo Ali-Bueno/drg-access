@@ -121,6 +121,8 @@ collect_berserk=광폭화
 collect_artifact_magnet=아티팩트 자석
 
 # === 행동 피드백 ===
+action_buy=구매
+action_sell=판매
 action_bought=구매 완료
 action_cannot_afford=자원 부족
 action_sold=판매 완료
