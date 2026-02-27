@@ -2,6 +2,33 @@ CHANGELOG
 =========
 
 
+v0.7.0 - February 27, 2026
+---------------------------
+
+New Features:
+
+  - Elimination Mode - Cocoon Audio Beacon: New positional audio beacon
+    that guides you to elite cocoons in elimination mode's final stage.
+    An organic pulsing tone (heartbeat-like throb) beeps faster as you
+    approach. Boss cocoons use a higher frequency range to clearly
+    distinguish from regular cocoons. Proximity announcements with
+    direction: "Cocoon nearby up-left", "Cocoon closer right",
+    "Cocoon very close down". Volume adjustable in Mod Settings (F1).
+
+  - Elimination Mode - Screen Reader Announcements: Full lifecycle
+    announcements for the elimination mode boss stage:
+      * "Elite spawned, X cocoons remaining" when a cocoon is destroyed
+      * "All cocoons destroyed" when the last regular cocoon falls
+      * "Dreadnought emerging!" when the boss spawns from its cocoon
+      * "Threat level X" when the alien threat timer increases
+
+  - Cocoon Beacon Volume: New volume slider in the Mod Settings Menu
+    (F1) to adjust cocoon beacon audio independently.
+
+  - Cocoon Beacon Audio Preview: New audio cue preview in the Mod
+    Settings Menu (25 total cues now).
+
+
 v0.6.2 - February 25, 2026
 ---------------------------
 

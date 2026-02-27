@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.6.2
+- **Current version**: v0.7.0
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -163,7 +163,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - L3 (leftStickButton): compass direction to drop pod
 - **Audio Cue Preview Menu**: Submenu within the Mod Settings Menu to preview all audio cues
   - Access via "Audio Cue Preview" item in Mod Settings (F1), navigate with Up/Down, preview with Enter / A
-  - 24 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Drill Beacon, Hazard Warning, Boss Charge/Spikes/Fireball/Heal, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
+  - 25 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Drill Beacon, Cocoon Beacon, Hazard Warning, Boss Charge/Spikes/Fireball/Heal, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Escape / B button returns to main settings menu
   - Previews use pending volume values (unsaved changes applied during preview)
@@ -189,7 +189,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **Mod Settings Menu**: Configurable mod settings accessible with F1 key (outside gameplay)
   - Opens with F1 / Y button, closes with Escape / B button or Save/Cancel
   - Navigate with Up/Down arrows or D-Pad, adjust values with Left/Right arrows or D-Pad
-  - **Volume Sliders**: 9 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles, Footsteps, Boss Attacks, Drill Beacon) — 0-100% in 5% steps
+  - **Volume Sliders**: 10 categories (Wall Navigation, Enemy Detection, Drop Pod Beacon, Supply Pod Beacon, Hazard Warning, Collectibles, Footsteps, Boss Attacks, Drill Beacon, Cocoon Beacon) — 0-100% in 5% steps
   - **Toggle Settings**: Footsteps On/Off (enabled by default)
   - **Detection Settings**: Configurable ranges and limits:
     - Enemy Detection Range (10-60m, default 35m)
@@ -197,7 +197,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
     - Collectible Range Multiplier (0.5x-2.0x, default 1.0x)
     - Wall Detection Range (5-25m, default 12m)
     - Max Hazard Warnings (1-5 simultaneous, default 3)
-  - **Audio Cue Preview submenu**: All 24 audio cue previews (moved from standalone menu), Enter to preview
+  - **Audio Cue Preview submenu**: All 25 audio cue previews (moved from standalone menu), Enter to preview
   - Save persists to `drgAccess_settings.cfg` next to the mod DLL
   - Cancel restores previous values via snapshot system
   - Previews respect pending (unsaved) volume values
@@ -251,6 +251,21 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Announces description + progress for each (e.g. "Objective: Collect 10 Morkite: 7/10")
   - Multiple objectives joined with periods (e.g. "Objectives: Kill 5 elites: 3/5. Collect minerals: 12/20")
 
+- **Elimination Mode - Cocoon Audio Beacon**: 3D positional audio guiding the player to cocoons in elimination mode's last stage
+  - Tracks cocoons via `EnemyTracker` (separate cocoon tracking alongside normal enemies)
+  - Organic pulsing tone (heartbeat-like throb with 8 Hz amplitude modulation, detuned overtones)
+  - Regular cocoons: 400-700 Hz; Boss cocoon (BIG_COCOON): 600-1000 Hz (higher, more urgent)
+  - Beacon-style accelerating beeps (250ms → 30ms) with stereo panning + **directional pitch modulation**
+  - Proximity announcements: "Cocoon nearby [direction]" → "Cocoon closer" → "Cocoon very close"
+  - Separate announcements for boss cocoon: "Boss cocoon nearby" etc.
+  - Volume configurable via Cocoon Beacon slider in Mod Settings
+  - `BeaconMode.Cocoon` added to `BeaconBeepGenerator`
+- **Elimination Mode - Screen Reader Announcements**: Patches for elimination mission lifecycle events
+  - Elite spawn: "Elite spawned, X cocoons remaining" when cocoon destroyed (`EliminationMissionHandler.SpawnElite`)
+  - All cocoons cleared: "All cocoons destroyed" when last regular cocoon falls
+  - Boss spawn: "Dreadnought emerging!" when boss spawns from cocoon (`EliminationMissionHandler.SpawnBoss`)
+  - Threat level: "Threat level X" when alien threat timer changes (`CoreStatTracker.OnThreatLevel`)
+
 - **Mod Localization System**: All mod-specific UI strings are now localized via external text files
   - 22 languages supported (matching the game's localization): English, German, French, Spanish (Spain), Spanish (Latin America), Italian, Portuguese (Portugal), Portuguese (Brazil), Russian, Japanese, Korean, Chinese Simplified, Chinese Traditional, Dutch, Bulgarian, Czech, Hungarian, Polish, Romanian, Slovak, Turkish, Ukrainian
   - External `localization/*.txt` files with simple `key=value` format — users can freely edit to customize messages
@@ -258,7 +273,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Runtime language switching: mod messages update automatically when the player changes the game language in settings
   - English fallback for any missing keys
   - `ModLocalization.Get(key)` and `ModLocalization.Get(key, args)` for all mod strings
-  - ~360 localized string keys covering all mod UI: form announcements, boss telegraphs, drop pod/supply zone/drill beacon announcements, enemy proximity, collectible proximity, action feedback, wallet, pickups, HP reader, objectives, milestones, pause/end screen, mod settings menu, audio cue previews, gear labels, mission labels, save slots, and common UI terms
+  - ~375 localized string keys covering all mod UI: form announcements, boss telegraphs, drop pod/supply zone/drill beacon/cocoon beacon announcements, elimination mode events, enemy proximity, collectible proximity, action feedback, wallet, pickups, HP reader, objectives, milestones, pause/end screen, mod settings menu, audio cue previews, gear labels, mission labels, save slots, and common UI terms
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed
@@ -287,7 +302,7 @@ drgAccess/
 ├── Components/
 │   ├── WallNavigationAudio.cs     # Wall detection with continuous tones (1 shared WaveOutEvent)
 │   ├── EnemyAudioSystem.cs        # 3D positional audio for enemies (1 shared WaveOutEvent)
-│   ├── EnemyTracker.cs            # Tracks active enemies in scene
+│   ├── EnemyTracker.cs            # Tracks active enemies and cocoons in scene
 │   ├── DropPodAudio.cs            # Drop pod beacon + BeaconBeepGenerator (sonar ping / warble trill)
 │   ├── ActivationZoneAudio.cs     # Supply pod zone beacon (warble trill)
 │   ├── CollectibleAudioSystem.cs  # Collectible items/minerals/crates positional audio
@@ -296,6 +311,7 @@ drgAccess/
 │   ├── BossAttackAudio.cs         # Boss attack telegraph charging sounds (rising-pitch alarm per type)
 │   ├── FootstepAudio.cs           # Material-based footstep sounds (stone/metal MP3 playback)
 │   ├── DrillBeaconAudio.cs        # Bobby drill beacon (escort mission positional audio)
+│   ├── CocoonAudioSystem.cs      # Cocoon beacon (elimination mode positional audio)
 │   ├── ObjectiveReaderComponent.cs # O key objective reader during gameplay
 │   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
@@ -317,11 +333,12 @@ drgAccess/
 │   ├── UICorePausePatch.cs        # Pause menu reader activation/deactivation
 │   ├── UIActionFeedbackPatch.cs   # Action results (buy/sell, upgrade, equip/unequip, wallet reader)
 │   ├── UIObjectivePatches.cs      # Objective announcements (show, progress, completion)
-│   ├── EnemyPatches.cs            # Enemy registration for audio system
+│   ├── EnemyPatches.cs            # Enemy + cocoon registration for audio system
 │   ├── DropPodPatches.cs          # Drop pod event detection (landing/extraction)
 │   ├── HazardPatches.cs           # Ground spike detection for hazard warnings
 │   ├── BossAttackPatches.cs        # Boss attack telegraphs + HP threshold announcements
 │   ├── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
+│   ├── EliminationPatches.cs      # Elimination mode (cocoon/elite/boss spawns, threat level)
 │   └── AudioMasteringPatch.cs     # Master volume sync (SetMasterVolume + OnSaveDataLoaded)
 ├── localization/                   # Mod string translations (22 language .txt files)
 │   ├── en.txt                      # English (master/reference)
@@ -392,6 +409,8 @@ references/tolk/                   # Tolk DLL references
 | `UIAbortPopupForm` | Abort popup close detection (HidePopup) for pause reader resume |
 | `Bobby` | Drill escort tracking (state, fuel, progress, position — polled, not patched) |
 | `UIObjectiveTracker` | Active objective reading (uiObjectives array, O key reader) |
+| `EliminationMissionHandler` | Elimination mode (SpawnElite cocoon count, SpawnBoss announcement) |
+| `CoreStatTracker` | Alien threat level change announcements (OnThreatLevel) |
 
 ---
 

@@ -183,6 +183,13 @@ namespace drgAccess.Components
                     Type = MainItemType.VolumeSlider,
                     PlayPreview = () => PreviewBeacon(300, 0.20f, BeaconMode.Drill, ModConfig.DRILL_BEACON)
                 },
+                new MainMenuItem
+                {
+                    Category = ModConfig.COCOON_BEACON,
+                    DisplayName = ModLocalization.Get("setting_cocoon_beacon"),
+                    Type = MainItemType.VolumeSlider,
+                    PlayPreview = () => PreviewBeacon(550, 0.18f, BeaconMode.Cocoon, ModConfig.COCOON_BEACON)
+                },
                 // --- Detection Settings ---
                 new MainMenuItem
                 {
@@ -308,6 +315,12 @@ namespace drgAccess.Components
                     Name = ModLocalization.Get("cue_drill_beacon"),
                     Description = ModLocalization.Get("cue_drill_beacon_desc"),
                     PlayPreview = () => PreviewBeacon(300, 0.20f, BeaconMode.Drill, ModConfig.DRILL_BEACON)
+                },
+                new AudioCueItem
+                {
+                    Name = ModLocalization.Get("cue_cocoon_beacon"),
+                    Description = ModLocalization.Get("cue_cocoon_beacon_desc"),
+                    PlayPreview = () => PreviewBeacon(550, 0.18f, BeaconMode.Cocoon, ModConfig.COCOON_BEACON)
                 },
                 new AudioCueItem
                 {

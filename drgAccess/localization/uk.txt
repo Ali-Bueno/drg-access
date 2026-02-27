@@ -361,3 +361,18 @@ wallet_power_core=Енергетичне ядро
 wallet_artifact_rerolls=Перекидання артефактів
 wallet_mutator_rerolls=Перекидання мутаторів
 wallet_ommoran_core=Ommoran Core
+
+# === Elimination / Cocoons ===
+elim_elite_spawned=Elite spawned, {0} cocoons remaining
+elim_no_cocoons=All cocoons destroyed
+elim_dreadnought_emerging=Dreadnought emerging!
+elim_threat_level=Threat level {0}
+cocoon_nearby=Cocoon nearby{0}
+cocoon_closer=Cocoon closer{0}
+cocoon_very_close=Cocoon very close{0}
+boss_cocoon_nearby=Boss cocoon nearby{0}
+boss_cocoon_closer=Boss cocoon closer{0}
+boss_cocoon_very_close=Boss cocoon very close{0}
+setting_cocoon_beacon=Cocoon Beacon
+cue_cocoon_beacon=Cocoon Beacon
+cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.

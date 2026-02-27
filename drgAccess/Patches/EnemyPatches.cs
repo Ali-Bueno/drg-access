@@ -19,18 +19,18 @@ namespace drgAccess.Patches
         {
             try
             {
-                // Filter out cocoons and non-combat entities
+                var tracker = EnemyTracker.Instance;
+                if (tracker == null) return;
+
+                // Cocoons go into separate tracking (for cocoon audio beacon)
                 var enemyType = __instance.type;
                 if (enemyType == EEnemyType.COCOON || enemyType == EEnemyType.BIG_COCOON)
                 {
-                    return; // Don't track cocoons/destructibles
+                    tracker.RegisterCocoon(__instance);
+                    return;
                 }
 
-                var tracker = EnemyTracker.Instance;
-                if (tracker != null)
-                {
-                    tracker.RegisterEnemy(__instance);
-                }
+                tracker.RegisterEnemy(__instance);
             }
             catch (System.Exception e)
             {
@@ -51,6 +51,7 @@ namespace drgAccess.Patches
                 if (tracker != null)
                 {
                     tracker.UnregisterEnemy(__instance);
+                    tracker.UnregisterCocoon(__instance);
                 }
             }
             catch (System.Exception e)
@@ -72,6 +73,7 @@ namespace drgAccess.Patches
                 if (tracker != null)
                 {
                     tracker.UnregisterEnemy(__instance);
+                    tracker.UnregisterCocoon(__instance);
                 }
             }
             catch (System.Exception e)

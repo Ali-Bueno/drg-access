@@ -13,6 +13,7 @@ namespace drgAccess.Components
         public static EnemyTracker Instance { get; private set; }
 
         private HashSet<Enemy> activeEnemies = new HashSet<Enemy>();
+        private HashSet<Enemy> activeCocoons = new HashSet<Enemy>();
         private readonly object lockObj = new object();
 
         static EnemyTracker()
@@ -30,6 +31,7 @@ namespace drgAccess.Components
             Instance = this;
             DontDestroyOnLoad(gameObject);
             activeEnemies = new HashSet<Enemy>();
+            activeCocoons = new HashSet<Enemy>();
             Plugin.Log.LogInfo("[EnemyTracker] Initialized");
         }
 
@@ -41,9 +43,11 @@ namespace drgAccess.Components
                 lock (lockObj)
                 {
                     int count = activeEnemies.Count;
+                    int cocoonCount = activeCocoons?.Count ?? 0;
                     activeEnemies.Clear();
-                    if (count > 0)
-                        Plugin.Log.LogInfo($"[EnemyTracker] Cleared {count} enemies on re-enable");
+                    activeCocoons?.Clear();
+                    if (count > 0 || cocoonCount > 0)
+                        Plugin.Log.LogInfo($"[EnemyTracker] Cleared {count} enemies and {cocoonCount} cocoons on re-enable");
                 }
             }
         }
@@ -105,9 +109,66 @@ namespace drgAccess.Components
             }
         }
 
+        public void RegisterCocoon(Enemy enemy)
+        {
+            if (enemy == null) return;
+
+            lock (lockObj)
+            {
+                if (activeCocoons.Add(enemy))
+                {
+                    Plugin.Log.LogDebug($"[EnemyTracker] Registered cocoon: {enemy.name}");
+                }
+            }
+        }
+
+        public void UnregisterCocoon(Enemy enemy)
+        {
+            if (enemy == null) return;
+
+            lock (lockObj)
+            {
+                if (activeCocoons.Remove(enemy))
+                {
+                    Plugin.Log.LogDebug($"[EnemyTracker] Unregistered cocoon: {enemy.name}");
+                }
+            }
+        }
+
+        public IEnumerable<Enemy> GetActiveCocoons()
+        {
+            lock (lockObj)
+            {
+                activeCocoons.RemoveWhere(e =>
+                {
+                    try
+                    {
+                        if (e == null) return true;
+                        var _ = e.transform;
+                        return false;
+                    }
+                    catch
+                    {
+                        return true;
+                    }
+                });
+
+                return new List<Enemy>(activeCocoons);
+            }
+        }
+
+        public int GetCocoonCount()
+        {
+            lock (lockObj)
+            {
+                return activeCocoons.Count;
+            }
+        }
+
         void OnDestroy()
         {
             activeEnemies?.Clear();
+            activeCocoons?.Clear();
             Instance = null;
             Plugin.Log.LogInfo("[EnemyTracker] Destroyed");
         }

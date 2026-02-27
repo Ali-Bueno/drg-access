@@ -14,7 +14,8 @@ namespace drgAccess.Components
     {
         DropPod,    // Sonar ping: metallic ringing with slow decay
         SupplyDrop, // Warble/trill: rapid frequency oscillation, mechanical buzz
-        Drill       // Rhythmic rumble/chug: tremolo-modulated pulse, mechanical feel
+        Drill,      // Rhythmic rumble/chug: tremolo-modulated pulse, mechanical feel
+        Cocoon      // Organic pulse: heartbeat-like throb with detuned overtones
     }
 
     /// <summary>
@@ -100,9 +101,10 @@ namespace drgAccess.Components
             // Duration depends on mode
             int beepDuration = mode switch
             {
-                BeaconMode.DropPod => (int)(sampleRate * 0.10),   // 100ms sonar ping
+                BeaconMode.DropPod => (int)(sampleRate * 0.10),    // 100ms sonar ping
                 BeaconMode.SupplyDrop => (int)(sampleRate * 0.07), // 70ms warble trill
                 BeaconMode.Drill => (int)(sampleRate * 0.12),      // 120ms drill pulse
+                BeaconMode.Cocoon => (int)(sampleRate * 0.15),     // 150ms organic throb
                 _ => (int)(sampleRate * 0.10)
             };
             int gapSamples = (int)(sampleRate * 0.03);
@@ -132,6 +134,8 @@ namespace drgAccess.Components
                         sample = GenerateDropPodSample(progress, isInSecondBeep);
                     else if (mode == BeaconMode.SupplyDrop)
                         sample = GenerateSupplyDropSample(progress);
+                    else if (mode == BeaconMode.Cocoon)
+                        sample = GenerateCocoonSample(progress);
                     else
                         sample = GenerateDrillSample(progress);
 
@@ -243,6 +247,40 @@ namespace drgAccess.Components
             if (phase2 >= 1.0) phase2 -= 1.0;
 
             return envelope * tremolo * (float)sample;
+        }
+
+        /// <summary>
+        /// Cocoon organic pulse: heartbeat-like throb with detuned overtones.
+        /// Soft attack, slow decay with amplitude pulsing for organic feel.
+        /// Clearly distinct from metallic (drop pod), buzzy (supply), and mechanical (drill) sounds.
+        /// </summary>
+        private float GenerateCocoonSample(float progress)
+        {
+            // Soft attack, slow organic decay
+            float envelope = progress < 0.08f
+                ? progress / 0.08f
+                : (float)Math.Exp(-(progress - 0.08) * 3.0);
+
+            // Heartbeat-like amplitude pulse at 8 Hz
+            float pulse = 0.5f + 0.5f * (float)Math.Sin(2.0 * Math.PI * 8.0 * progress);
+            pulse = pulse * pulse; // Sharpen the pulse shape
+
+            // Main sine tone
+            double s1 = Math.Sin(2.0 * Math.PI * phase);
+
+            // Slightly detuned second oscillator for organic texture
+            double detuneRatio = 1.015; // ~25 cents sharp, wider than drop pod
+            double s2 = Math.Sin(2.0 * Math.PI * phase2) * 0.4;
+
+            // Third harmonic for eerie overtone
+            double s3 = Math.Sin(2.0 * Math.PI * phase * 3.0) * 0.1 * (1.0 - progress);
+
+            phase += currentFrequency / sampleRate;
+            phase2 += (currentFrequency * detuneRatio) / sampleRate;
+            if (phase >= 1.0) phase -= 1.0;
+            if (phase2 >= 1.0) phase2 -= 1.0;
+
+            return envelope * pulse * (float)((s1 + s2 + s3) * 0.55);
         }
     }
 
