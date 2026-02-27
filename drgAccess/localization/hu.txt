@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Robbanoanyag elesitese
+escort_tnt_progress=Detonator elesitve, {0}/{1}
+escort_tnt_all_armed=Minden detonator eles, tavolodjatok!
+escort_tnt_nearby=Detonator a kozelben{0}
+escort_tnt_closer=Detonator kozelebb{0}
+escort_tnt_very_close=Detonator nagyon kozel{0}
+escort_ommoran_appeared=Ommoran-panceel megjelent
+escort_ommoran_hp=Ommoran-panceel {0} szazalek
+escort_ommoran_destroyed=Ommoran-panceel megsemmisult!
+escort_crystals_spawned=Kristallyok jelentek meg, {0} megsemmisitendo
+escort_crystal_destroyed=Kristaly megsemmisitve, {0} maradt
+escort_crystals_cleared=Minden kristaly eltavolitva, maradj Bobby kozeleben
+escort_crystal_nearby=Kristaly a kozelben{0}
+escort_crystal_closer=Kristaly kozelebb{0}
+escort_crystal_very_close=Kristaly nagyon kozel{0}
+escort_stay_near_bobby=Maradj Bobby kozeleben a panceel karosatasahoz
+cue_tnt_beacon=TNT detonator jelzo
+cue_tnt_beacon_desc=A nem elesitett detonatorokhoz vezet. Eles ketyeges.
+cue_ommoran_crystal=Ommoran kristaly jelzo
+cue_ommoran_crystal_desc=Az Ommoran kristallyokhoz vezet. Uveges kristalyos csillogas.

@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=폭발물 설치
+escort_tnt_progress=기폭장치 설치됨, {0}/{1}
+escort_tnt_all_armed=모든 기폭장치 설치 완료, 물러나세요!
+escort_tnt_nearby=기폭장치 근처{0}
+escort_tnt_closer=기폭장치 더 가까이{0}
+escort_tnt_very_close=기폭장치 매우 가까이{0}
+escort_ommoran_appeared=Ommoran 껍질 출현
+escort_ommoran_hp=Ommoran 껍질 {0}퍼센트
+escort_ommoran_destroyed=Ommoran 껍질 파괴!
+escort_crystals_spawned=수정 출현, {0}개 파괴 필요
+escort_crystal_destroyed=수정 파괴, {0}개 남음
+escort_crystals_cleared=모든 수정 제거, Bobby 근처에 머물러
+escort_crystal_nearby=수정 근처{0}
+escort_crystal_closer=수정 더 가까이{0}
+escort_crystal_very_close=수정 매우 가까이{0}
+escort_stay_near_bobby=Bobby 근처에 있으면 껍질에 피해를 줄 수 있음
+cue_tnt_beacon=TNT 기폭장치 비콘
+cue_tnt_beacon_desc=설치되지 않은 기폭장치로 안내합니다. 날카로운 째깍 소리.
+cue_ommoran_crystal=Ommoran 수정 비콘
+cue_ommoran_crystal_desc=Ommoran 수정으로 안내합니다. 유리 같은 수정 반짝임.

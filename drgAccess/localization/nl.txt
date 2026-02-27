@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Explosieven activeren
+escort_tnt_progress=Detonator geactiveerd, {0} van {1}
+escort_tnt_all_armed=Alle detonatoren geactiveerd, ga in dekking!
+escort_tnt_nearby=Detonator dichtbij{0}
+escort_tnt_closer=Detonator dichterbij{0}
+escort_tnt_very_close=Detonator heel dichtbij{0}
+escort_ommoran_appeared=Ommoran-schild verschenen
+escort_ommoran_hp=Ommoran-schild {0} procent
+escort_ommoran_destroyed=Ommoran-schild vernietigd!
+escort_crystals_spawned=Kristallen verschenen, {0} te vernietigen
+escort_crystal_destroyed=Kristal vernietigd, {0} over
+escort_crystals_cleared=Alle kristallen verwijderd, blijf bij Bobby
+escort_crystal_nearby=Kristal dichtbij{0}
+escort_crystal_closer=Kristal dichterbij{0}
+escort_crystal_very_close=Kristal heel dichtbij{0}
+escort_stay_near_bobby=Blijf bij Bobby om het schild te beschadigen
+cue_tnt_beacon=TNT-detonator-baken
+cue_tnt_beacon_desc=Leidt je naar niet-geactiveerde detonatoren. Scherp tikkend geluid.
+cue_ommoran_crystal=Ommoran-kristal-baken
+cue_ommoran_crystal_desc=Leidt je naar Ommoran-kristallen. Glasachtige kristallen glinstering.

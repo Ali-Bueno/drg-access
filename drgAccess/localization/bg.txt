@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Активирай взривните устройства
+escort_tnt_progress=Детонатор активиран, {0} от {1}
+escort_tnt_all_armed=Всички детонатори активирани, отдалечете се!
+escort_tnt_nearby=Детонатор наблизо{0}
+escort_tnt_closer=Детонатор по-близо{0}
+escort_tnt_very_close=Детонатор много близо{0}
+escort_ommoran_appeared=Обвивката на Ommoran се появи
+escort_ommoran_hp=Обвивка на Ommoran {0} процента
+escort_ommoran_destroyed=Обвивката на Ommoran е унищожена!
+escort_crystals_spawned=Кристали се появиха, {0} за унищожаване
+escort_crystal_destroyed=Кристал унищожен, остават {0}
+escort_crystals_cleared=Всички кристали унищожени, стой близо до Bobby
+escort_crystal_nearby=Кристал наблизо{0}
+escort_crystal_closer=Кристал по-близо{0}
+escort_crystal_very_close=Кристал много близо{0}
+escort_stay_near_bobby=Стой близо до Bobby за да повредиш обвивката
+cue_tnt_beacon=TNT детонатор маяк
+cue_tnt_beacon_desc=Насочва те към неактивирани детонатори. Остро тиктакане.
+cue_ommoran_crystal=Ommoran кристал маяк
+cue_ommoran_crystal_desc=Насочва те към Ommoran кристали. Стъклен кристален блясък.

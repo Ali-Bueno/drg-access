@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Armar los explosivos
+escort_tnt_progress=Detonador armado, {0} de {1}
+escort_tnt_all_armed=Todos los detonadores armados, apartaos!
+escort_tnt_nearby=Detonador cerca{0}
+escort_tnt_closer=Detonador mas cerca{0}
+escort_tnt_very_close=Detonador muy cerca{0}
+escort_ommoran_appeared=Coraza Ommoran aparecida
+escort_ommoran_hp=Coraza Ommoran {0} por ciento
+escort_ommoran_destroyed=Coraza Ommoran destruida!
+escort_crystals_spawned=Cristales aparecidos, {0} por destruir
+escort_crystal_destroyed=Cristal destruido, {0} restantes
+escort_crystals_cleared=Todos los cristales eliminados, quedad cerca de Bobby
+escort_crystal_nearby=Cristal cerca{0}
+escort_crystal_closer=Cristal mas cerca{0}
+escort_crystal_very_close=Cristal muy cerca{0}
+escort_stay_near_bobby=Quedad cerca de Bobby para danar la coraza
+cue_tnt_beacon=Baliza de detonador TNT
+cue_tnt_beacon_desc=Te guia hacia los detonadores sin armar. Tictac agudo.
+cue_ommoran_crystal=Baliza de cristal Ommoran
+cue_ommoran_crystal_desc=Te guia hacia los cristales Ommoran. Destello cristalino.

@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Установить взрывчатку
+escort_tnt_progress=Детонатор установлен, {0} из {1}
+escort_tnt_all_armed=Все детонаторы установлены, отойдите!
+escort_tnt_nearby=Детонатор рядом{0}
+escort_tnt_closer=Детонатор ближе{0}
+escort_tnt_very_close=Детонатор очень близко{0}
+escort_ommoran_appeared=Панцирь Ommoran появился
+escort_ommoran_hp=Панцирь Ommoran {0} процентов
+escort_ommoran_destroyed=Панцирь Ommoran уничтожен!
+escort_crystals_spawned=Кристаллы появились, нужно уничтожить {0}
+escort_crystal_destroyed=Кристалл уничтожен, осталось {0}
+escort_crystals_cleared=Все кристаллы уничтожены, оставайтесь рядом с Bobby
+escort_crystal_nearby=Кристалл рядом{0}
+escort_crystal_closer=Кристалл ближе{0}
+escort_crystal_very_close=Кристалл очень близко{0}
+escort_stay_near_bobby=Оставайтесь рядом с Bobby, чтобы повредить панцирь
+cue_tnt_beacon=Маяк детонатора TNT
+cue_tnt_beacon_desc=Ведёт к неустановленным детонаторам. Резкое тиканье.
+cue_ommoran_crystal=Маяк кристалла Ommoran
+cue_ommoran_crystal_desc=Ведёт к кристаллам Ommoran. Стеклянное кристальное мерцание.

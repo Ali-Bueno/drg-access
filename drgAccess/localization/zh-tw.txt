@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=安裝炸藥
+escort_tnt_progress=起爆器已安裝，{0}/{1}
+escort_tnt_all_armed=所有起爆器已安裝，快撤離！
+escort_tnt_nearby=起爆器在附近{0}
+escort_tnt_closer=起爆器更近了{0}
+escort_tnt_very_close=起爆器非常近{0}
+escort_ommoran_appeared=Ommoran外殼出現
+escort_ommoran_hp=Ommoran外殼 {0}%
+escort_ommoran_destroyed=Ommoran外殼已摧毀！
+escort_crystals_spawned=水晶出現，需摧毀{0}個
+escort_crystal_destroyed=水晶已摧毀，剩餘{0}個
+escort_crystals_cleared=所有水晶已清除，留在Bobby附近
+escort_crystal_nearby=水晶在附近{0}
+escort_crystal_closer=水晶更近了{0}
+escort_crystal_very_close=水晶非常近{0}
+escort_stay_near_bobby=留在Bobby附近以傷害外殼
+cue_tnt_beacon=TNT起爆器信標
+cue_tnt_beacon_desc=引導你前往未安裝的起爆器。尖銳的滴答聲。
+cue_ommoran_crystal=Ommoran水晶信標
+cue_ommoran_crystal_desc=引導你前往Ommoran水晶。玻璃般的水晶閃爍。

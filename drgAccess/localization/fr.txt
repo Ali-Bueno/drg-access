@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Armer les explosifs
+escort_tnt_progress=Detonateur arme, {0} sur {1}
+escort_tnt_all_armed=Tous les detonateurs armes, eloignez-vous!
+escort_tnt_nearby=Detonateur a proximite{0}
+escort_tnt_closer=Detonateur plus proche{0}
+escort_tnt_very_close=Detonateur tres proche{0}
+escort_ommoran_appeared=Carapace Ommoran apparue
+escort_ommoran_hp=Carapace Ommoran {0} pourcent
+escort_ommoran_destroyed=Carapace Ommoran detruite!
+escort_crystals_spawned=Cristaux apparus, {0} a detruire
+escort_crystal_destroyed=Cristal detruit, {0} restants
+escort_crystals_cleared=Tous les cristaux detruits, restez pres de Bobby
+escort_crystal_nearby=Cristal a proximite{0}
+escort_crystal_closer=Cristal plus proche{0}
+escort_crystal_very_close=Cristal tres proche{0}
+escort_stay_near_bobby=Restez pres de Bobby pour endommager la carapace
+cue_tnt_beacon=Balise detonateur TNT
+cue_tnt_beacon_desc=Vous guide vers les detonateurs non armes. Tic-tac rapide.
+cue_ommoran_crystal=Balise cristal Ommoran
+cue_ommoran_crystal_desc=Vous guide vers les cristaux Ommoran. Scintillement cristallin.

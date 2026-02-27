@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Armare gli esplosivi
+escort_tnt_progress=Detonatore armato, {0} di {1}
+escort_tnt_all_armed=Tutti i detonatori armati, allontanatevi!
+escort_tnt_nearby=Detonatore vicino{0}
+escort_tnt_closer=Detonatore piu vicino{0}
+escort_tnt_very_close=Detonatore vicinissimo{0}
+escort_ommoran_appeared=Guscio Ommoran apparso
+escort_ommoran_hp=Guscio Ommoran {0} percento
+escort_ommoran_destroyed=Guscio Ommoran distrutto!
+escort_crystals_spawned=Cristalli apparsi, {0} da distruggere
+escort_crystal_destroyed=Cristallo distrutto, {0} rimanenti
+escort_crystals_cleared=Tutti i cristalli eliminati, resta vicino a Bobby
+escort_crystal_nearby=Cristallo vicino{0}
+escort_crystal_closer=Cristallo piu vicino{0}
+escort_crystal_very_close=Cristallo vicinissimo{0}
+escort_stay_near_bobby=Resta vicino a Bobby per danneggiare il guscio
+cue_tnt_beacon=Segnale detonatore TNT
+cue_tnt_beacon_desc=Ti guida verso i detonatori non armati. Ticchettio rapido.
+cue_ommoran_crystal=Segnale cristallo Ommoran
+cue_ommoran_crystal_desc=Ti guida verso i cristalli Ommoran. Scintillio cristallino.

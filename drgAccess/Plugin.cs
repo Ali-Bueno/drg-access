@@ -50,6 +50,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.HPReaderComponent>();
         AddComponent<Components.FootstepAudio>();
         AddComponent<Components.DrillBeaconAudio>();
+        AddComponent<Components.EscortPhaseAudio>();
         AddComponent<Components.CocoonAudioSystem>();
         AddComponent<Components.ObjectiveReaderComponent>();
 

@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Nastrazit vybusniny
+escort_tnt_progress=Detonator nastrazeny, {0} z {1}
+escort_tnt_all_armed=Vsetky detonatory nastrazene, ustupte!
+escort_tnt_nearby=Detonator nablizku{0}
+escort_tnt_closer=Detonator blizsie{0}
+escort_tnt_very_close=Detonator velmi blizko{0}
+escort_ommoran_appeared=Ommoran pancier sa objavil
+escort_ommoran_hp=Ommoran pancier {0} percent
+escort_ommoran_destroyed=Ommoran pancier zniceny!
+escort_crystals_spawned=Krystaly sa objavili, {0} na znicenie
+escort_crystal_destroyed=Krystal zniceny, zostava {0}
+escort_crystals_cleared=Vsetky krystaly odstranene, zostan pri Bobbym
+escort_crystal_nearby=Krystal nablizku{0}
+escort_crystal_closer=Krystal blizsie{0}
+escort_crystal_very_close=Krystal velmi blizko{0}
+escort_stay_near_bobby=Zostan pri Bobbym na poskodenie panciera
+cue_tnt_beacon=TNT detonator majak
+cue_tnt_beacon_desc=Naviguje ta k nenastraznym detonatorom. Ostre tikanie.
+cue_ommoran_crystal=Ommoran krystal majak
+cue_ommoran_crystal_desc=Naviguje ta ku krystalem Ommoran. Skleneny kristalovy trpyt.

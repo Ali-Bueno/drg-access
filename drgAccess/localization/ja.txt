@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=爆薬を設置
+escort_tnt_progress=起爆装置設置、{0}/{1}
+escort_tnt_all_armed=全起爆装置設置完了、離れて!
+escort_tnt_nearby=起爆装置が近く{0}
+escort_tnt_closer=起爆装置がより近く{0}
+escort_tnt_very_close=起爆装置がすぐ近く{0}
+escort_ommoran_appeared=Ommoranの殻が出現
+escort_ommoran_hp=Ommoranの殻 {0}パーセント
+escort_ommoran_destroyed=Ommoranの殻を破壊!
+escort_crystals_spawned=クリスタル出現、{0}個破壊せよ
+escort_crystal_destroyed=クリスタル破壊、残り{0}個
+escort_crystals_cleared=全クリスタル除去、Bobbyの近くにいて
+escort_crystal_nearby=クリスタルが近く{0}
+escort_crystal_closer=クリスタルがより近く{0}
+escort_crystal_very_close=クリスタルがすぐ近く{0}
+escort_stay_near_bobby=Bobbyの近くにいると殻にダメージを与えられる
+cue_tnt_beacon=TNT起爆装置ビーコン
+cue_tnt_beacon_desc=未設置の起爆装置へ誘導。鋭いカチカチ音。
+cue_ommoran_crystal=Ommoranクリスタルビーコン
+cue_ommoran_crystal_desc=Ommoranクリスタルへ誘導。ガラスのような結晶のきらめき。

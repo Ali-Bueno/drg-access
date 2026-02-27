@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Sprengstoff scharf machen
+escort_tnt_progress=Detonator scharf, {0} von {1}
+escort_tnt_all_armed=Alle Detonatoren scharf, in Deckung!
+escort_tnt_nearby=Detonator in der Naehe{0}
+escort_tnt_closer=Detonator naeher{0}
+escort_tnt_very_close=Detonator sehr nah{0}
+escort_ommoran_appeared=Ommoran-Schale erschienen
+escort_ommoran_hp=Ommoran-Schale {0} Prozent
+escort_ommoran_destroyed=Ommoran-Schale zerstoert!
+escort_crystals_spawned=Kristalle erschienen, {0} zu zerstoeren
+escort_crystal_destroyed=Kristall zerstoert, {0} uebrig
+escort_crystals_cleared=Alle Kristalle beseitigt, bleib bei Bobby
+escort_crystal_nearby=Kristall in der Naehe{0}
+escort_crystal_closer=Kristall naeher{0}
+escort_crystal_very_close=Kristall sehr nah{0}
+escort_stay_near_bobby=Bleib bei Bobby um die Schale zu beschaedigen
+cue_tnt_beacon=TNT-Detonator-Signal
+cue_tnt_beacon_desc=Fuehrt dich zu ungescharften Detonatoren. Scharfes Ticken.
+cue_ommoran_crystal=Ommoran-Kristall-Signal
+cue_ommoran_crystal_desc=Fuehrt dich zu Ommoran-Kristallen. Glasartiges kristallines Schimmern.

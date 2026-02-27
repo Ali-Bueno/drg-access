@@ -324,6 +324,18 @@ namespace drgAccess.Components
                 },
                 new AudioCueItem
                 {
+                    Name = ModLocalization.Get("cue_tnt_beacon"),
+                    Description = ModLocalization.Get("cue_tnt_beacon_desc"),
+                    PlayPreview = () => PreviewBeacon(600, 0.15f, BeaconMode.TNT, ModConfig.DRILL_BEACON)
+                },
+                new AudioCueItem
+                {
+                    Name = ModLocalization.Get("cue_ommoran_crystal"),
+                    Description = ModLocalization.Get("cue_ommoran_crystal_desc"),
+                    PlayPreview = () => PreviewBeacon(900, 0.15f, BeaconMode.OmmoranCrystal, ModConfig.DRILL_BEACON)
+                },
+                new AudioCueItem
+                {
                     Name = ModLocalization.Get("cue_hazard"),
                     Description = ModLocalization.Get("cue_hazard_desc"),
                     PlayPreview = () => PreviewAlarm(ModConfig.HAZARD_WARNING)

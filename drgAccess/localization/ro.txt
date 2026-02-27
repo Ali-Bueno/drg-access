@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Armeaza explozibilii
+escort_tnt_progress=Detonator armat, {0} din {1}
+escort_tnt_all_armed=Toate detonatoarele armate, indepartati-va!
+escort_tnt_nearby=Detonator aproape{0}
+escort_tnt_closer=Detonator mai aproape{0}
+escort_tnt_very_close=Detonator foarte aproape{0}
+escort_ommoran_appeared=Carapacea Ommoran a aparut
+escort_ommoran_hp=Carapacea Ommoran {0} la suta
+escort_ommoran_destroyed=Carapacea Ommoran distrusa!
+escort_crystals_spawned=Cristale aparute, {0} de distrus
+escort_crystal_destroyed=Cristal distrus, {0} ramase
+escort_crystals_cleared=Toate cristalele eliminate, ramai langa Bobby
+escort_crystal_nearby=Cristal aproape{0}
+escort_crystal_closer=Cristal mai aproape{0}
+escort_crystal_very_close=Cristal foarte aproape{0}
+escort_stay_near_bobby=Ramai langa Bobby pentru a deteriora carapacea
+cue_tnt_beacon=Far detonator TNT
+cue_tnt_beacon_desc=Te ghideaza catre detonatoarele nearmate. Ticait ascutit.
+cue_ommoran_crystal=Far cristal Ommoran
+cue_ommoran_crystal_desc=Te ghideaza catre cristalele Ommoran. Stralucire cristalina.

@@ -12,10 +12,12 @@ namespace drgAccess.Components
     /// </summary>
     public enum BeaconMode
     {
-        DropPod,    // Sonar ping: metallic ringing with slow decay
-        SupplyDrop, // Warble/trill: rapid frequency oscillation, mechanical buzz
-        Drill,      // Rhythmic rumble/chug: tremolo-modulated pulse, mechanical feel
-        Cocoon      // Organic pulse: heartbeat-like throb with detuned overtones
+        DropPod,        // Sonar ping: metallic ringing with slow decay
+        SupplyDrop,     // Warble/trill: rapid frequency oscillation, mechanical buzz
+        Drill,          // Rhythmic rumble/chug: tremolo-modulated pulse, mechanical feel
+        Cocoon,         // Organic pulse: heartbeat-like throb with detuned overtones
+        TNT,            // Staccato tick: sharp clicking timer sound
+        OmmoranCrystal  // Crystalline shimmer: glassy FM synthesis
     }
 
     /// <summary>
@@ -105,6 +107,8 @@ namespace drgAccess.Components
                 BeaconMode.SupplyDrop => (int)(sampleRate * 0.07), // 70ms warble trill
                 BeaconMode.Drill => (int)(sampleRate * 0.12),      // 120ms drill pulse
                 BeaconMode.Cocoon => (int)(sampleRate * 0.15),     // 150ms organic throb
+                BeaconMode.TNT => (int)(sampleRate * 0.04),          // 40ms sharp tick
+                BeaconMode.OmmoranCrystal => (int)(sampleRate * 0.08), // 80ms crystal shimmer
                 _ => (int)(sampleRate * 0.10)
             };
             int gapSamples = (int)(sampleRate * 0.03);
@@ -136,6 +140,10 @@ namespace drgAccess.Components
                         sample = GenerateSupplyDropSample(progress);
                     else if (mode == BeaconMode.Cocoon)
                         sample = GenerateCocoonSample(progress);
+                    else if (mode == BeaconMode.TNT)
+                        sample = GenerateTNTSample(progress);
+                    else if (mode == BeaconMode.OmmoranCrystal)
+                        sample = GenerateOmmoranCrystalSample(progress);
                     else
                         sample = GenerateDrillSample(progress);
 
@@ -281,6 +289,58 @@ namespace drgAccess.Components
             if (phase2 >= 1.0) phase2 -= 1.0;
 
             return envelope * pulse * (float)((s1 + s2 + s3) * 0.55);
+        }
+
+        /// <summary>
+        /// TNT staccato tick: very short, sharp attack with fast decay.
+        /// Narrow pulse wave + high harmonic for metallic clicking quality.
+        /// Sounds like a countdown timer — completely distinct from other modes.
+        /// </summary>
+        private float GenerateTNTSample(float progress)
+        {
+            // Very sharp attack (2%), fast exponential decay
+            float envelope = progress < 0.02f
+                ? progress / 0.02f
+                : (float)Math.Exp(-(progress - 0.02) * 12.0);
+
+            // Sharp narrow pulse wave for clicking quality (15% duty cycle)
+            double pulse = phase % 1.0 < 0.15 ? 1.0 : -0.5;
+
+            // High harmonic for metallic "tick" character
+            double high = Math.Sin(2.0 * Math.PI * phase * 4.0) * 0.3;
+
+            phase += currentFrequency / sampleRate;
+            if (phase >= 1.0) phase -= 1.0;
+
+            return envelope * (float)((pulse * 0.5 + high) * 0.8);
+        }
+
+        /// <summary>
+        /// Ommoran Crystal shimmer: FM synthesis for glassy quality.
+        /// Medium attack, moderate decay with high overtone sparkle.
+        /// Ethereal and crystalline — distinct from metallic/organic sounds.
+        /// </summary>
+        private float GenerateOmmoranCrystalSample(float progress)
+        {
+            // Medium attack, moderate decay with sparkle fade
+            float envelope = progress < 0.05f
+                ? progress / 0.05f
+                : (float)Math.Exp(-(progress - 0.05) * 5.0);
+
+            // FM synthesis: modulator creates glassy sidebands
+            double modulator = Math.Sin(2.0 * Math.PI * phase2 * 3.0) * 0.3;
+            double carrier = Math.Sin(2.0 * Math.PI * phase * (1.0 + modulator));
+
+            // High shimmer overtone that fades with progress
+            double shimmer = Math.Sin(2.0 * Math.PI * phase * 5.0) * 0.15
+                           * (1.0 - progress);
+
+            phase += currentFrequency / sampleRate;
+            phase2 += (currentFrequency * 1.5) / sampleRate;
+            if (phase >= 1.0) phase -= 1.0;
+            if (phase2 >= 1.0) phase2 -= 1.0;
+
+            return envelope * (float)((carrier + shimmer) * 0.6);
         }
     }
 

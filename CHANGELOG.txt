@@ -2,6 +2,39 @@ CHANGELOG
 =========
 
 
+v0.8.0 - February 27, 2026
+---------------------------
+
+New Features:
+
+  - Escort Duty - TNT Phase Accessibility (Stages 1-2): After Bobby reaches
+    its destination, the mod now fully supports the explosives arming phase.
+    "Arm the explosives" announced when the phase begins. A sharp staccato
+    ticking beacon guides you to the nearest unarmed detonator. Progress
+    announced as each detonator is armed: "Detonator armed, X of Y".
+    "All detonators armed, stand clear!" on completion. Proximity
+    announcements with direction for each detonator.
+
+  - Escort Duty - Ommoran Shell Accessibility (Stage 3): Full accessibility
+    for the Ommoran Shell boss fight on the final escort stage.
+    "Ommoran Shell appeared" announced when the heartstone activates.
+    HP threshold announcements at 75%, 50%, 25%, and 10%.
+    When crystals spawn: "Crystals appeared, X to destroy" with a glassy
+    crystalline beacon guiding to the nearest crystal. Crystal destruction
+    progress: "Crystal destroyed, X remaining" / "All crystals cleared,
+    stay near Bobby". "Ommoran Shell destroyed!" on completion.
+
+  - Two new audio beacon sounds:
+    * TNT Detonator Beacon: Sharp metallic ticking (400-800 Hz), sounds
+      like a countdown timer
+    * Ommoran Crystal Beacon: Glassy FM synthesis shimmer (700-1200 Hz),
+      ethereal crystalline quality
+
+  - Audio Cue Previews: 2 new previews in Mod Settings (27 total cues).
+
+  - Localization: All escort duty strings localized in 22 languages.
+
+
 v0.7.0 - February 27, 2026
 ---------------------------
 

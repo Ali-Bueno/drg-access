@@ -26,6 +26,9 @@ namespace drgAccess.Components
         private Bobby activeBobby;
         private bool isBeaconActive = false;
 
+        // Suppress beacon when escort phase (TNT/Ommoran) is active
+        public bool SuppressForEscortPhase { get; set; } = false;
+
         // Player references
         private Transform playerTransform;
         private Transform cameraTransform;
@@ -238,8 +241,9 @@ namespace drgAccess.Components
                     beepGenerator.DrillRunning = animState == Bobby.EAnimState.RUNNING;
                 }
 
-                // Beacon active logic
-                isBeaconActive = state == Bobby.EState.ESCORT || state == Bobby.EState.MINING_HEART;
+                // Beacon active logic (suppress when escort phase takes over with TNT/Ommoran beacons)
+                isBeaconActive = !SuppressForEscortPhase &&
+                    (state == Bobby.EState.ESCORT || state == Bobby.EState.MINING_HEART);
 
                 // Player range tracking
                 if (state == Bobby.EState.ESCORT)

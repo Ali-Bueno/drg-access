@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.7.0
+- **Current version**: v0.8.0
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -163,7 +163,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - L3 (leftStickButton): compass direction to drop pod
 - **Audio Cue Preview Menu**: Submenu within the Mod Settings Menu to preview all audio cues
   - Access via "Audio Cue Preview" item in Mod Settings (F1), navigate with Up/Down, preview with Enter / A
-  - 25 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Drill Beacon, Cocoon Beacon, Hazard Warning, Boss Charge/Spikes/Fireball/Heal, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
+  - 27 cues: Wall Forward/Backward/Sides, Enemy Normal/Elite/Boss, Rare Loot Enemy, Drop Pod Beacon/Critical/Ramp Tone, Supply Pod Beacon, Drill Beacon, Cocoon Beacon, TNT Detonator Beacon, Ommoran Crystal Beacon, Hazard Warning, Boss Charge/Spikes/Fireball/Heal, Collectible Red Sugar/Gear/Buff/Currency/Mineral Vein/Loot Crate/XP Nearby
   - Each item announces name + description via screen reader, Enter plays ~1.5s audio preview
   - Escape / B button returns to main settings menu
   - Previews use pending volume values (unsaved changes applied during preview)
@@ -266,6 +266,26 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Boss spawn: "Dreadnought emerging!" when boss spawns from cocoon (`EliminationMissionHandler.SpawnBoss`)
   - Threat level: "Threat level X" when alien threat timer changes (`CoreStatTracker.OnThreatLevel`)
 
+- **Escort Duty - TNT Phase (Stages 1-2)**: Accessibility for arming explosives after Bobby reaches destination
+  - "Arm the explosives" announced when `EscortMissionHandler.SetState(PREPARE_TNT)` fires
+  - TNT detonator audio beacon (`BeaconMode.TNT`): sharp staccato ticking, 400-800 Hz, guides to nearest unarmed detonator
+  - Progress announcements: "Detonator armed, X of Y" via `EscortMissionHandler.OnTNTProgress` patch
+  - "All detonators armed, stand clear!" on completion
+  - Proximity announcements: "Detonator nearby [direction]" → "Detonator closer" → "Detonator very close"
+  - Polling fallback: detects TNT phase via `FindObjectsOfType<TNTDetonator>()` if Harmony patch bypassed by IL2CPP
+  - Unarmed detonators identified by checking `Beacon` GameObject's `activeInHierarchy` state
+
+- **Escort Duty - Ommoran Phase (Stage 3)**: Accessibility for the Ommoran Shell boss fight
+  - "Ommoran Shell appeared" when heartstone enters BASIC state (`OmmoranHeartstone.SetState`)
+  - HP threshold announcements at 75%, 50%, 25%, 10% via polling `GetHealthNormalized()` every 0.5s
+  - Crystal spawn announcements: "Crystals appeared, X to destroy" via `OmmoranHeartstone.SpawnCrystals` patch
+  - Crystal beacon (`BeaconMode.OmmoranCrystal`): glassy FM synthesis shimmer, 700-1200 Hz, guides to nearest live crystal
+  - Crystal destruction: "Crystal destroyed, X remaining" / "All crystals cleared, stay near Bobby" via `OnCrystalDeath` patch
+  - Proximity announcements for crystals: nearby → closer → very close with direction
+  - "Ommoran Shell destroyed!" on DEAD state
+  - Volume shares with Drill Beacon setting (same mission, never simultaneous)
+  - Both phases suppress the drill beacon via `DrillBeaconAudio.SuppressForEscortPhase`
+
 - **Mod Localization System**: All mod-specific UI strings are now localized via external text files
   - 22 languages supported (matching the game's localization): English, German, French, Spanish (Spain), Spanish (Latin America), Italian, Portuguese (Portugal), Portuguese (Brazil), Russian, Japanese, Korean, Chinese Simplified, Chinese Traditional, Dutch, Bulgarian, Czech, Hungarian, Polish, Romanian, Slovak, Turkish, Ukrainian
   - External `localization/*.txt` files with simple `key=value` format — users can freely edit to customize messages
@@ -312,6 +332,7 @@ drgAccess/
 │   ├── FootstepAudio.cs           # Material-based footstep sounds (stone/metal MP3 playback)
 │   ├── DrillBeaconAudio.cs        # Bobby drill beacon (escort mission positional audio)
 │   ├── CocoonAudioSystem.cs      # Cocoon beacon (elimination mode positional audio)
+│   ├── EscortPhaseAudio.cs       # TNT detonator + Ommoran crystal beacons (escort duty phases)
 │   ├── ObjectiveReaderComponent.cs # O key objective reader during gameplay
 │   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
@@ -339,6 +360,7 @@ drgAccess/
 │   ├── BossAttackPatches.cs        # Boss attack telegraphs + HP threshold announcements
 │   ├── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
 │   ├── EliminationPatches.cs      # Elimination mode (cocoon/elite/boss spawns, threat level)
+│   ├── EscortDutyPatches.cs      # Escort duty phases (TNT arming, Ommoran heartstone/crystals)
 │   └── AudioMasteringPatch.cs     # Master volume sync (SetMasterVolume + OnSaveDataLoaded)
 ├── localization/                   # Mod string translations (22 language .txt files)
 │   ├── en.txt                      # English (master/reference)
@@ -411,6 +433,9 @@ references/tolk/                   # Tolk DLL references
 | `UIObjectiveTracker` | Active objective reading (uiObjectives array, O key reader) |
 | `EliminationMissionHandler` | Elimination mode (SpawnElite cocoon count, SpawnBoss announcement) |
 | `CoreStatTracker` | Alien threat level change announcements (OnThreatLevel) |
+| `EscortMissionHandler` | Escort duty TNT phase (SetState PREPARE_TNT, OnTNTProgress) |
+| `TNTDetonator` | TNT detonator activation (OnDetonatorLive for beacon tracking) |
+| `OmmoranHeartstone` | Ommoran Shell state/HP (SetState, SpawnCrystals, OnCrystalDeath) |
 
 ---
 

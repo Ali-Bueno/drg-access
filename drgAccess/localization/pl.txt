@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Uzbroj ladunki wybuchowe
+escort_tnt_progress=Detonator uzbrojony, {0} z {1}
+escort_tnt_all_armed=Wszystkie detonatory uzbrojone, odsuncie sie!
+escort_tnt_nearby=Detonator w poblizu{0}
+escort_tnt_closer=Detonator blizej{0}
+escort_tnt_very_close=Detonator bardzo blisko{0}
+escort_ommoran_appeared=Pancerz Ommoran sie pojawil
+escort_ommoran_hp=Pancerz Ommoran {0} procent
+escort_ommoran_destroyed=Pancerz Ommoran zniszczony!
+escort_crystals_spawned=Krysztaly sie pojawily, {0} do zniszczenia
+escort_crystal_destroyed=Krysztal zniszczony, pozostalo {0}
+escort_crystals_cleared=Wszystkie krysztaly usuniete, trzymaj sie blisko Bobbyego
+escort_crystal_nearby=Krysztal w poblizu{0}
+escort_crystal_closer=Krysztal blizej{0}
+escort_crystal_very_close=Krysztal bardzo blisko{0}
+escort_stay_near_bobby=Trzymaj sie blisko Bobbyego, zeby uszkodzic pancerz
+cue_tnt_beacon=Sygnalizator detonatora TNT
+cue_tnt_beacon_desc=Prowadzi do nieuzbrojonych detonatorow. Ostre tykanie.
+cue_ommoran_crystal=Sygnalizator krysztalu Ommoran
+cue_ommoran_crystal_desc=Prowadzi do kryształow Ommoran. Szklany krystaliczny blask.

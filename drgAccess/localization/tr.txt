@@ -376,3 +376,25 @@ boss_cocoon_very_close=Boss cocoon very close{0}
 setting_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon=Cocoon Beacon
 cue_cocoon_beacon_desc=Guides you to elite cocoons in elimination mode. Organic pulsing tone.
+
+# === Escort Duty ===
+escort_arm_tnt=Patlayicilari kur
+escort_tnt_progress=Detonator kuruldu, {0}/{1}
+escort_tnt_all_armed=Tum detonatorler kuruldu, uzaklasın!
+escort_tnt_nearby=Detonator yakinlarda{0}
+escort_tnt_closer=Detonator daha yakin{0}
+escort_tnt_very_close=Detonator cok yakin{0}
+escort_ommoran_appeared=Ommoran Kabuğu belirdi
+escort_ommoran_hp=Ommoran Kabuğu yuzde {0}
+escort_ommoran_destroyed=Ommoran Kabuğu yok edildi!
+escort_crystals_spawned=Kristaller belirdi, {0} tane yok edilecek
+escort_crystal_destroyed=Kristal yok edildi, {0} kaldi
+escort_crystals_cleared=Tum kristaller temizlendi, Bobby'nin yanindan ayrilma
+escort_crystal_nearby=Kristal yakinlarda{0}
+escort_crystal_closer=Kristal daha yakin{0}
+escort_crystal_very_close=Kristal cok yakin{0}
+escort_stay_near_bobby=Kabuğa hasar vermek icin Bobby'nin yaninda kal
+cue_tnt_beacon=TNT Detonator Isareti
+cue_tnt_beacon_desc=Kurulmamis detonatorlere yonlendirir. Keskin tik tak sesi.
+cue_ommoran_crystal=Ommoran Kristal Isareti
+cue_ommoran_crystal_desc=Ommoran kristallerine yonlendirir. Camsi kristal pariltisi.
