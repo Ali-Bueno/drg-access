@@ -168,10 +168,16 @@ namespace drgAccess.Components
                     {
                         beepGenerator.Active = false;
                     }
+
+                    // Periodic diagnostics for drill beacon state
+                    if (Time.frameCount % 600 == 0)
+                        Plugin.Log.LogDebug($"[DrillBeaconAudio] Bobby state={activeBobby.State}, anim={activeBobby.animState}, beaconActive={isBeaconActive}, suppress={SuppressForEscortPhase}, player={playerTransform != null}");
                 }
                 else
                 {
                     beepGenerator.Active = false;
+                    if (Time.frameCount % 600 == 0)
+                        Plugin.Log.LogDebug("[DrillBeaconAudio] Bobby not found");
                 }
             }
             catch (Exception e)
@@ -428,8 +434,8 @@ namespace drgAccess.Components
                 float baseFreqHigh = activeBobby.animState == Bobby.EAnimState.RUNNING ? 450f : 350f;
                 beepGenerator.Frequency = (baseFreqLow + proximityFactor * (baseFreqHigh - baseFreqLow)) * pitchMultiplier;
 
-                // Volume: gentle 0.20-0.40 to avoid annoyance
-                beepGenerator.Volume = (0.20f + proximityFactor * 0.20f) * ModConfig.GetVolume(ModConfig.DRILL_BEACON);
+                // Volume: 0.35-0.60, audible over other gameplay sounds
+                beepGenerator.Volume = (0.35f + proximityFactor * 0.25f) * ModConfig.GetVolume(ModConfig.DRILL_BEACON);
 
                 // Interval: 300ms far → 50ms close
                 beepGenerator.Interval = Mathf.Lerp(0.30f, 0.05f, proximityFactor);
@@ -447,12 +453,14 @@ namespace drgAccess.Components
             try
             {
                 if (!InputHelper.Compass()) return;
-                if (!isBeaconActive) return;
-                if (playerTransform == null) return;
 
-                // Drop pod gets priority for compass if its beacon is active
-                if (DropPodAudio.Instance != null && DropPodAudio.Instance.IsBeaconActive)
+                if (!isBeaconActive)
+                {
+                    Plugin.Log.LogDebug($"[DrillBeaconAudio] F key pressed but beacon inactive (suppress={SuppressForEscortPhase}, state={activeBobby?.State})");
                     return;
+                }
+
+                if (playerTransform == null) return;
 
                 Vector3 bobbyPos = activeBobby.transform.position;
                 Vector3 playerPos = playerTransform.position;

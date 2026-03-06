@@ -2,6 +2,25 @@ CHANGELOG
 =========
 
 
+v0.8.2 - March 5, 2026
+---------------------------
+
+Bug Fixes:
+
+  - Fixed F key compass not reporting Bobby's direction during escort
+    missions when the drop pod beacon was also active. A priority check
+    was silently blocking the drill compass even though both beacons
+    should never conflict in practice.
+
+  - Increased drill beacon volume from 0.20-0.40 to 0.35-0.60 so it is
+    clearly audible over enemy, wall, and collectible sounds during busy
+    escort mission gameplay.
+
+  - Added diagnostic logging for drill beacon state (Bobby found status,
+    beacon active, suppress flag, F key press reasons) to help diagnose
+    any remaining escort mission tracking issues.
+
+
 v0.8.1 - February 27, 2026
 ---------------------------
 
