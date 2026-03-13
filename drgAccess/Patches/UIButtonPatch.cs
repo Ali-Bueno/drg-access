@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System.Text;
 using drgAccess.Helpers;
+using InputHelper = drgAccess.Helpers.InputHelper;
 
 namespace drgAccess.Patches;
 
@@ -26,6 +27,32 @@ public static partial class UIButtonPatch
     /// so action feedback (e.g. "Equipped X") finishes before the new button text.
     /// </summary>
     internal static float QueueUntilTime;
+
+    /// <summary>
+    /// Fix: gate buttons don't respond to keyboard Enter because UIButton extends
+    /// MonoBehaviour (not Selectable) and doesn't implement ISubmitHandler.
+    /// OnUpdateSelected fires each frame while a button is selected — check for Enter key.
+    /// </summary>
+    [HarmonyPatch(nameof(UIButton.OnUpdateSelected))]
+    [HarmonyPostfix]
+    public static void OnUpdateSelected_Postfix(UIButton __instance)
+    {
+        try
+        {
+            if (!InputHelper.Confirm()) return;
+
+            // Only fix gate buttons (other buttons handle Enter through game's native input)
+            if (__instance.TryCast<UIMissionGateButton>() != null ||
+                __instance.TryCast<UIBiomeSelectButton_Gate>() != null)
+            {
+                __instance.OnButtonClick();
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Plugin.Log?.LogDebug($"UIButtonPatch.OnUpdateSelected gate fix: {ex.Message}");
+        }
+    }
 
     [HarmonyPatch(nameof(UIButton.OnSelect))]
     [HarmonyPostfix]

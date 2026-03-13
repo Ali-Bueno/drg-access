@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.8.2
+- **Current version**: v0.9.0
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -82,6 +82,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Left/Right: 300 Hz (medium-low tone) with stereo panning
   - Volume increases as walls get closer (base volume 0.12)
   - Detection range: configurable 5-25m (default 12m, via Mod Settings)
+  - **Indestructible wall differentiation**: Walls without a MineableBlock component (or with non-ALIVE state) play at 1.6x frequency, making them sound noticeably higher-pitched than diggable walls
 - **Gameplay Audio - Enemy Detection**: 3D positional beeps for enemies with type differentiation
   - Detection range: configurable 10-60m (default 35m, via Mod Settings)
   - Normal enemies (including MINI_ELITE): Pure sine wave, 700-1400 Hz, 50ms duration
@@ -134,7 +135,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Warning range: configurable 10-50m (default 25m, via Mod Settings)
   - Stereo panning toward the hazard direction + **directional pitch modulation**
 - **Gameplay Audio - Collectible Items**: 3D positional audio for pickups, mineral veins, and loot crates
-  - 7 distinct sound categories, each with unique synthesis: Red Sugar (water-drop bloop 500-750 Hz), Gear Drop (two-tone chord 800-1200 Hz), Buff Pickup (FM synthesis buzz 1000-1500 Hz), Currency (crystalline chime 600-900 Hz), Mineral Vein (metallic clink 300-500 Hz), Loot Crate (shimmering sparkle 1200-1800 Hz), XP Nearby (triangle wave + tremolo 350-700 Hz)
+  - 9 distinct sound categories, each with unique synthesis: Red Sugar (water-drop bloop 500-750 Hz), Gear Drop (two-tone chord 800-1200 Hz), Buff Pickup (FM synthesis buzz 1000-1500 Hz), Currency (crystalline chime 600-900 Hz), Mineral Vein (metallic clink 300-500 Hz), Loot Crate (shimmering sparkle 1200-1800 Hz), XP Nearby (triangle wave + tremolo 350-700 Hz), Bobby Fuel (bubbling/gurgle with 20Hz amplitude modulation), Healing Zone (water-drop bloop, same as Red Sugar)
   - Base detection distances: Red Sugar 30m, Gear/Loot Crate 40m, Buff 25m, Currency/Mineral Vein 28m, XP 8m
   - All distances multiplied by configurable range multiplier (0.5x-2.0x, default 1.0x via Mod Settings)
   - Only the nearest item per category gets audio (max 7 simultaneous sounds)
@@ -146,7 +147,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
     - Zones based on distance ratio: nearby (100-55%), closer (55-25%), very close (< 25%)
     - 8 directions adapted for top-down perspective (up/down/left/right + diagonals)
     - XP excluded from announcements (too common)
-  - Uses 1 WaveOutEvent + 1 MixingSampleProvider with 7 CollectibleSoundGenerator channels
+  - Uses 1 WaveOutEvent + 1 MixingSampleProvider with 9 CollectibleSoundGenerator channels
 - **Objective Announcements**: Mission objectives announced via screen reader
   - Objective text announced when it first appears (Show)
   - Progress updates announced with 3-second throttle to avoid spam (OnProgress)
@@ -286,6 +287,16 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Volume shares with Drill Beacon setting (same mission, never simultaneous)
   - Both phases suppress the drill beacon via `DrillBeaconAudio.SuppressForEscortPhase`
 
+- **Healing Zone Announcements**: Azure Weald healing pillar areas announce "Healing zone" on entry and "Left healing zone" on exit via patches on `AzureWealdBuffPillars.BeginTickOnPlayer` and `EndTickOnPlayer`. Healing zones also have a collectible audio beacon (water-drop bloop, same as Red Sugar) for spatial guidance.
+
+- **Bobby Fuel Audio Beacon**: Collectible audio beacon for Bobby's fuel blocks (`MaterialBlockBobbyFuel`) in escort missions. Bubbling/gurgling sound with 20Hz amplitude modulation. Proximity announcements with direction.
+
+- **Biome Goal Descriptions**: Mission node goal descriptions read by screen reader when selected. Patches `UIBiomeGoalDescription.Show()` (both overloads: string+bool and MilestoneView). Completed goals announced with "Completed" status.
+
+- **Gear Inventory Navigation Fix**: `GearNavigationFix` MonoBehaviour sets explicit sequential Up/Down navigation on all visible `UIGearViewCompact` items when the gear inventory form is open. Prevents cursor from jumping randomly due to Unity's default grid navigation. Re-fixes on tab change (child count change detection).
+
+- **Gate Keyboard Fix**: Patch on `UIButton.OnUpdateSelected` detects Enter key press for `UIMissionGateButton` and `UIBiomeSelectButton_Gate`, calling `OnButtonClick()` directly. Fixes gate selection not responding to keyboard Enter (UIButton extends MonoBehaviour, not Selectable, so standard ISubmitHandler doesn't work).
+
 - **Mod Localization System**: All mod-specific UI strings are now localized via external text files
   - 22 languages supported (matching the game's localization): English, German, French, Spanish (Spain), Spanish (Latin America), Italian, Portuguese (Portugal), Portuguese (Brazil), Russian, Japanese, Korean, Chinese Simplified, Chinese Traditional, Dutch, Bulgarian, Czech, Hungarian, Polish, Romanian, Slovak, Turkish, Ukrainian
   - External `localization/*.txt` files with simple `key=value` format — users can freely edit to customize messages
@@ -334,6 +345,7 @@ drgAccess/
 │   ├── CocoonAudioSystem.cs      # Cocoon beacon (elimination mode positional audio)
 │   ├── EscortPhaseAudio.cs       # TNT detonator + Ommoran crystal beacons (escort duty phases)
 │   ├── ObjectiveReaderComponent.cs # O key objective reader during gameplay
+│   ├── GearNavigationFix.cs       # Gear inventory explicit Up/Down navigation fix
 │   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
 │   ├── HPReaderComponent.cs       # H key HP reading during gameplay
@@ -361,6 +373,7 @@ drgAccess/
 │   ├── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
 │   ├── EliminationPatches.cs      # Elimination mode (cocoon/elite/boss spawns, threat level)
 │   ├── EscortDutyPatches.cs      # Escort duty phases (TNT arming, Ommoran heartstone/crystals)
+│   ├── HealingZonePatch.cs       # Azure Weald healing zone enter/exit announcements
 │   └── AudioMasteringPatch.cs     # Master volume sync (SetMasterVolume + OnSaveDataLoaded)
 ├── localization/                   # Mod string translations (22 language .txt files)
 │   ├── en.txt                      # English (master/reference)
@@ -437,6 +450,9 @@ references/tolk/                   # Tolk DLL references
 | `TNTDetonator` | TNT detonator activation (OnDetonatorLive for beacon tracking) |
 | `OmmoranHeartstone` | Ommoran Shell state/HP (SetState, SpawnCrystals, OnCrystalDeath) |
 | `Wallet` | Currency name localization (`GetCurrencyName`) — cached for `LocalizationHelper` lookups |
+| `AzureWealdBuffPillars` | Healing zone enter/exit announcements (BeginTickOnPlayer, EndTickOnPlayer) |
+| `UIBiomeGoalDescription` | Biome goal description reading (Show overloads — string+bool and MilestoneView) |
+| `MineableBlock` | Wall type detection (checked via GetComponentInParent for indestructible wall pitch) |
 
 ---
 

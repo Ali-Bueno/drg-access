@@ -53,6 +53,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.EscortPhaseAudio>();
         AddComponent<Components.CocoonAudioSystem>();
         AddComponent<Components.ObjectiveReaderComponent>();
+        AddComponent<Components.GearNavigationFix>();
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded successfully!");
         ScreenReader.Say(Helpers.ModLocalization.Get("mod_loaded"));

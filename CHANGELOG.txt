@@ -2,6 +2,42 @@ CHANGELOG
 =========
 
 
+v0.9.0 - March 13, 2026
+---------------------------
+
+New Features:
+
+  - Bobby Fuel Audio Beacon: New collectible audio beacon for Bobby's fuel
+    blocks in escort missions. A bubbling/gurgling sound (low carrier with
+    amplitude modulation) guides you to fuel pickups. Proximity announcements
+    with direction: "Fuel nearby up-left", "Fuel closer right",
+    "Fuel very close down".
+
+  - Healing Zone Audio Beacon: Azure Weald healing pillar areas now have a
+    collectible audio beacon using the same water-drop bloop as Red Sugar.
+    Proximity announcements with direction guide you toward healing zones.
+    Screen reader announces "Healing zone" on entry and "Left healing zone"
+    on exit.
+
+  - Biome Goal Descriptions: Mission node goal descriptions (biome objectives
+    and milestones) are now read by the screen reader when selected. Completed
+    goals are announced with "Completed" status.
+
+  - Indestructible Wall Sound: Walls you cannot mine through now play at a
+    higher pitch (1.6x frequency multiplier) than destructible walls. This
+    helps distinguish diggable walls from solid boundaries while navigating.
+
+Bug Fixes:
+
+  - Fixed gear inventory cursor jumping randomly when browsing equipment. The
+    mod now sets explicit sequential Up/Down navigation on all visible gear
+    items, preventing the cursor from jumping to unrelated UI elements.
+
+  - Fixed gate selection not responding to Enter key on keyboard. Gate buttons
+    (Gate 1, Gate 2, etc.) now properly handle keyboard Enter input via a
+    patch on UIButton.OnUpdateSelected.
+
+
 v0.8.2 - March 5, 2026
 ---------------------------
 

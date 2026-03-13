@@ -1,5 +1,6 @@
 using HarmonyLib;
 using DRS.UI;
+using Assets.Scripts.Milestones;
 using TMPro;
 using UnityEngine.Localization;
 using System.Text;
@@ -226,4 +227,82 @@ public static class UIPageDescriptionPatches
         }
     }
 
+    // === UIBiomeGoalDescription: mission node goal descriptions ===
+
+    [HarmonyPatch(typeof(UIBiomeGoalDescription), nameof(UIBiomeGoalDescription.Show),
+        new System.Type[] { typeof(string), typeof(bool) })]
+    public static class BiomeGoalDescription_ShowText
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIBiomeGoalDescription __instance)
+        {
+            try
+            {
+                var desc = __instance.description;
+                if (desc != null && !string.IsNullOrEmpty(desc.text))
+                {
+                    string text = TextHelper.CleanText(desc.text);
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        // Check completion state from goal point
+                        bool completed = false;
+                        try
+                        {
+                            var goalPoint = __instance.goalPoint;
+                            if (goalPoint != null && goalPoint.complete != null)
+                                completed = goalPoint.complete.gameObject.activeSelf;
+                        }
+                        catch { }
+
+                        string announcement = completed
+                            ? text + ", " + ModLocalization.Get("ui_completed")
+                            : text;
+                        ScreenReader.Say(announcement);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"BiomeGoalDescription_ShowText error: {ex.Message}");
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(UIBiomeGoalDescription), nameof(UIBiomeGoalDescription.Show),
+        new System.Type[] { typeof(Assets.Scripts.Milestones.MilestoneView) })]
+    public static class BiomeGoalDescription_ShowMilestone
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIBiomeGoalDescription __instance)
+        {
+            try
+            {
+                var desc = __instance.description;
+                if (desc != null && !string.IsNullOrEmpty(desc.text))
+                {
+                    string text = TextHelper.CleanText(desc.text);
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        bool completed = false;
+                        try
+                        {
+                            var goalPoint = __instance.goalPoint;
+                            if (goalPoint != null && goalPoint.complete != null)
+                                completed = goalPoint.complete.gameObject.activeSelf;
+                        }
+                        catch { }
+
+                        string announcement = completed
+                            ? text + ", " + ModLocalization.Get("ui_completed")
+                            : text;
+                        ScreenReader.Say(announcement);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.LogError($"BiomeGoalDescription_ShowMilestone error: {ex.Message}");
+            }
+        }
+    }
 }

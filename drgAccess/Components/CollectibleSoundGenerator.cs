@@ -11,7 +11,9 @@ namespace drgAccess.Components
         CurrencyPickup, // Crystalline chime (sine + octave harmonic)
         MineralVein,    // Metallic clink (pickaxe on rock)
         LootCrate,      // Shimmering rapid alternating frequencies
-        XpNearby        // Continuous soft tone, pitch = distance to nearest XP
+        XpNearby,       // Continuous soft tone, pitch = distance to nearest XP
+        BobbyFuel,      // Bubbling/gurgle for escort mission fuel blocks
+        HealingZone     // Water-drop bloop (same as RedSugar) for healing pillars
     }
 
     /// <summary>
@@ -96,6 +98,8 @@ namespace drgAccess.Components
                 CollectibleSoundType.CurrencyPickup => (int)(sampleRate * 0.07),
                 CollectibleSoundType.LootCrate => (int)(sampleRate * 0.12),
                 CollectibleSoundType.MineralVein => (int)(sampleRate * 0.10),
+                CollectibleSoundType.BobbyFuel => (int)(sampleRate * 0.18),
+                CollectibleSoundType.HealingZone => (int)(sampleRate * 0.15),
                 _ => (int)(sampleRate * 0.08)
             };
             beepDurationSamples = duration;
@@ -198,6 +202,16 @@ namespace drgAccess.Components
                     ? progress / 0.02f
                     : (float)Math.Exp(-(progress - 0.02) * 5.0),
 
+                // Moderate attack, bubbly decay (gurgle)
+                CollectibleSoundType.BobbyFuel => progress < 0.04f
+                    ? progress / 0.04f
+                    : (float)Math.Exp(-(progress - 0.04) * 2.0),
+
+                // Same as RedSugar (water-drop bloop)
+                CollectibleSoundType.HealingZone => progress < 0.03f
+                    ? progress / 0.03f
+                    : (float)Math.Exp(-(progress - 0.03) * 2.5),
+
                 _ => 1f
             };
         }
@@ -290,6 +304,33 @@ namespace drgAccess.Components
                     if (phase >= 1.0) phase -= 1.0;
                     if (phase2 >= 1.0) phase2 -= 1.0;
                     return (float)((s1 + s2) * 0.7);
+                }
+                case CollectibleSoundType.BobbyFuel:
+                {
+                    // Bubbling/gurgle: low carrier with fast amplitude modulation
+                    double freq = currentFrequency * (1.0 - progress * 0.3);
+                    double bubble = 0.5 + 0.5 * Math.Sin(2.0 * Math.PI * phase2); // 20 Hz bubble rate
+                    double s = Math.Sin(2.0 * Math.PI * phase);
+                    // Add sub-octave for fullness
+                    double sub = Math.Sin(Math.PI * phase) * 0.3;
+                    phase += freq / sampleRate;
+                    phase2 += 20.0 / sampleRate;
+                    if (phase >= 1.0) phase -= 1.0;
+                    if (phase2 >= 1.0) phase2 -= 1.0;
+                    return (float)((s + sub) * bubble * 0.8);
+                }
+                case CollectibleSoundType.HealingZone:
+                {
+                    // Water-drop bloop (same as RedSugar for familiar healing sound)
+                    double sweepMult = 2.5 - progress * 2.1;
+                    double freq = currentFrequency * sweepMult;
+                    double s = Math.Sin(2.0 * Math.PI * phase);
+                    double s2 = Math.Sin(2.0 * Math.PI * phase2) * 0.25;
+                    phase += freq / sampleRate;
+                    phase2 += (freq * 2.0) / sampleRate;
+                    if (phase >= 1.0) phase -= 1.0;
+                    if (phase2 >= 1.0) phase2 -= 1.0;
+                    return (float)((s + s2) * 0.8);
                 }
                 default:
                     return 0f;

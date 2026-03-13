@@ -5,6 +5,7 @@ using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using UnityEngine.UI;
 using Il2CppInterop.Runtime.Injection;
+using Assets.Scripts.LevelGeneration;
 using drgAccess.Helpers;
 
 namespace drgAccess.Components
@@ -478,6 +479,9 @@ namespace drgAccess.Components
             }
         }
 
+        // Frequency multiplier for indestructible walls (higher pitch = can't dig through)
+        private const double INDESTRUCTIBLE_FREQ_MULTIPLIER = 1.6;
+
         private void DetectWall(WallDirection direction, Vector3 playerPos, Vector3 dir)
         {
             if (!channels.TryGetValue(direction, out var channel))
@@ -510,9 +514,32 @@ namespace drgAccess.Components
 
                     channel.SineGenerator.Volume = finalVolume;
 
+                    // Check if wall is destructible (MineableBlock) or indestructible
+                    bool isDestructible = false;
+                    try
+                    {
+                        var mineableBlock = hit.collider.GetComponentInParent<MineableBlock>();
+                        isDestructible = mineableBlock != null && mineableBlock.state == MineableBlock.EState.ALIVE;
+                    }
+                    catch { }
+
+                    // Base frequency for this direction
+                    double baseFreq = direction switch
+                    {
+                        WallDirection.Forward => FREQ_FORWARD,
+                        WallDirection.Back => FREQ_BACK,
+                        _ => FREQ_SIDES
+                    };
+
+                    // Indestructible walls use higher frequency so player knows they can't dig through
+                    if (!isDestructible)
+                        baseFreq *= INDESTRUCTIBLE_FREQ_MULTIPLIER;
+
+                    channel.SineGenerator.Frequency = baseFreq;
+
                     if (Time.frameCount % 120 == 0)
                     {
-                        Plugin.Log.LogInfo($"[WallNav] {direction}: WALL at {distance:F1}m, vol={finalVolume:F2}");
+                        Plugin.Log.LogInfo($"[WallNav] {direction}: WALL at {distance:F1}m, vol={finalVolume:F2}, destructible={isDestructible}");
                     }
                 }
                 else

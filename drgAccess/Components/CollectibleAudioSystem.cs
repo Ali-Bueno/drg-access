@@ -54,6 +54,8 @@ namespace drgAccess.Components
             new CategoryConfig(CollectibleSoundType.MineralVein, 28f, 0.22f, 0.40f, 300f, 500f, 0.7f, 0.10f),
             new CategoryConfig(CollectibleSoundType.LootCrate, 40f, 0.25f, 0.42f, 1200f, 1800f, 0.5f, 0.08f),
             new CategoryConfig(CollectibleSoundType.XpNearby, 8f, 0.05f, 0.14f, 350f, 700f, 0f, 0f),
+            new CategoryConfig(CollectibleSoundType.BobbyFuel, 35f, 0.22f, 0.42f, 200f, 400f, 0.5f, 0.08f),
+            new CategoryConfig(CollectibleSoundType.HealingZone, 30f, 0.22f, 0.40f, 500f, 750f, 0.5f, 0.08f),
         };
 
         private struct CategoryConfig
@@ -97,8 +99,15 @@ namespace drgAccess.Components
         private static readonly string[] categoryNameKeys =
         {
             "collect_red_sugar", "collect_gear", "collect_buff", "collect_currency",
-            "collect_mineral_vein", "collect_loot_crate", "collect_xp"
+            "collect_mineral_vein", "collect_loot_crate", "collect_xp",
+            "collect_bobby_fuel", "collect_healing_zone"
         };
+
+        // Bobby fuel scanning
+        private float nextFuelScanTime = 0f;
+
+        // Healing zone scanning
+        private float nextHealingScanTime = 0f;
 
         /// <summary>
         /// Returns the effective max distance for a category, scaled by the config multiplier.
@@ -156,7 +165,7 @@ namespace drgAccess.Components
                 outputDevice.Play();
 
                 isInitialized = true;
-                Plugin.Log.LogInfo("[CollectibleAudio] Audio initialized (7 channels)");
+                Plugin.Log.LogInfo($"[CollectibleAudio] Audio initialized ({configs.Length} channels)");
             }
             catch (Exception e)
             {
@@ -214,6 +223,18 @@ namespace drgAccess.Components
                 {
                     ScanLootCrates();
                     nextCrateScanTime = Time.time + 1f;
+                }
+
+                if (Time.time >= nextFuelScanTime)
+                {
+                    ScanBobbyFuel();
+                    nextFuelScanTime = Time.time + 2f;
+                }
+
+                if (Time.time >= nextHealingScanTime)
+                {
+                    ScanHealingZones();
+                    nextHealingScanTime = Time.time + 2f;
                 }
 
                 UpdateAudio();
@@ -424,6 +445,91 @@ namespace drgAccess.Components
             }
         }
 
+        private void ScanBobbyFuel()
+        {
+            nearestTargets[7] = default; // BobbyFuel
+
+            try
+            {
+                var fuelBlocks = UnityEngine.Object.FindObjectsOfType<MaterialBlockBobbyFuel>();
+                if (fuelBlocks == null || fuelBlocks.Length == 0) return;
+
+                Vector3 playerPos = playerTransform.position;
+                float maxDist = GetEffectiveMaxDistance(7);
+
+                foreach (var block in fuelBlocks)
+                {
+                    if (block == null) continue;
+                    // Only track alive fuel blocks
+                    try
+                    {
+                        if (block.state != MineableBlock.EState.ALIVE) continue;
+                    }
+                    catch { continue; }
+
+                    float dist = Vector3.Distance(playerPos, block.transform.position);
+                    if (dist > maxDist) continue;
+
+                    if (!nearestTargets[7].Found || dist < nearestTargets[7].Distance)
+                    {
+                        nearestTargets[7] = new NearestTarget
+                        {
+                            Found = true,
+                            Position = block.transform.position,
+                            Distance = dist
+                        };
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[CollectibleAudio] ScanBobbyFuel error: {e.Message}");
+            }
+        }
+
+        private void ScanHealingZones()
+        {
+            nearestTargets[8] = default; // HealingZone
+
+            try
+            {
+                var pillars = UnityEngine.Object.FindObjectsOfType<AzureWealdBuffPillars>();
+                if (pillars == null || pillars.Length == 0) return;
+
+                Vector3 playerPos = playerTransform.position;
+                float maxDist = GetEffectiveMaxDistance(8);
+
+                foreach (var pillar in pillars)
+                {
+                    if (pillar == null) continue;
+                    // Only track active zones (center block still alive)
+                    try
+                    {
+                        var center = pillar.centerBlock;
+                        if (center == null || center.state != MineableBlock.EState.ALIVE) continue;
+                    }
+                    catch { continue; }
+
+                    float dist = Vector3.Distance(playerPos, pillar.transform.position);
+                    if (dist > maxDist) continue;
+
+                    if (!nearestTargets[8].Found || dist < nearestTargets[8].Distance)
+                    {
+                        nearestTargets[8] = new NearestTarget
+                        {
+                            Found = true,
+                            Position = pillar.transform.position,
+                            Distance = dist
+                        };
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[CollectibleAudio] ScanHealingZones error: {e.Message}");
+            }
+        }
+
         private void UpdateAudio()
         {
             Vector3 playerPos = playerTransform.position;
@@ -607,6 +713,8 @@ namespace drgAccess.Components
             nextPlayerSearchTime = 0f;
             gameStateProvider = null;
             cachedMaterialBlocks.Clear();
+            nextFuelScanTime = 0f;
+            nextHealingScanTime = 0f;
             sceneLoadTime = Time.time;
             for (int i = 0; i < nearestTargets.Length; i++)
                 nearestTargets[i] = default;

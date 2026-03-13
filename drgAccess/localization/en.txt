@@ -119,6 +119,8 @@ collect_speed_boost=Speed Boost
 collect_mining_speed=Mining Speed
 collect_berserk=Berserk
 collect_artifact_magnet=Artifact Magnet
+collect_bobby_fuel=Fuel
+collect_healing_zone=Healing Zone
 
 # === Action Feedback ===
 action_buy=Buy
@@ -398,3 +400,7 @@ cue_tnt_beacon=TNT Detonator Beacon
 cue_tnt_beacon_desc=Guides you to unarmed detonators. Sharp ticking sound.
 cue_ommoran_crystal=Ommoran Crystal Beacon
 cue_ommoran_crystal_desc=Guides you to Ommoran crystals. Glassy crystalline shimmer.
+
+# === Healing Zones ===
+healing_zone_enter=Healing zone
+healing_zone_exit=Left healing zone
