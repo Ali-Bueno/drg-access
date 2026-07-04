@@ -404,11 +404,11 @@ cue_ommoran_crystal_desc=Guides you to Ommoran crystals. Glassy crystalline shim
 # === Healing Zones ===
 healing_zone_enter=Healing zone
 healing_zone_exit=Left healing zone
-collect_launch_pad=Launch pad
+collect_launch_pad=Jump zone
 dodge_charge_path=In the charge path! Move {0}!
 dodge_safe=Safe
 dodge_spike_under=Spikes underfoot! Move {0}!
 dodge_move_now=Move now!
-cue_launch_pad=Collectible: Launch Pad
-cue_launch_pad_desc=Launch ramp or catapult nearby. 8-bit double boing, flings you across the map.
+cue_launch_pad=Collectible: Jump Zone
+cue_launch_pad_desc=Jump zone nearby (Azure Weald bounce holes). 8-bit double boing; step on it to get flung across the map.
 setting_smart_beacon=Smart Beacon (priority-based)

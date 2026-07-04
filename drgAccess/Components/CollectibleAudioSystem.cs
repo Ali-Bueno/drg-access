@@ -542,15 +542,14 @@ namespace drgAccess.Components
             }
         }
 
-        // GameObject name fragments that identify launch ramps/catapults. The pads
-        // have no dedicated managed class (prefab trigger calls Player natively),
-        // so they are found by name. Plain "ramp" is excluded on purpose — it would
-        // match the drop pod's rampDetector.
+        // GameObject name fragments that identify launch ramps/catapults in biomes
+        // that may use a different mechanism than AzureWealdMagicHole. Plain "ramp"
+        // is excluded on purpose — it would match the drop pod's rampDetector.
         private static readonly string[] launchPadNameFragments =
         {
             "jumppad", "jump_pad", "jump pad",
             "launchpad", "launch_pad", "launch pad",
-            "catapult", "trampoline", "springboard"
+            "catapult", "trampoline", "springboard", "magichole", "magic_hole"
         };
 
         private void ScanLaunchPads()
@@ -569,7 +568,25 @@ namespace drgAccess.Components
                     if (!alive) cachedLaunchPads.RemoveAt(i);
                 }
 
-                // Rescan colliders when the cache is empty (cheap enough at 3s cadence)
+                if (cachedLaunchPads.Count == 0)
+                {
+                    // Primary source: the game's own jump-zone class (Azure Weald
+                    // bounce zones that fling the player — required for a mission node)
+                    var holes = UnityEngine.Object.FindObjectsOfType<AzureWealdMagicHole>();
+                    if (holes != null)
+                    {
+                        foreach (var hole in holes)
+                        {
+                            if (hole == null) continue;
+                            cachedLaunchPads.Add(hole.transform);
+                        }
+                        if (holes.Length > 0)
+                            Plugin.Log.LogInfo($"[CollectibleAudio] {holes.Length} jump zone(s) (AzureWealdMagicHole) found");
+                    }
+                }
+
+                // Fallback: name-based collider scan for launcher variants in other
+                // biomes that may not use AzureWealdMagicHole
                 if (cachedLaunchPads.Count == 0)
                 {
                     var colliders = UnityEngine.Object.FindObjectsOfType<Collider>();
@@ -587,7 +604,7 @@ namespace drgAccess.Components
                                 if (name.Contains(fragment))
                                 {
                                     cachedLaunchPads.Add(col.transform);
-                                    Plugin.Log.LogInfo($"[CollectibleAudio] Launch pad found: '{col.gameObject.name}'");
+                                    Plugin.Log.LogInfo($"[CollectibleAudio] Launch pad found by name: '{col.gameObject.name}'");
                                     break;
                                 }
                             }

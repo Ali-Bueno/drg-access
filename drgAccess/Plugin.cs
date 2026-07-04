@@ -55,6 +55,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.DodgeAssistComponent>();
         AddComponent<Components.ObjectiveReaderComponent>();
         AddComponent<Components.GearNavigationFix>();
+        AddComponent<Components.GateFocusHelper>();
 
         Log.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} loaded successfully!");
         ScreenReader.Say(Helpers.ModLocalization.Get("mod_loaded"));

@@ -2,6 +2,33 @@ CHANGELOG
 =========
 
 
+v0.10.1 - July 3, 2026
+---------------------------
+
+Improvements based on player feedback:
+
+  - Jump Zones properly detected: the "launch ramps/catapults" from v0.10.0
+    turned out to be the Azure Weald jump zones (bounce holes that fling you
+    across the map, required for a mission node). The 8-bit "boing boing"
+    beacon now finds them reliably through the game's own jump-zone objects
+    instead of guessing by name, and all messages now call them "Jump zone".
+  - Gate keyboard focus: players reported that gates ("Biome select gate 2")
+    could not be reached with the keyboard — the only workaround was wiggling
+    the mouse over them. New shortcut: press Tab (or R3 on gamepad) on the
+    mission/biome map to move focus directly to the gate button (press again
+    to cycle if there are several). The gate is announced, and Enter opens it
+    as usual. Tab does nothing on screens without gates.
+
+Notes:
+
+  - Biome mission node goals: goal descriptions are read since v0.9.0 when
+    you select a mission node (this was reported before that feature
+    shipped). The remaining gap — the biome statistics panel — is still on
+    the known issues list.
+  - Healing areas already have their own beacon since v0.9.0, using the
+    same water-drop sound as Red Sugar, exactly as suggested.
+
+
 v0.10.0 - July 3, 2026
 ---------------------------
 

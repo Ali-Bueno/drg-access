@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.10.0 (first Unity 6 compatible version)
+- **Current version**: v0.10.1 (first Unity 6 compatible version: v0.10.0)
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -296,10 +296,13 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Fireball: after the burp telegraph, if the player has moved < 2.5m within 1.2s: "Move now!"
   - Localization keys: dodge_charge_path, dodge_safe, dodge_spike_under, dodge_move_now
 
-- **Launch Pad Audio Cue**: 8-bit "boing boing" positional beacon (square wave, double pitch-drop with spring wobble) for launch ramps/catapults, as `CollectibleSoundType.LaunchPad` (category index 9, 400-800 Hz)
-  - Launch pads have NO dedicated managed class (prefab trigger calls Player natively), so they are found by GameObject name via collider scan (`launchPadNameFragments`: jumppad, launchpad, catapult, trampoline, springboard — plain "ramp" excluded, it matches the drop pod's rampDetector)
-  - `Player.TryLaunchIntoAir` postfix (`LaunchPadPatches`) logs nearby trigger collider names when the player gets flung (30s throttle) — check user logs for "Launch source candidate" to learn the real pad prefab names and extend the fragment list
-  - Audio Cue Preview menu entry (cue_launch_pad)
+- **Jump Zone Audio Cue** (v0.10.1, called "Launch Pad" internally): 8-bit "boing boing" positional beacon (square wave, double pitch-drop with spring wobble) as `CollectibleSoundType.LaunchPad` (category index 9, 400-800 Hz)
+  - The "ramps/catapults" from user feedback are the **Azure Weald jump zones**: `AzureWealdMagicHole : MapBuffZone` (bounceForce, bounceDuration, cooldown) — required for a mission node. Primary detection is `FindObjectsOfType<AzureWealdMagicHole>()`
+  - Fallback: GameObject name collider scan (`launchPadNameFragments`: jumppad, launchpad, catapult, trampoline, springboard, magichole — plain "ramp" excluded, it matches the drop pod's rampDetector) for potential launcher variants in other biomes
+  - `Player.TryLaunchIntoAir` postfix (`LaunchPadPatches`) logs nearby trigger collider names when the player gets flung (30s throttle) — check user logs for "Launch source candidate" to learn other pad prefab names
+  - Audio Cue Preview menu entry (cue_launch_pad); user-facing name is "Jump zone" (collect_launch_pad key)
+
+- **Gate Keyboard Focus (Tab / R3)**: `GateFocusHelper` component. Gates (`UIMissionGateButton`, `UIBiomeSelectButton_Gate`) are not reachable via the game's keyboard navigation (players had to hover them with the mouse). Tab or right-stick click moves `EventSystem` selection directly to the next gate button on screen (cycles if several); the selection fires the existing `UIButton.OnSelect` announcement and Enter activates it via the existing `OnUpdateSelected` gate fix. Inert on screens without gates.
 
 - **Smart Beacon (priority scoring, Hades 2 style)**: optional toggle in Mod Settings (`ModConfig.SMART_BEACON`, default off). When enabled, `CollectibleAudioSystem.ApplySmartBeaconFilter()` scores every found target as basePriority × (0.5 + 0.5 × proximity) and keeps only the winner audible (its own category sound, so the player still knows what it is). Base priorities: BobbyFuel 85, LootCrate 80, GearDrop 75, Buff 60, HealingZone 55, RedSugar 50, MineralVein 45, Currency 40, LaunchPad 30, XP 10. Health need: below 40% HP, RedSugar/HealingZone priority ×2.5 (player HP read via cached GameController)
 
@@ -363,6 +366,7 @@ drgAccess/
 │   ├── EscortPhaseAudio.cs       # TNT detonator + Ommoran crystal beacons (escort duty phases)
 │   ├── ObjectiveReaderComponent.cs # O key objective reader during gameplay
 │   ├── GearNavigationFix.cs       # Gear inventory explicit Up/Down navigation fix
+│   ├── GateFocusHelper.cs         # Tab/R3 moves EventSystem focus to gate buttons
 │   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
 │   ├── HPReaderComponent.cs       # H key HP reading during gameplay
