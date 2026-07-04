@@ -2,6 +2,31 @@ CHANGELOG
 =========
 
 
+v0.10.2 - July 3, 2026
+---------------------------
+
+Bug Fixes:
+
+  - Positional audio restored: after the Unity 6 game update, every spatial
+    audio cue (walls, XP, drop pod beacon, enemies, collectibles, footsteps,
+    and the rest) went silent while screen reader announcements kept working.
+    Cause: the game update renamed the player object, and all positional
+    audio located the player by its old name. The mod now finds the player
+    through the game's own Player component, with the old name search kept
+    as fallback.
+  - Wall detection now picks up the game's real obstacle layer mask once a
+    run starts (it was resolved once at startup, in the main menu, where it
+    never existed).
+
+Changes:
+
+  - Gate navigation reworked: the Tab / R3 shortcut from v0.10.1 is gone.
+    Gates now join the game's normal arrow-key/d-pad navigation: their
+    underlying Unity button ships non-navigable, which is why the selection
+    could never reach them — the mod now enables it, so you can arrow over
+    to a gate exactly like any mission node. No extra keys to learn.
+
+
 v0.10.1 - July 3, 2026
 ---------------------------
 

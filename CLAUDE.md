@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.10.1 (first Unity 6 compatible version: v0.10.0)
+- **Current version**: v0.10.2 (first Unity 6 compatible version: v0.10.0)
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -302,7 +302,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - `Player.TryLaunchIntoAir` postfix (`LaunchPadPatches`) logs nearby trigger collider names when the player gets flung (30s throttle) — check user logs for "Launch source candidate" to learn other pad prefab names
   - Audio Cue Preview menu entry (cue_launch_pad); user-facing name is "Jump zone" (collect_launch_pad key)
 
-- **Gate Keyboard Focus (Tab / R3)**: `GateFocusHelper` component. Gates (`UIMissionGateButton`, `UIBiomeSelectButton_Gate`) are not reachable via the game's keyboard navigation (players had to hover them with the mouse). Tab or right-stick click moves `EventSystem` selection directly to the next gate button on screen (cycles if several); the selection fires the existing `UIButton.OnSelect` announcement and Enter activates it via the existing `OnUpdateSelected` gate fix. Inert on screens without gates.
+- **Gate Navigation Fix (native)**: `GateNavigationFix` component (v0.10.2, replaces the short-lived Tab/R3 shortcut from v0.10.1 — user wants game-native navigation only). Gates (`UIMissionGateButton`, `UIBiomeSelectButton_Gate`) were unreachable by keyboard because their `UIButton.button` (the `UnityEngine.UI.Button` Selectable that Unity arrow navigation moves between) ships non-interactable/non-navigable. The component polls visible gates every 1s and sets `interactable = true` + `Navigation.Mode.Automatic` on the gate's Selectable, so standard arrow/d-pad navigation reaches gates like any node. Selection announcement via existing `UIButton.OnSelect` patch, activation via existing `OnUpdateSelected` Enter fix. Key insight: `UIButton` (MonoBehaviour) carries a `public Button button` field — that Button is what keyboard navigation actually operates on.
 
 - **Smart Beacon (priority scoring, Hades 2 style)**: optional toggle in Mod Settings (`ModConfig.SMART_BEACON`, default off). When enabled, `CollectibleAudioSystem.ApplySmartBeaconFilter()` scores every found target as basePriority × (0.5 + 0.5 × proximity) and keeps only the winner audible (its own category sound, so the player still knows what it is). Base priorities: BobbyFuel 85, LootCrate 80, GearDrop 75, Buff 60, HealingZone 55, RedSugar 50, MineralVein 45, Currency 40, LaunchPad 30, XP 10. Health need: below 40% HP, RedSugar/HealingZone priority ×2.5 (player HP read via cached GameController)
 
@@ -366,7 +366,7 @@ drgAccess/
 │   ├── EscortPhaseAudio.cs       # TNT detonator + Ommoran crystal beacons (escort duty phases)
 │   ├── ObjectiveReaderComponent.cs # O key objective reader during gameplay
 │   ├── GearNavigationFix.cs       # Gear inventory explicit Up/Down navigation fix
-│   ├── GateFocusHelper.cs         # Tab/R3 moves EventSystem focus to gate buttons
+│   ├── GateNavigationFix.cs       # Makes gate buttons reachable via normal arrow navigation
 │   ├── ModSettingsMenu.cs         # Mod settings menu (F1 key, volumes, detection settings, audio cue preview)
 │   ├── WalletReaderComponent.cs   # G key wallet balance reading (stat upgrades menu)
 │   ├── HPReaderComponent.cs       # H key HP reading during gameplay
@@ -491,6 +491,7 @@ The game updated to **Unity 6000.4.7f1** in June 2026 (GameAssembly.dll 24/06/20
 4. **If the game updates again**: delete `BepInEx\interop`, launch the game ONCE with a `steam_appid.txt` (2321470) in the game folder to avoid the Steam-relaunch double-process race during regeneration (delete the file afterwards), wait for regeneration, close, run InteropFixer, verify all DLLs load, then rebuild the mod.
 5. The **release full package must ship the repaired interop** + be.785; end users' BepInEx would otherwise regenerate corrupt assemblies.
 6. Unity 6 API changes hit the mod: `PlayerHealArgs.ActualHeal` is now `long`, `Stat.Value` is `double`, `UIClassSelectPage.*UnlocksAtRank` moved to `UIClassSelectButton.UnlockAtPlayerRank`, `UIEndScreen` lost `endlessButton`/`OnEndlessButton`/`endlessRankXpText`/`endlessCreditsText` (endless flow moved to a popup), `UISkinOverridesButton.streamerTitle` removed, and the interop now requires a `UnityEngine.UIElementsModule` reference in the csproj.
+   **The player GameObject was renamed**, which silently killed ALL positional audio (walls, XP, drop pod, enemies...) while screen reader output kept working — every component located the player via `GameObject.Find("Player"...)`. Fixed with `Helpers/PlayerLocator.FindPlayerTransform()` (uses `FindObjectOfType<Player>()`, name search as fallback). NEVER locate the player by GameObject name.
 7. The decompiled reference in `drg code/` was regenerated with `ilspycmd` from the new interop Assembly-CSharp.dll (namespace-nested directories now, e.g. `drg code/DRS/UI/`, `drg code/Assets/Scripts/...`).
 
 ## IL2CPP / Harmony Critical Rules

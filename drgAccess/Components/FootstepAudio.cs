@@ -293,16 +293,8 @@ namespace drgAccess.Components
             {
                 if (playerTransform != null) return;
 
-                string[] playerNames = { "Player", "PlayerCharacter", "Hero", "Character" };
-                foreach (var name in playerNames)
-                {
-                    var obj = GameObject.Find(name);
-                    if (obj != null && !obj.name.Contains("Camera"))
-                    {
-                        playerTransform = obj.transform;
-                        break;
-                    }
-                }
+                // Player component lookup (name search broke in the Unity 6 update)
+                playerTransform = drgAccess.Helpers.PlayerLocator.FindPlayerTransform();
             }
             catch { }
         }

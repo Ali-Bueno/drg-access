@@ -64,11 +64,6 @@ public static class InputHelper
         return KeyPressed(Key.F1);
     }
 
-    public static bool FocusGate()
-    {
-        return KeyPressed(Key.Tab) || GamepadPressed(gp => gp.rightStickButton);
-    }
-
     public static bool NavigateLeft()
     {
         return KeyPressed(Key.LeftArrow) || DpadLeft();

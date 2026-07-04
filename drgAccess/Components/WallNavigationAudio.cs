@@ -187,37 +187,13 @@ namespace drgAccess.Components
         {
             try
             {
-                // Try to get LayerMaskLibrary from EnemySpawner
-                try
-                {
-                    var spawner = UnityEngine.Object.FindObjectOfType<EnemySpawner>();
-                    if (spawner != null)
-                    {
-                        layerMaskLibrary = spawner.layerMaskLibrary;
-                        if (layerMaskLibrary != null)
-                        {
-                            // Use the game's obstacle mask for more accurate wall detection
-                            wallLayerMask = layerMaskLibrary.obstacleMask;
-                            Plugin.Log.LogInfo($"[WallNav] Using game's obstacleMask from EnemySpawner");
-                        }
-                        else
-                        {
-                            // Fallback: use specific layer by name
-                            wallLayerMask = LayerMask.GetMask("Default", "Terrain", "Wall");
-                            Plugin.Log.LogInfo($"[WallNav] LayerMaskLibrary null, using Default/Terrain/Wall layers");
-                        }
-                    }
-                    else
-                    {
-                        // Fallback: use specific layer by name
-                        wallLayerMask = LayerMask.GetMask("Default", "Terrain", "Wall");
-                        Plugin.Log.LogInfo($"[WallNav] EnemySpawner not found, using Default/Terrain/Wall layers");
-                    }
-                }
-                catch (Exception e)
+                // The plugin loads in the main menu where no EnemySpawner exists,
+                // so start with the name-based fallback; Update() keeps retrying
+                // until the game's real obstacle mask becomes available in a run.
+                if (!TryAcquireGameObstacleMask())
                 {
                     wallLayerMask = LayerMask.GetMask("Default", "Terrain", "Wall");
-                    Plugin.Log.LogInfo($"[WallNav] Error getting LayerMask ({e.Message}), using Default/Terrain/Wall layers");
+                    Plugin.Log.LogInfo($"[WallNav] EnemySpawner not found yet, using Default/Terrain/Wall layers (will retry in-game)");
                 }
 
                 // Create audio channels for each direction
@@ -229,6 +205,31 @@ namespace drgAccess.Components
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[WallNav] Initialize error: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Try to read the game's own obstacle mask from EnemySpawner (only exists
+        /// during a run). Returns true once acquired; keeps the fallback otherwise.
+        /// </summary>
+        private bool TryAcquireGameObstacleMask()
+        {
+            try
+            {
+                var spawner = UnityEngine.Object.FindObjectOfType<EnemySpawner>();
+                if (spawner == null) return false;
+
+                layerMaskLibrary = spawner.layerMaskLibrary;
+                if (layerMaskLibrary == null) return false;
+
+                wallLayerMask = layerMaskLibrary.obstacleMask;
+                Plugin.Log.LogInfo("[WallNav] Using game's obstacleMask from EnemySpawner");
+                return true;
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[WallNav] TryAcquireGameObstacleMask error: {e.Message}");
+                return false;
             }
         }
 
@@ -290,6 +291,10 @@ namespace drgAccess.Components
                 {
                     FindPlayer();
                     nextPlayerSearchTime = Time.time + 2f;
+
+                    // Upgrade to the game's real obstacle mask once a run provides it
+                    if (layerMaskLibrary == null)
+                        TryAcquireGameObstacleMask();
                 }
 
                 if (playerTransform == null)
@@ -331,19 +336,10 @@ namespace drgAccess.Components
         {
             try
             {
-                // Search for player
-                string[] playerNames = { "Player", "PlayerCharacter", "Hero", "Character" };
-
-                foreach (var name in playerNames)
-                {
-                    var obj = GameObject.Find(name);
-                    if (obj != null)
-                    {
-                        playerTransform = obj.transform;
-                        Plugin.Log.LogInfo($"[WallNav] Found player: {name} at {obj.transform.position}");
-                        break;
-                    }
-                }
+                // Player component lookup (name search broke in the Unity 6 update)
+                playerTransform = drgAccess.Helpers.PlayerLocator.FindPlayerTransform();
+                if (playerTransform != null)
+                    Plugin.Log.LogInfo($"[WallNav] Found player at {playerTransform.position}");
 
                 // Search for camera
                 var cam = Camera.main;
