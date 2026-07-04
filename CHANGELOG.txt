@@ -2,6 +2,21 @@ CHANGELOG
 =========
 
 
+v0.10.4 - July 3, 2026
+---------------------------
+
+New:
+
+  - Beacon pathfinding is back — without the crash. Instead of Unity's
+    NavMesh (whose native interface changed in the Unity 6 game update and
+    crashed the game at extraction), the mod now runs its own pathfinding
+    over the game's real block grid: mined blocks open the path, walls
+    block it. The drop pod and drill beacons guide you around obstacles
+    again, corner by corner, and the F-key compass reports true path
+    distance. Being fully managed code, it cannot crash the game the way
+    the NavMesh interop did.
+
+
 v0.10.3 - July 3, 2026
 ---------------------------
 

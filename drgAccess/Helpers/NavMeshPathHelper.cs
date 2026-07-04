@@ -14,8 +14,8 @@ namespace drgAccess.Helpers
         // (SamplePosition/CalculatePath with out-struct marshaling) crashes the game
         // natively the moment the drop pod beacon starts pathfinding — an
         // AccessViolation that .NET 6 cannot catch, so a try/catch is useless.
-        // Until the AIModule interop is verified safe on Unity 6, beacons use
-        // direct-line guidance (the built-in fallback below).
+        // Pathfinding is provided by GridPathHelper instead (managed A* over the
+        // game's block grid — cannot crash natively).
         private const bool NAVMESH_ENABLED = false;
 
         // Cached NavMeshPath (reused to avoid GC)
@@ -61,16 +61,7 @@ namespace drgAccess.Helpers
             float directDist = Vector3.Distance(playerPos, targetPos);
 
             if (!NAVMESH_ENABLED)
-            {
-                return new PathResult
-                {
-                    IsValid = true,
-                    NextWaypoint = targetPos,
-                    TotalPathDistance = directDist,
-                    WaypointDistance = directDist,
-                    UsingDirectFallback = true
-                };
-            }
+                return GridPathHelper.GetNextWaypoint(playerPos, targetPos);
 
             // Within very close range AND clear line of sight, skip pathfinding for precision
             if (directDist < DIRECT_TARGET_DISTANCE && HasLineOfSight(playerPos, targetPos))
@@ -120,6 +111,7 @@ namespace drgAccess.Helpers
             cachedPath = null;
             obstacleMask = -1;
             obstacleMaskSearched = false;
+            GridPathHelper.Reset();
         }
 
         /// <summary>
