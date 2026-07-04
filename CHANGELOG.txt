@@ -2,6 +2,25 @@ CHANGELOG
 =========
 
 
+v0.10.5 - July 3, 2026
+---------------------------
+
+Bug Fixes:
+
+  - Audio cues no longer die after Retry (for real this time): on retry the
+    game reuses the scene and quietly replaces its internal game controller;
+    both previous detection methods turned out to be unreliable — the old
+    controller object survives in memory and keeps reporting stale state
+    without ever throwing. All components now share one game-state helper
+    that re-finds the controller every 2 seconds and compares instances,
+    so every cue re-arms on retry, next stage, and new runs.
+  - Pathfinding now respects indestructible walls: they are not mineable
+    blocks, so the v0.10.4 grid ignored them and the beacon could guide
+    you straight into a solid wall (as reported at an extraction). Solid
+    obstacles on the game's obstacle layer now block the path grid, so
+    routes go around them.
+
+
 v0.10.4 - July 3, 2026
 ---------------------------
 

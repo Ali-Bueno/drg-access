@@ -930,36 +930,7 @@ namespace drgAccess.Components
 
         private bool IsInActiveGameplay()
         {
-            try
-            {
-                if (Time.timeScale <= 0.1f) return false;
-
-                if (gameStateProvider != null)
-                {
-                    // Validate: on retry the old GameController is destroyed but the
-                    // wrapper survives; reading State throws, forcing a re-search.
-                    try { var _ = gameStateProvider.State; }
-                    catch { gameStateProvider = null; }
-                }
-
-                if (gameStateProvider == null)
-                {
-                    var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
-                    if (gameController != null)
-                        gameStateProvider = gameController.Cast<IGameStateProvider>();
-                    else
-                        return false;
-                }
-
-                if (gameStateProvider != null)
-                {
-                    var state = gameStateProvider.State;
-                    return state == GameController.EGameState.CORE ||
-                           state == GameController.EGameState.CORE_OUTRO;
-                }
-            }
-            catch { }
-            return false;
+            return drgAccess.Helpers.GameStateHelper.IsInGameplayOrOutro();
         }
 
         void OnDestroy()

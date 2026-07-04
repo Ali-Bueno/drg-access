@@ -383,60 +383,7 @@ namespace drgAccess.Components
 
         private bool IsInActiveGameplay()
         {
-            try
-            {
-                // Primary check: time scale (catches pause)
-                if (Time.timeScale <= 0.1f)
-                {
-                    return false;
-                }
-
-                // Validate gameStateProvider: on retry the old GameController is
-                // destroyed but the wrapper survives; reading State throws.
-                if (gameStateProvider != null)
-                {
-                    bool providerAlive = true;
-                    try { var _ = gameStateProvider.State; }
-                    catch { providerAlive = false; }
-                    if (!providerAlive)
-                    {
-                        if (Time.frameCount % 300 == 0)
-                            Plugin.Log.LogInfo("[WallNav] GameController was destroyed, searching for new one");
-                        gameStateProvider = null;
-                    }
-                }
-
-                // Find game state provider if not cached (search every frame until found!)
-                if (gameStateProvider == null)
-                {
-                    var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
-                    if (gameController != null)
-                    {
-                        gameStateProvider = gameController.Cast<IGameStateProvider>();
-                        Plugin.Log.LogInfo("[WallNav] Found new GameController");
-                    }
-                    else
-                    {
-                        // Not found yet, keep searching next frame
-                        return false;
-                    }
-                }
-
-                if (gameStateProvider != null)
-                {
-                    var state = gameStateProvider.State;
-                    // Only play audio during CORE gameplay state
-                    // Don't play during: MENU, SPLASH, SHOP, LOADING, CORE_INTRO, CORE_OUTRO, etc.
-                    return state == GameController.EGameState.CORE;
-                }
-            }
-            catch (Exception e)
-            {
-                Plugin.Log.LogDebug($"[WallNav] IsInActiveGameplay error: {e.Message}");
-            }
-
-            // Fallback: already checked time scale above
-            return false;
+            return drgAccess.Helpers.GameStateHelper.IsInActiveGameplay();
         }
 
         private void UpdateWallDetection()

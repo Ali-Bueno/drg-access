@@ -25,6 +25,13 @@ namespace drgAccess.Helpers
         private static float nextGridRebuildTime;
         private const float GRID_REBUILD_INTERVAL = 2.5f;
 
+        // Obstacle-layer colliders wider than this are skipped as a safety net
+        // (a floor or map-bounds volume would otherwise block the whole grid).
+        private const float MAX_OBSTACLE_COLLIDER_SIZE = 60f;
+
+        // Game obstacle layer mask (indestructible walls live here, not in MineableBlocks)
+        private static int obstacleMask = -1;
+
         // Path cache (same throttle contract as the old NavMesh helper)
         private static List<Vector3> lastCorners = new List<Vector3>();
         private static bool lastPathValid;
@@ -44,6 +51,7 @@ namespace drgAccess.Helpers
             lastCorners.Clear();
             lastPathValid = false;
             lastCalcTime = 0f;
+            obstacleMask = -1;
         }
 
         /// <summary>
@@ -159,11 +167,82 @@ namespace drgAccess.Helpers
                 gridWidth = w;
                 gridHeight = h;
                 gridReady = true;
+
+                MarkIndestructibleWalls();
             }
             catch (Exception e)
             {
                 Plugin.Log.LogDebug($"[GridPath] RebuildGrid error: {e.Message}");
                 gridReady = false;
+            }
+        }
+
+        /// <summary>
+        /// Indestructible walls are NOT MineableBlocks (that's how the wall-tone
+        /// pitch distinguishes them), so the block pass misses them and A* would
+        /// route straight through — this guided a player into a solid wall at
+        /// extraction. Mark the footprint of every solid collider on the game's
+        /// obstacle layer that doesn't belong to a mineable block.
+        /// </summary>
+        private static void MarkIndestructibleWalls()
+        {
+            try
+            {
+                if (obstacleMask == -1)
+                {
+                    try
+                    {
+                        var spawner = UnityEngine.Object.FindObjectOfType<EnemySpawner>();
+                        if (spawner != null && spawner.layerMaskLibrary != null)
+                            obstacleMask = spawner.layerMaskLibrary.obstacleMask;
+                    }
+                    catch { }
+                    if (obstacleMask == -1)
+                        obstacleMask = LayerMask.GetMask("Default", "Terrain", "Wall");
+                }
+
+                var colliders = UnityEngine.Object.FindObjectsOfType<Collider>();
+                if (colliders == null) return;
+
+                foreach (var col in colliders)
+                {
+                    if (col == null) continue;
+
+                    try
+                    {
+                        if (col.isTrigger) continue;
+                        if (((1 << col.gameObject.layer) & obstacleMask) == 0) continue;
+
+                        var bounds = col.bounds;
+                        if (bounds.size.x > MAX_OBSTACLE_COLLIDER_SIZE ||
+                            bounds.size.z > MAX_OBSTACLE_COLLIDER_SIZE)
+                            continue;
+
+                        // Skip mineable blocks: the block pass handles them, and a
+                        // mined block's leftover collider must not re-block the cell
+                        var centerCell = WorldToCell(bounds.center);
+                        bool centerAlreadyBlocked =
+                            centerCell.x >= 0 && centerCell.x < gridWidth &&
+                            centerCell.y >= 0 && centerCell.y < gridHeight &&
+                            blocked[centerCell.x, centerCell.y];
+                        if (!centerAlreadyBlocked &&
+                            col.GetComponentInParent<MineableBlock>() != null)
+                            continue;
+
+                        // Mark the collider footprint (slightly shrunk so a wall
+                        // touching a walkable cell's edge doesn't swallow it)
+                        var min = WorldToCell(bounds.min + new Vector3(0.05f, 0, 0.05f));
+                        var max = WorldToCell(bounds.max - new Vector3(0.05f, 0, 0.05f));
+                        for (int x = Mathf.Max(min.x, 0); x <= Mathf.Min(max.x, gridWidth - 1); x++)
+                            for (int y = Mathf.Max(min.y, 0); y <= Mathf.Min(max.y, gridHeight - 1); y++)
+                                blocked[x, y] = true;
+                    }
+                    catch { }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[GridPath] MarkIndestructibleWalls error: {e.Message}");
             }
         }
 

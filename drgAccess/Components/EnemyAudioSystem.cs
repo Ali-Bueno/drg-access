@@ -1024,73 +1024,7 @@ namespace drgAccess.Components
 
         private bool IsInActiveGameplay()
         {
-            try
-            {
-                // Primary check: time scale (catches pause)
-                if (Time.timeScale <= 0.1f)
-                {
-                    if (Time.frameCount % 300 == 0)
-                        Plugin.Log.LogDebug($"[EnemyAudio] timeScale too low: {Time.timeScale}");
-                    return false;
-                }
-
-                // Validate gameStateProvider: on retry the old GameController is
-                // destroyed but the wrapper survives; reading State throws.
-                if (gameStateProvider != null)
-                {
-                    bool providerAlive = true;
-                    try { var _ = gameStateProvider.State; }
-                    catch { providerAlive = false; }
-                    if (!providerAlive)
-                    {
-                        if (Time.frameCount % 300 == 0)
-                            Plugin.Log.LogInfo("[EnemyAudio] GameController was destroyed, searching for new one");
-                        gameStateProvider = null;
-                    }
-                }
-
-                // Find game state provider if not cached (search every frame until found!)
-                if (gameStateProvider == null)
-                {
-                    var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
-                    if (gameController != null)
-                    {
-                        gameStateProvider = gameController.Cast<IGameStateProvider>();
-                        Plugin.Log.LogInfo("[EnemyAudio] Found new GameController");
-                    }
-                    else
-                    {
-                        // Not found yet, keep searching next frame
-                        if (Time.frameCount % 300 == 0)
-                            Plugin.Log.LogDebug("[EnemyAudio] GameController not found, will retry next frame");
-                        return false;
-                    }
-                }
-
-                if (gameStateProvider != null)
-                {
-                    var state = gameStateProvider.State;
-                    bool isCore = state == GameController.EGameState.CORE;
-
-                    if (Time.frameCount % 300 == 0)
-                        Plugin.Log.LogDebug($"[EnemyAudio] GameState: {state}, CORE={isCore}");
-
-                    // Only play audio during CORE gameplay state
-                    return isCore;
-                }
-                else
-                {
-                    if (Time.frameCount % 300 == 0)
-                        Plugin.Log.LogDebug("[EnemyAudio] gameStateProvider is null after search");
-                }
-            }
-            catch (Exception e)
-            {
-                Plugin.Log.LogError($"[EnemyAudio] IsInActiveGameplay error: {e.Message}");
-            }
-
-            // Fallback: already checked time scale above
-            return false;
+            return drgAccess.Helpers.GameStateHelper.IsInActiveGameplay();
         }
 
         private void FindPlayer()

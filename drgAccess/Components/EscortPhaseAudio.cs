@@ -72,6 +72,7 @@ namespace drgAccess.Components
         // Game state
         private IGameStateProvider gameStateProvider;
         private string lastSceneName = "";
+        private int lastRunGeneration = -1;
 
         static EscortPhaseAudio()
         {
@@ -277,6 +278,13 @@ namespace drgAccess.Components
             try
             {
                 CheckSceneChange();
+
+                // New GameController instance == new run/retry/stage: reset phase state
+                if (GameStateHelper.RunGeneration != lastRunGeneration)
+                {
+                    lastRunGeneration = GameStateHelper.RunGeneration;
+                    ResetForNewStage();
+                }
 
                 if (!IsInActiveGameplay())
                 {
@@ -770,36 +778,7 @@ namespace drgAccess.Components
 
         private bool IsInActiveGameplay()
         {
-            try
-            {
-                if (Time.timeScale <= 0.1f) return false;
-
-                if (gameStateProvider != null)
-                {
-                    // Validate: on retry/stage change the old GameController is destroyed
-                    // but the wrapper survives; reading State throws, forcing a re-search.
-                    try { var _ = gameStateProvider.State; }
-                    catch { gameStateProvider = null; }
-                }
-
-                if (gameStateProvider == null)
-                {
-                    var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
-                    if (gameController != null)
-                    {
-                        gameStateProvider = gameController.Cast<IGameStateProvider>();
-                        // New GameController == new run or stage: reset phase/announce state
-                        ResetForNewStage();
-                    }
-                    else
-                        return false;
-                }
-
-                if (gameStateProvider != null)
-                    return gameStateProvider.State == GameController.EGameState.CORE;
-            }
-            catch { }
-            return false;
+            return drgAccess.Helpers.GameStateHelper.IsInActiveGameplay();
         }
 
         void OnDestroy()

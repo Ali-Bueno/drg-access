@@ -47,9 +47,10 @@ public class HPReaderComponent : MonoBehaviour
     {
         try
         {
-            if (cachedGameController == null) return;
+            var gameController = Helpers.GameStateHelper.CachedGameController;
+            if (gameController == null) return;
 
-            var player = cachedGameController.player;
+            var player = gameController.player;
             if (player == null)
             {
                 ScreenReader.Interrupt(ModLocalization.Get("hp_no_player"));
@@ -91,41 +92,7 @@ public class HPReaderComponent : MonoBehaviour
 
     private bool IsInActiveGameplay()
     {
-        try
-        {
-            if (Time.timeScale <= 0.1f) return false;
-
-            if (Time.time >= nextSearchTime)
-            {
-                nextSearchTime = Time.time + 2f;
-
-                if (gameStateProvider != null)
-                {
-                    // Validate: on retry the old GameController is destroyed but the
-                    // wrapper survives; reading State throws, forcing a re-search.
-                    try { var _ = gameStateProvider.State; }
-                    catch { gameStateProvider = null; }
-                }
-
-                if (gameStateProvider == null)
-                {
-                    cachedGameController = UnityEngine.Object.FindObjectOfType<GameController>();
-                    if (cachedGameController != null)
-                        gameStateProvider = cachedGameController.Cast<IGameStateProvider>();
-                    else
-                        return false;
-                }
-            }
-
-            if (gameStateProvider != null)
-            {
-                var state = gameStateProvider.State;
-                return state == GameController.EGameState.CORE ||
-                       state == GameController.EGameState.CORE_OUTRO;
-            }
-        }
-        catch { }
-        return false;
+        return drgAccess.Helpers.GameStateHelper.IsInGameplayOrOutro();
     }
 
     void OnDestroy()

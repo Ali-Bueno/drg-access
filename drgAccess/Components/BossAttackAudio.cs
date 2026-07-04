@@ -296,28 +296,7 @@ namespace drgAccess.Components
 
         private bool IsInActiveGameplay()
         {
-            if (Time.timeScale < 0.1f) return false;
-
-            if (gameStateProvider != null)
-            {
-                try { var _ = gameStateProvider.State; }
-                catch { gameStateProvider = null; }
-            }
-
-            if (gameStateProvider == null)
-            {
-                var gc = UnityEngine.Object.FindObjectOfType<GameController>();
-                if (gc != null)
-                    gameStateProvider = gc.TryCast<IGameStateProvider>();
-            }
-
-            if (gameStateProvider == null) return false;
-
-            try
-            {
-                return gameStateProvider.State == GameController.EGameState.CORE;
-            }
-            catch { return false; }
+            return drgAccess.Helpers.GameStateHelper.IsInActiveGameplay();
         }
 
         private void FindPlayerIfNeeded()

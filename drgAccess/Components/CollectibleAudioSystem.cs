@@ -771,9 +771,10 @@ namespace drgAccess.Components
         {
             try
             {
-                if (cachedGameController != null)
+                var gameController = GameStateHelper.CachedGameController;
+                if (gameController != null)
                 {
-                    var player = cachedGameController.player;
+                    var player = gameController.player;
                     if (player != null)
                         return player.CurrentHealthFraction;
                 }
@@ -999,35 +1000,7 @@ namespace drgAccess.Components
 
         private bool IsInActiveGameplay()
         {
-            try
-            {
-                if (Time.timeScale <= 0.1f) return false;
-
-                if (gameStateProvider != null)
-                {
-                    // Validate: on retry the old GameController is destroyed but the
-                    // wrapper survives; reading State throws, forcing a re-search.
-                    try { var _ = gameStateProvider.State; }
-                    catch { gameStateProvider = null; cachedGameController = null; }
-                }
-
-                if (gameStateProvider == null)
-                {
-                    var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
-                    if (gameController != null)
-                    {
-                        gameStateProvider = gameController.Cast<IGameStateProvider>();
-                        cachedGameController = gameController;
-                    }
-                    else
-                        return false;
-                }
-
-                if (gameStateProvider != null)
-                    return gameStateProvider.State == GameController.EGameState.CORE;
-            }
-            catch { }
-            return false;
+            return drgAccess.Helpers.GameStateHelper.IsInActiveGameplay();
         }
 
         void OnDestroy()
