@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>drgAccess</AssemblyName>
     <Product>DRG Survivor Accessibility</Product>
-    <Version>0.9.0</Version>
+    <Version>0.10.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -84,6 +84,10 @@
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>$(BepInExDir)\interop\UnityEngine.AIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>$(BepInExDir)\interop\UnityEngine.UIElementsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

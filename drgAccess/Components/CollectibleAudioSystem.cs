@@ -30,6 +30,7 @@ namespace drgAccess.Components
 
         // Game state
         private IGameStateProvider gameStateProvider;
+        private GameController cachedGameController; // for player HP (smart beacon)
         private string lastSceneName = "";
         private bool isInitialized = false;
         private float sceneLoadTime = 0f;
@@ -56,6 +57,7 @@ namespace drgAccess.Components
             new CategoryConfig(CollectibleSoundType.XpNearby, 8f, 0.05f, 0.14f, 350f, 700f, 0f, 0f),
             new CategoryConfig(CollectibleSoundType.BobbyFuel, 35f, 0.22f, 0.42f, 200f, 400f, 0.5f, 0.08f),
             new CategoryConfig(CollectibleSoundType.HealingZone, 30f, 0.22f, 0.40f, 500f, 750f, 0.5f, 0.08f),
+            new CategoryConfig(CollectibleSoundType.LaunchPad, 35f, 0.25f, 0.45f, 400f, 800f, 0.7f, 0.12f),
         };
 
         private struct CategoryConfig
@@ -100,7 +102,7 @@ namespace drgAccess.Components
         {
             "collect_red_sugar", "collect_gear", "collect_buff", "collect_currency",
             "collect_mineral_vein", "collect_loot_crate", "collect_xp",
-            "collect_bobby_fuel", "collect_healing_zone"
+            "collect_bobby_fuel", "collect_healing_zone", "collect_launch_pad"
         };
 
         // Bobby fuel scanning
@@ -108,6 +110,10 @@ namespace drgAccess.Components
 
         // Healing zone scanning
         private float nextHealingScanTime = 0f;
+
+        // Launch pad scanning (name-based: pads have no dedicated managed class)
+        private float nextLaunchPadScanTime = 0f;
+        private readonly List<Transform> cachedLaunchPads = new();
 
         /// <summary>
         /// Returns the effective max distance for a category, scaled by the config multiplier.
@@ -235,6 +241,12 @@ namespace drgAccess.Components
                 {
                     ScanHealingZones();
                     nextHealingScanTime = Time.time + 2f;
+                }
+
+                if (Time.time >= nextLaunchPadScanTime)
+                {
+                    ScanLaunchPads();
+                    nextLaunchPadScanTime = Time.time + 3f;
                 }
 
                 UpdateAudio();
@@ -530,8 +542,198 @@ namespace drgAccess.Components
             }
         }
 
+        // GameObject name fragments that identify launch ramps/catapults. The pads
+        // have no dedicated managed class (prefab trigger calls Player natively),
+        // so they are found by name. Plain "ramp" is excluded on purpose — it would
+        // match the drop pod's rampDetector.
+        private static readonly string[] launchPadNameFragments =
+        {
+            "jumppad", "jump_pad", "jump pad",
+            "launchpad", "launch_pad", "launch pad",
+            "catapult", "trampoline", "springboard"
+        };
+
+        private void ScanLaunchPads()
+        {
+            nearestTargets[9] = default; // LaunchPad
+
+            try
+            {
+                // Revalidate cache (objects die on stage end)
+                for (int i = cachedLaunchPads.Count - 1; i >= 0; i--)
+                {
+                    var t = cachedLaunchPads[i];
+                    bool alive;
+                    try { alive = t != null && t.gameObject != null && t.gameObject.activeInHierarchy; }
+                    catch { alive = false; }
+                    if (!alive) cachedLaunchPads.RemoveAt(i);
+                }
+
+                // Rescan colliders when the cache is empty (cheap enough at 3s cadence)
+                if (cachedLaunchPads.Count == 0)
+                {
+                    var colliders = UnityEngine.Object.FindObjectsOfType<Collider>();
+                    if (colliders != null)
+                    {
+                        foreach (var col in colliders)
+                        {
+                            if (col == null) continue;
+                            string name;
+                            try { name = col.gameObject.name.ToLowerInvariant(); }
+                            catch { continue; }
+
+                            foreach (var fragment in launchPadNameFragments)
+                            {
+                                if (name.Contains(fragment))
+                                {
+                                    cachedLaunchPads.Add(col.transform);
+                                    Plugin.Log.LogInfo($"[CollectibleAudio] Launch pad found: '{col.gameObject.name}'");
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (cachedLaunchPads.Count == 0) return;
+
+                Vector3 playerPos = playerTransform.position;
+                float maxDist = GetEffectiveMaxDistance(9);
+
+                foreach (var pad in cachedLaunchPads)
+                {
+                    if (pad == null) continue;
+                    float dist = Vector3.Distance(playerPos, pad.position);
+                    if (dist > maxDist) continue;
+
+                    if (!nearestTargets[9].Found || dist < nearestTargets[9].Distance)
+                    {
+                        nearestTargets[9] = new NearestTarget
+                        {
+                            Found = true,
+                            Position = pad.position,
+                            Distance = dist
+                        };
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[CollectibleAudio] ScanLaunchPads error: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Called when the player gets launched by a pad (Player.TryLaunchIntoAir patch).
+        /// Logs nearby trigger names once so unknown pad prefab names can be added to
+        /// launchPadNameFragments from user logs.
+        /// </summary>
+        private float lastLaunchDiagnosticTime = -60f;
+        public void OnPlayerLaunched()
+        {
+            try
+            {
+                if (playerTransform == null) return;
+                if (Time.time - lastLaunchDiagnosticTime < 30f) return;
+                lastLaunchDiagnosticTime = Time.time;
+
+                var nearby = Physics.OverlapSphere(playerTransform.position, 4f);
+                if (nearby == null) return;
+                foreach (var col in nearby)
+                {
+                    if (col == null) continue;
+                    try
+                    {
+                        if (col.isTrigger)
+                            Plugin.Log.LogInfo($"[CollectibleAudio] Launch source candidate: '{col.gameObject.name}'");
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
+        // --- Smart beacon (priority scoring, Hades 2 style) ---
+        // Base priority per category, indexed like configs[]. Reflects gameplay
+        // importance; distance only breaks ties within the score formula below.
+        private static readonly float[] categoryBasePriority =
+        {
+            50f,  // RedSugar (boosted when hurt)
+            75f,  // GearDrop
+            60f,  // BuffPickup
+            40f,  // CurrencyPickup
+            45f,  // MineralVein
+            80f,  // LootCrate
+            10f,  // XpNearby
+            85f,  // BobbyFuel (escort-critical)
+            55f,  // HealingZone (boosted when hurt)
+            30f,  // LaunchPad
+        };
+        // Below this HP fraction, healing sources get their priority multiplied.
+        private const float LOW_HP_FRACTION = 0.4f;
+        private const float LOW_HP_HEAL_BOOST = 2.5f;
+
+        /// <summary>
+        /// Smart beacon mode: instead of one beacon per category playing at once,
+        /// score every found target by importance x proximity and keep only the
+        /// winner audible. The winner keeps its own category sound, so the player
+        /// still hears WHAT it is.
+        /// </summary>
+        private void ApplySmartBeaconFilter()
+        {
+            int best = -1;
+            float bestScore = 0f;
+            float hpFraction = GetPlayerHealthFraction();
+
+            for (int i = 0; i < configs.Length; i++)
+            {
+                if (!nearestTargets[i].Found) continue;
+
+                float proximity = 1f - Mathf.Clamp01(nearestTargets[i].Distance / GetEffectiveMaxDistance(i));
+                float basePriority = categoryBasePriority[i];
+
+                // Health needs: when hurt, healing sources jump the queue
+                var type = configs[i].Type;
+                if (hpFraction < LOW_HP_FRACTION &&
+                    (type == CollectibleSoundType.RedSugar || type == CollectibleSoundType.HealingZone))
+                    basePriority *= LOW_HP_HEAL_BOOST;
+
+                // Priority dominates; proximity modulates within the category
+                float score = basePriority * (0.5f + 0.5f * proximity);
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = i;
+                }
+            }
+
+            for (int i = 0; i < configs.Length; i++)
+            {
+                if (i != best) nearestTargets[i] = default;
+            }
+        }
+
+        private float GetPlayerHealthFraction()
+        {
+            try
+            {
+                if (cachedGameController != null)
+                {
+                    var player = cachedGameController.player;
+                    if (player != null)
+                        return player.CurrentHealthFraction;
+                }
+            }
+            catch { }
+            return 1f;
+        }
+
         private void UpdateAudio()
         {
+            if (ModConfig.GetBool(ModConfig.SMART_BEACON))
+                ApplySmartBeaconFilter();
+
             Vector3 playerPos = playerTransform.position;
 
             Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
@@ -758,15 +960,20 @@ namespace drgAccess.Components
 
                 if (gameStateProvider != null)
                 {
-                    var gc = gameStateProvider.TryCast<GameController>();
-                    if (gc == null) gameStateProvider = null;
+                    // Validate: on retry the old GameController is destroyed but the
+                    // wrapper survives; reading State throws, forcing a re-search.
+                    try { var _ = gameStateProvider.State; }
+                    catch { gameStateProvider = null; cachedGameController = null; }
                 }
 
                 if (gameStateProvider == null)
                 {
                     var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
                     if (gameController != null)
+                    {
                         gameStateProvider = gameController.Cast<IGameStateProvider>();
+                        cachedGameController = gameController;
+                    }
                     else
                         return false;
                 }

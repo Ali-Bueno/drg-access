@@ -19,11 +19,12 @@ namespace drgAccess.Patches
         /// </summary>
         [HarmonyPatch(typeof(GroundSpike), "OnSpawn")]
         [HarmonyPostfix]
-        public static void GroundSpike_OnSpawn_Postfix(GroundSpike __instance, Vector3 pos, float baseLife)
+        public static void GroundSpike_OnSpawn_Postfix(GroundSpike __instance, Vector3 pos, float baseLife, float damageRadius)
         {
             try
             {
                 HazardWarningAudio.RegisterGroundSpike(pos, baseLife);
+                DodgeAssistComponent.Instance?.OnSpikeSpawned(pos, baseLife, damageRadius);
             }
             catch (Exception e)
             {

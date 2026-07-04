@@ -13,7 +13,8 @@ namespace drgAccess.Components
         LootCrate,      // Shimmering rapid alternating frequencies
         XpNearby,       // Continuous soft tone, pitch = distance to nearest XP
         BobbyFuel,      // Bubbling/gurgle for escort mission fuel blocks
-        HealingZone     // Water-drop bloop (same as RedSugar) for healing pillars
+        HealingZone,    // Water-drop bloop (same as RedSugar) for healing pillars
+        LaunchPad       // 8-bit "boing boing" (square wave, double pitch drop) for launch ramps
     }
 
     /// <summary>
@@ -100,6 +101,7 @@ namespace drgAccess.Components
                 CollectibleSoundType.MineralVein => (int)(sampleRate * 0.10),
                 CollectibleSoundType.BobbyFuel => (int)(sampleRate * 0.18),
                 CollectibleSoundType.HealingZone => (int)(sampleRate * 0.15),
+                CollectibleSoundType.LaunchPad => (int)(sampleRate * 0.30), // two "boings"
                 _ => (int)(sampleRate * 0.08)
             };
             beepDurationSamples = duration;
@@ -211,6 +213,9 @@ namespace drgAccess.Components
                 CollectibleSoundType.HealingZone => progress < 0.03f
                     ? progress / 0.03f
                     : (float)Math.Exp(-(progress - 0.03) * 2.5),
+
+                // Two bounces: each half of the beep is its own attack + decay
+                CollectibleSoundType.LaunchPad => ComputeBoingEnvelope(progress),
 
                 _ => 1f
             };
@@ -332,9 +337,43 @@ namespace drgAccess.Components
                     if (phase2 >= 1.0) phase2 -= 1.0;
                     return (float)((s + s2) * 0.8);
                 }
+                case CollectibleSoundType.LaunchPad:
+                {
+                    // 8-bit "boing boing": square wave, two bounces per beep.
+                    // Each bounce sweeps the pitch up fast then springs back down.
+                    float bounceProgress = progress < 0.5f ? progress * 2f : (progress - 0.5f) * 2f;
+                    // Pitch: quick rise (first 20%) then springy fall with wobble
+                    double sweepMult;
+                    if (bounceProgress < 0.2f)
+                        sweepMult = 1.0 + (bounceProgress / 0.2f) * 1.2; // 1.0 → 2.2
+                    else
+                    {
+                        double fall = (bounceProgress - 0.2) / 0.8;
+                        double wobble = 0.15 * Math.Sin(2.0 * Math.PI * 3.0 * fall); // spring wobble
+                        sweepMult = 2.2 - fall * 1.5 + wobble; // 2.2 → 0.7 with wobble
+                    }
+                    double freq = currentFrequency * sweepMult;
+                    // Square wave for the chiptune/8-bit character (attenuated — squares are loud)
+                    double square = Math.Sin(2.0 * Math.PI * phase) >= 0 ? 1.0 : -1.0;
+                    phase += freq / sampleRate;
+                    if (phase >= 1.0) phase -= 1.0;
+                    return (float)(square * 0.35);
+                }
                 default:
                     return 0f;
             }
+        }
+
+        /// <summary>Envelope for the double "boing": two attack+decay humps per beep.</summary>
+        private static float ComputeBoingEnvelope(float progress)
+        {
+            float bounceProgress = progress < 0.5f ? progress * 2f : (progress - 0.5f) * 2f;
+            // Second bounce slightly quieter, like a real spring settling
+            float bounceScale = progress < 0.5f ? 1f : 0.75f;
+            float env = bounceProgress < 0.05f
+                ? bounceProgress / 0.05f
+                : (float)Math.Exp(-(bounceProgress - 0.05) * 3.5);
+            return env * bounceScale;
         }
     }
 }

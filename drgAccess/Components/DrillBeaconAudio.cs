@@ -340,7 +340,16 @@ namespace drgAccess.Components
                 if (fuel <= 0f && !fuelTrackingStarted) return; // No fuel system yet
                 fuelTrackingStarted = true;
 
-                float fuelPercent = Mathf.Clamp01(fuel / 100f); // Bobby.MAX_FUEL assumed as 100
+                // Read the game's own max fuel constant; fall back to startingFuel
+                float maxFuel = 0f;
+                try { maxFuel = Bobby.MAX_FUEL; } catch { }
+                if (maxFuel <= 0f)
+                {
+                    try { maxFuel = activeBobby.startingFuel; } catch { }
+                }
+                if (maxFuel <= 0f) return;
+
+                float fuelPercent = Mathf.Clamp01(fuel / maxFuel);
                 // Only announce when fuel is decreasing
                 if (fuelPercent < lastFuelPercent)
                 {
@@ -579,8 +588,10 @@ namespace drgAccess.Components
 
                 if (gameStateProvider != null)
                 {
-                    var gc = gameStateProvider.TryCast<GameController>();
-                    if (gc == null) gameStateProvider = null;
+                    // Validate: on retry the old GameController is destroyed but the
+                    // wrapper survives; reading State throws, forcing a re-search.
+                    try { var _ = gameStateProvider.State; }
+                    catch { gameStateProvider = null; }
                 }
 
                 if (gameStateProvider == null)

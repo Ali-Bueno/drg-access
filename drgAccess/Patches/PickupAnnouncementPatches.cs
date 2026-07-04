@@ -28,7 +28,7 @@ public static class PickupAnnouncementPatches
             var healType = args.Type;
             if (healType != EHealType.HEAL) return;
 
-            int healed = args.ActualHeal;
+            long healed = args.ActualHeal;
             if (healed <= 0) return;
 
             ScreenReader.Say(ModLocalization.Get("pickup_healed", healed));

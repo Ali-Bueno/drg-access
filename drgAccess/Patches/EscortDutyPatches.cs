@@ -9,6 +9,10 @@ namespace drgAccess.Patches
     /// - TNT phase (stages 1-2): arming detonators
     /// - Ommoran phase (stage 3): destroying heartstone and crystals
     /// All patched methods are declared directly on their respective classes (safe to patch).
+    ///
+    /// These patches are accelerators only: IL2CPP native-to-native calls can bypass
+    /// them, so EscortPhaseAudio also polls the real game state every 2 seconds.
+    /// Announcements live in EscortPhaseAudio and are guarded against duplicates.
     /// </summary>
     [HarmonyPatch]
     public class EscortDutyPatches
@@ -16,9 +20,8 @@ namespace drgAccess.Patches
         // === TNT Phase ===
 
         /// <summary>
-        /// Announce when escort mission enters PREPARE_TNT phase.
-        /// EscortMissionHandler.SetState is declared on EscortMissionHandler (Il2CppSystem.Object).
-        /// Note: May not fire if called native-to-native — EscortPhaseAudio has polling fallback.
+        /// Detect when escort mission enters PREPARE_TNT phase, and capture the
+        /// handler instance so EscortPhaseAudio polling can read its state directly.
         /// </summary>
         [HarmonyPatch(typeof(EscortMissionHandler), nameof(EscortMissionHandler.SetState))]
         [HarmonyPostfix]
@@ -27,11 +30,10 @@ namespace drgAccess.Patches
         {
             try
             {
+                Components.EscortPhaseAudio.Instance?.SetMissionHandler(__instance);
+
                 if (state == EscortMissionHandler.EState.PREPARE_TNT)
-                {
-                    ScreenReader.Interrupt(ModLocalization.Get("escort_arm_tnt"));
                     Components.EscortPhaseAudio.Instance?.OnTNTPhaseStarted();
-                }
             }
             catch (Exception e)
             {
@@ -45,16 +47,13 @@ namespace drgAccess.Patches
         /// </summary>
         [HarmonyPatch(typeof(EscortMissionHandler), nameof(EscortMissionHandler.OnTNTProgress))]
         [HarmonyPostfix]
-        public static void OnTNTProgress_Postfix(int current, int target)
+        public static void OnTNTProgress_Postfix(EscortMissionHandler __instance,
+            int current, int target)
         {
             try
             {
-                Components.EscortPhaseAudio.Instance?.OnDetonatorArmed();
-
-                if (current >= target)
-                    ScreenReader.Interrupt(ModLocalization.Get("escort_tnt_all_armed"));
-                else
-                    ScreenReader.Interrupt(ModLocalization.Get("escort_tnt_progress", current, target));
+                Components.EscortPhaseAudio.Instance?.SetMissionHandler(__instance);
+                Components.EscortPhaseAudio.Instance?.OnDetonatorArmed(current, target);
             }
             catch (Exception e)
             {
@@ -63,7 +62,7 @@ namespace drgAccess.Patches
         }
 
         /// <summary>
-        /// Register new TNT detonator for beacon tracking when it becomes active.
+        /// A detonator became live (armable) — reliable signal that the TNT phase started.
         /// OnDetonatorLive is declared on TNTDetonator.
         /// </summary>
         [HarmonyPatch(typeof(TNTDetonator), nameof(TNTDetonator.OnDetonatorLive))]
@@ -94,15 +93,9 @@ namespace drgAccess.Patches
             try
             {
                 if (state == OmmoranHeartstone.OmmoranState.BASIC)
-                {
-                    ScreenReader.Interrupt(ModLocalization.Get("escort_ommoran_appeared"));
                     Components.EscortPhaseAudio.Instance?.OnOmmoranPhaseStarted(__instance);
-                }
                 else if (state == OmmoranHeartstone.OmmoranState.DEAD)
-                {
-                    ScreenReader.Interrupt(ModLocalization.Get("escort_ommoran_destroyed"));
                     Components.EscortPhaseAudio.Instance?.OnOmmoranDestroyed();
-                }
             }
             catch (Exception e)
             {
@@ -120,8 +113,7 @@ namespace drgAccess.Patches
         {
             try
             {
-                ScreenReader.Interrupt(ModLocalization.Get("escort_crystals_spawned", crystalCount));
-                Components.EscortPhaseAudio.Instance?.OnCrystalsSpawned();
+                Components.EscortPhaseAudio.Instance?.OnCrystalsSpawned(crystalCount);
             }
             catch (Exception e)
             {
@@ -141,12 +133,6 @@ namespace drgAccess.Patches
             {
                 var live = __instance.LiveCrystals;
                 int remaining = live != null ? live.Count : 0;
-
-                if (remaining > 0)
-                    ScreenReader.Interrupt(ModLocalization.Get("escort_crystal_destroyed", remaining));
-                else
-                    ScreenReader.Interrupt(ModLocalization.Get("escort_crystals_cleared"));
-
                 Components.EscortPhaseAudio.Instance?.OnCrystalDestroyed(remaining);
             }
             catch (Exception e)

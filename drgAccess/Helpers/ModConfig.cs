@@ -36,6 +36,7 @@ namespace drgAccess.Helpers
 
         // --- Toggle settings ---
         public const string FOOTSTEPS_ENABLED = "FootstepsEnabled";
+        public const string SMART_BEACON = "SmartBeacon";
 
         // --- Detection settings ---
         public const string ENEMY_RANGE = "EnemyRange";
@@ -56,6 +57,7 @@ namespace drgAccess.Helpers
         public static readonly Dictionary<string, SettingDef> SettingDefs = new()
         {
             { FOOTSTEPS_ENABLED,   new SettingDef { Default = 1f,   Min = 0f,  Max = 1f,   Step = 1f,  DisplayName = "Footsteps",               Unit = "toggle" } },
+            { SMART_BEACON,        new SettingDef { Default = 0f,   Min = 0f,  Max = 1f,   Step = 1f,  DisplayName = "Smart Collectible Beacon", Unit = "toggle" } },
             { ENEMY_RANGE,         new SettingDef { Default = 35f,  Min = 10f, Max = 60f,  Step = 5f,  DisplayName = "Enemy Detection Range",   Unit = "m" } },
             { HAZARD_RANGE,        new SettingDef { Default = 25f,  Min = 10f, Max = 50f,  Step = 5f,  DisplayName = "Hazard Warning Range",    Unit = "m" } },
             { COLLECTIBLE_RANGE,   new SettingDef { Default = 1.0f, Min = 0.5f, Max = 2.0f, Step = 0.1f, DisplayName = "Collectible Range",     Unit = "x" } },
@@ -65,7 +67,7 @@ namespace drgAccess.Helpers
 
         public static readonly string[] AllSettingKeys = new[]
         {
-            FOOTSTEPS_ENABLED, ENEMY_RANGE, HAZARD_RANGE, COLLECTIBLE_RANGE, WALL_RANGE, MAX_HAZARD_CHANNELS
+            FOOTSTEPS_ENABLED, SMART_BEACON, ENEMY_RANGE, HAZARD_RANGE, COLLECTIBLE_RANGE, WALL_RANGE, MAX_HAZARD_CHANNELS
         };
 
         // --- State ---

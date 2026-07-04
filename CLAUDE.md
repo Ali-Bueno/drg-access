@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.9.0
+- **Current version**: v0.10.0 (first Unity 6 compatible version; release not yet published on GitHub)
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -20,6 +20,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - `DRGAccess release full/` — contains everything (BepInEx, NAudio, Tolk, the mod DLL, unity-libs, interop). For first-time install.
   - `DRGAccess release plugin only/` — contains only BepInEx/plugins, README, and CHANGELOG. For users updating an existing install.
 - **Release process**: Create zips with fixed names (`DRGAccess-full.zip`, `DRGAccess-plugin-only.zip`), then `gh release create vX.Y.Z *.zip --title "..." --notes "..."`. The permanent download links always resolve to the latest release automatically.
+- **v0.10.0+ note**: the full package must ship the updated BepInEx (be.785) AND the repaired interop assemblies (see "Unity 6 / game update June 2026" section below). The plugin-only package is not sufficient to update from v0.9.0.
 
 ---
 
@@ -287,6 +288,21 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Volume shares with Drill Beacon setting (same mission, never simultaneous)
   - Both phases suppress the drill beacon via `DrillBeaconAudio.SuppressForEscortPhase`
 
+- **Escort Phase Detection (v0.10.0 redesign)**: `EscortPhaseAudio` phase detection is now polling-driven (source of truth, every 2s) with Harmony patches as accelerators only. Root cause of the original "escort didn't work" report: `TNTDetonator` is a map block placed at level generation, so its mere presence triggered the TNT phase at mission start and suppressed the drill beacon for the whole mission. Now the TNT phase only activates when a detonator's `Beacon` GameObject is active in hierarchy (live and unarmed), guarded by Bobby having finished escorting; the Ommoran phase is detected by polling `OmmoranHeartstone.state` (BASIC/FLINCH enters, DEAD exits); crystals fall back to `LiveCrystals.Count` polling. All announcements live in the component with dedup guards (patch + polling never double-announce), phase state resets when a new GameController appears (new run/stage)
+
+- **Dreadnought Dodge Assistance (`DodgeAssistComponent`)**: tells the player whether they are IN the attack's danger area and which way to move (screen-relative directions matching WASD)
+  - Charge: telegraph predicts the charge line (boss → player), `DreadnoughtAnimator.BeginCharge` patch locks the real direction (boss forward). If the player is inside the corridor (half-width measured from the boss's collider bounds + 1m margin), announce "In the charge path! Move [left/right/...]!" (shortest perpendicular escape) every 0.9s; "Safe" once out
+  - Ground spikes: `GroundSpike.OnSpawn` patch now also captures `damageRadius`; if the player stands within a live spike's radius + margin: "Spikes underfoot! Move [dir]!" (escape = away from spike center)
+  - Fireball: after the burp telegraph, if the player has moved < 2.5m within 1.2s: "Move now!"
+  - Localization keys: dodge_charge_path, dodge_safe, dodge_spike_under, dodge_move_now
+
+- **Launch Pad Audio Cue**: 8-bit "boing boing" positional beacon (square wave, double pitch-drop with spring wobble) for launch ramps/catapults, as `CollectibleSoundType.LaunchPad` (category index 9, 400-800 Hz)
+  - Launch pads have NO dedicated managed class (prefab trigger calls Player natively), so they are found by GameObject name via collider scan (`launchPadNameFragments`: jumppad, launchpad, catapult, trampoline, springboard — plain "ramp" excluded, it matches the drop pod's rampDetector)
+  - `Player.TryLaunchIntoAir` postfix (`LaunchPadPatches`) logs nearby trigger collider names when the player gets flung (30s throttle) — check user logs for "Launch source candidate" to learn the real pad prefab names and extend the fragment list
+  - Audio Cue Preview menu entry (cue_launch_pad)
+
+- **Smart Beacon (priority scoring, Hades 2 style)**: optional toggle in Mod Settings (`ModConfig.SMART_BEACON`, default off). When enabled, `CollectibleAudioSystem.ApplySmartBeaconFilter()` scores every found target as basePriority × (0.5 + 0.5 × proximity) and keeps only the winner audible (its own category sound, so the player still knows what it is). Base priorities: BobbyFuel 85, LootCrate 80, GearDrop 75, Buff 60, HealingZone 55, RedSugar 50, MineralVein 45, Currency 40, LaunchPad 30, XP 10. Health need: below 40% HP, RedSugar/HealingZone priority ×2.5 (player HP read via cached GameController)
+
 - **Healing Zone Announcements**: Azure Weald healing pillar areas announce "Healing zone" on entry and "Left healing zone" on exit via patches on `AzureWealdBuffPillars.BeginTickOnPlayer` and `EndTickOnPlayer`. Healing zones also have a collectible audio beacon (water-drop bloop, same as Red Sugar) for spatial guidance.
 
 - **Bobby Fuel Audio Beacon**: Collectible audio beacon for Bobby's fuel blocks (`MaterialBlockBobbyFuel`) in escort missions. Bubbling/gurgling sound with 20Hz amplitude modulation. Proximity announcements with direction.
@@ -343,6 +359,7 @@ drgAccess/
 │   ├── FootstepAudio.cs           # Material-based footstep sounds (stone/metal MP3 playback)
 │   ├── DrillBeaconAudio.cs        # Bobby drill beacon (escort mission positional audio)
 │   ├── CocoonAudioSystem.cs      # Cocoon beacon (elimination mode positional audio)
+│   ├── DodgeAssistComponent.cs   # Dreadnought dodge assistance (charge corridor, spike radius, fireball nudge)
 │   ├── EscortPhaseAudio.cs       # TNT detonator + Ommoran crystal beacons (escort duty phases)
 │   ├── ObjectiveReaderComponent.cs # O key objective reader during gameplay
 │   ├── GearNavigationFix.cs       # Gear inventory explicit Up/Down navigation fix
@@ -373,6 +390,7 @@ drgAccess/
 │   ├── PickupAnnouncementPatches.cs # Pickup announcements (heal, currency, gear, loot crate)
 │   ├── EliminationPatches.cs      # Elimination mode (cocoon/elite/boss spawns, threat level)
 │   ├── EscortDutyPatches.cs      # Escort duty phases (TNT arming, Ommoran heartstone/crystals)
+│   ├── LaunchPadPatches.cs       # Player.TryLaunchIntoAir (launch pad diagnostics)
 │   ├── HealingZonePatch.cs       # Azure Weald healing zone enter/exit announcements
 │   └── AudioMasteringPatch.cs     # Master volume sync (SetMasterVolume + OnSaveDataLoaded)
 ├── localization/                   # Mod string translations (22 language .txt files)
@@ -385,6 +403,8 @@ drgAccess/
 └── drgAccess.csproj               # Project file
 
 drg code/                          # Decompiled game code for reference (not included in repo)
+                                   # Regenerated July 2026 with ilspycmd; namespace-nested dirs (DRS/, Assets/Scripts/, ...)
+tools/InteropFixer/                # Repairs corrupt Unity 6 interop assemblies (see Unity 6 section)
 references/tolk/                   # Tolk DLL references
 ```
 
@@ -455,6 +475,19 @@ references/tolk/                   # Tolk DLL references
 | `MineableBlock` | Wall type detection (checked via GetComponentInParent for indestructible wall pitch) |
 
 ---
+
+## Unity 6 / Game Update June 2026 (CRITICAL)
+
+The game updated to **Unity 6000.4.7f1** in June 2026 (GameAssembly.dll 24/06/2026), which uses **IL2CPP metadata v39**. This broke the entire modding stack:
+
+1. **BepInEx be.738 cannot load the game**: its bundled Cpp2IL only supports metadata v23-31. Fixed by upgrading to **BepInEx 6.0.0-be.785** (bundles Cpp2IL `2022.1.0-development.1452`, which supports v39). Bleeding edge builds: https://builds.bepinex.dev/projects/bepinex_be
+2. **Il2CppInterop generates CORRUPTED interop assemblies for Unity 6 games**: some TypeDef rows get nested visibility (NestedPublic) but no NestedClass table entry. The CLR then treats them as top-level; three compiler-generated `<>O` types collide → `BadImageFormatException: Duplicate type with name '<>O'` → the whole assembly (e.g. UnityEngine.CoreModule.dll) is rejected → chainloader logs "Unable to execute IL2CPP chainloader, no plugins will be loaded" (`FileNotFoundException UnityEngine.CoreModule` at `SetupUnityLogging`). Affected 6 of 162 interop DLLs (CoreModule, MarshallingModule, ParticleSystemModule, Physics2DModule, PhysicsModule, UIElementsModule; 19 orphan rows total). Not fixed upstream as of be.785 / Il2CppInterop 1.5.3.
+3. **Fix: `tools/InteropFixer`** (in this repo). Binary-patches each orphan row: visibility → NotPublic and Namespace → a distinct existing #Strings heap offset (unique full name). Tokens untouched, so all references stay valid. Usage after any interop regeneration:
+   `cd tools/InteropFixer && dotnet run -- "<game>\BepInEx\interop" --apply`
+4. **If the game updates again**: delete `BepInEx\interop`, launch the game ONCE with a `steam_appid.txt` (2321470) in the game folder to avoid the Steam-relaunch double-process race during regeneration (delete the file afterwards), wait for regeneration, close, run InteropFixer, verify all DLLs load, then rebuild the mod.
+5. The **release full package must ship the repaired interop** + be.785; end users' BepInEx would otherwise regenerate corrupt assemblies.
+6. Unity 6 API changes hit the mod: `PlayerHealArgs.ActualHeal` is now `long`, `Stat.Value` is `double`, `UIClassSelectPage.*UnlocksAtRank` moved to `UIClassSelectButton.UnlockAtPlayerRank`, `UIEndScreen` lost `endlessButton`/`OnEndlessButton`/`endlessRankXpText`/`endlessCreditsText` (endless flow moved to a popup), `UISkinOverridesButton.streamerTitle` removed, and the interop now requires a `UnityEngine.UIElementsModule` reference in the csproj.
+7. The decompiled reference in `drg code/` was regenerated with `ilspycmd` from the new interop Assembly-CSharp.dll (namespace-nested directories now, e.g. `drg code/DRS/UI/`, `drg code/Assets/Scripts/...`).
 
 ## IL2CPP / Harmony Critical Rules
 

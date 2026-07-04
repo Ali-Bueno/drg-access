@@ -158,6 +158,12 @@ namespace drgAccess.Components
                 },
                 new MainMenuItem
                 {
+                    Category = ModConfig.SMART_BEACON,
+                    DisplayName = ModLocalization.Get("setting_smart_beacon"),
+                    Type = MainItemType.Toggle
+                },
+                new MainMenuItem
+                {
                     Category = ModConfig.FOOTSTEPS_ENABLED,
                     DisplayName = ModLocalization.Get("setting_footsteps_toggle"),
                     Type = MainItemType.Toggle
@@ -381,6 +387,12 @@ namespace drgAccess.Components
                     Name = ModLocalization.Get("cue_xp"),
                     Description = ModLocalization.Get("cue_xp_desc"),
                     PlayPreview = () => PreviewCollectibleContinuous(CollectibleSoundType.XpNearby, 500f, ModConfig.COLLECTIBLES)
+                },
+                new AudioCueItem
+                {
+                    Name = ModLocalization.Get("cue_launch_pad"),
+                    Description = ModLocalization.Get("cue_launch_pad_desc"),
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.LaunchPad, 600f, 0.7f, ModConfig.COLLECTIBLES)
                 },
                 // --- Boss Attack Cues ---
                 new AudioCueItem
@@ -1045,8 +1057,10 @@ namespace drgAccess.Components
             {
                 if (gameStateProvider != null)
                 {
-                    var gc = gameStateProvider.TryCast<GameController>();
-                    if (gc == null) gameStateProvider = null;
+                    // Validate: on retry the old GameController is destroyed but the
+                    // wrapper survives; reading State throws, forcing a re-search.
+                    try { var _ = gameStateProvider.State; }
+                    catch { gameStateProvider = null; }
                 }
 
                 if (gameStateProvider == null)

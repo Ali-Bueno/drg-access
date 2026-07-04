@@ -241,13 +241,6 @@ public class EndScreenReaderComponent : MonoBehaviour
             sb.Append(ModLocalization.Get("end_rank_xp", rankXp));
         }
 
-        string endlessRankXp = GetText(endScreen.endlessRankXpText);
-        if (!string.IsNullOrEmpty(endlessRankXp))
-        {
-            if (sb.Length > 0) sb.Append(". ");
-            sb.Append(ModLocalization.Get("end_endless_rank_xp", endlessRankXp));
-        }
-
         if (sb.Length > 0) AddItem(sb.ToString());
     }
 
@@ -296,13 +289,6 @@ public class EndScreenReaderComponent : MonoBehaviour
         string credits = GetText(endScreen.creditsText);
         if (!string.IsNullOrEmpty(credits))
             sb.Append(ModLocalization.Get("end_credits", credits));
-
-        string endlessCredits = GetText(endScreen.endlessCreditsText);
-        if (!string.IsNullOrEmpty(endlessCredits))
-        {
-            if (sb.Length > 0) sb.Append(". ");
-            sb.Append(ModLocalization.Get("end_endless_credits", endlessCredits));
-        }
 
         if (sb.Length > 0) AddItem(sb.ToString());
     }
@@ -528,17 +514,8 @@ public class EndScreenReaderComponent : MonoBehaviour
         // Continue button (back to main menu) - no field, connected via Inspector
         AddItem(ModLocalization.Get("end_continue"), () => { try { screen.OnMenuButton(); } catch { } });
 
-        // Endless button (only in endless mode)
-        try
-        {
-            var endless = endScreen.endlessButton;
-            if (endless != null && IsVisible(endless))
-            {
-                string label = GetButtonLabel(endless) ?? ModLocalization.Get("end_go_endless");
-                AddItem(label, () => { try { screen.OnEndlessButton(); } catch { } });
-            }
-        }
-        catch { }
+        // Note: the "Go Endless" button was removed from UIEndScreen in the
+        // Unity 6 game update (endless flow moved to a separate popup).
     }
 
     private string GetButtonLabel(UIButton button)

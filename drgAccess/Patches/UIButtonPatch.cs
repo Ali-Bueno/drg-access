@@ -689,10 +689,6 @@ public static partial class UIButtonPatch
             if (titleText != null && !string.IsNullOrEmpty(titleText.text))
                 return TextHelper.CleanText(titleText.text);
 
-            var streamerTitle = button.streamerTitle;
-            if (streamerTitle != null && !string.IsNullOrEmpty(streamerTitle.text))
-                return TextHelper.CleanText(streamerTitle.text);
-
             return null;
         }
         catch (System.Exception ex)

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
@@ -14,6 +13,11 @@ namespace drgAccess.Components
     /// - Ommoran phase (stage 3): guides player to crystals beaming Bobby
     /// Uses a single shared WaveOutEvent with BeaconBeepGenerator.
     /// Volume shares with DRILL_BEACON (same mission, never simultaneous).
+    ///
+    /// Phase detection is polling-driven (source of truth), with Harmony patches
+    /// acting as accelerators — IL2CPP native-to-native calls can bypass patches,
+    /// so nothing here may rely on a patch having fired. All announcements are
+    /// guarded so patch + polling never double-announce.
     /// </summary>
     public class EscortPhaseAudio : MonoBehaviour
     {
@@ -39,11 +43,15 @@ namespace drgAccess.Components
         // Phase tracking
         private enum EscortPhase { None, TNT, Ommoran }
         private EscortPhase currentPhase = EscortPhase.None;
+        private float nextPhasePollTime = 0f;
+        private const float PHASE_POLL_INTERVAL = 2f;
+
+        // Captured by patches when they fire (authoritative mission state source)
+        private EscortMissionHandler missionHandler;
 
         // --- TNT Phase ---
-        private List<TNTDetonator> registeredDetonators = new List<TNTDetonator>();
-        private bool tntPhaseDetectedByPatch = false;
-        private float nextDetonatorScanTime = 0f;
+        private int lastArmedCount = -1;
+        private bool announcedArmTnt = false;
 
         // --- Ommoran Phase ---
         private OmmoranHeartstone activeHeartstone;
@@ -51,6 +59,9 @@ namespace drgAccess.Components
         private bool announcedHp75, announcedHp50, announcedHp25, announcedHp10;
         private float nextHpCheckTime = 0f;
         private bool crystalsActive = false;
+        private int lastCrystalCount = 0;
+        private bool announcedOmmoranAppeared = false;
+        private bool announcedOmmoranDestroyed = false;
 
         // Proximity announcement state (shared for both phases)
         private enum ProximityZone { None, Nearby, Closer, VeryClose }
@@ -106,58 +117,101 @@ namespace drgAccess.Components
             }
         }
 
-        // === Public API (called from patches) ===
+        // === Public API (called from patches AND from the polling fallback) ===
+
+        /// <summary>Capture the mission handler so polling can read its state directly.</summary>
+        public void SetMissionHandler(EscortMissionHandler handler)
+        {
+            if (handler != null) missionHandler = handler;
+        }
 
         public void OnTNTPhaseStarted()
         {
-            tntPhaseDetectedByPatch = true;
+            if (!announcedArmTnt)
+            {
+                announcedArmTnt = true;
+                ScreenReader.Interrupt(ModLocalization.Get("escort_arm_tnt"));
+            }
             EnterPhase(EscortPhase.TNT);
         }
 
+        /// <summary>A detonator became live (OnDetonatorLive patch) — TNT phase is running.</summary>
         public void RegisterDetonator(TNTDetonator detonator)
         {
-            if (detonator != null && !registeredDetonators.Contains(detonator))
-                registeredDetonators.Add(detonator);
-
-            // If patch for SetState didn't fire, detect TNT phase from detonator registration
-            if (currentPhase == EscortPhase.None)
-            {
-                ScreenReader.Interrupt(ModLocalization.Get("escort_arm_tnt"));
-                EnterPhase(EscortPhase.TNT);
-            }
+            OnTNTPhaseStarted();
         }
 
-        public void OnDetonatorArmed()
+        /// <summary>
+        /// Announce arming progress. Called by the OnTNTProgress patch and by polling.
+        /// Guarded so the two sources never repeat an announcement.
+        /// </summary>
+        public void OnDetonatorArmed(int current, int target)
         {
-            // Refresh the detonator list on next scan
-            nextDetonatorScanTime = 0f;
+            if (current < 1 || target < 1) return;
+            if (current <= lastArmedCount) return;
+            lastArmedCount = current;
+
+            if (current >= target)
+                ScreenReader.Interrupt(ModLocalization.Get("escort_tnt_all_armed"));
+            else
+                ScreenReader.Interrupt(ModLocalization.Get("escort_tnt_progress", current, target));
         }
 
         public void OnOmmoranPhaseStarted(OmmoranHeartstone heartstone)
         {
-            activeHeartstone = heartstone;
-            lastHealthPercent = 1f;
-            announcedHp75 = announcedHp50 = announcedHp25 = announcedHp10 = false;
-            crystalsActive = false;
-            EnterPhase(EscortPhase.Ommoran);
+            if (heartstone != null) activeHeartstone = heartstone;
+
+            if (!announcedOmmoranAppeared)
+            {
+                announcedOmmoranAppeared = true;
+                ScreenReader.Interrupt(ModLocalization.Get("escort_ommoran_appeared"));
+            }
+
+            if (currentPhase != EscortPhase.Ommoran)
+            {
+                lastHealthPercent = 1f;
+                announcedHp75 = announcedHp50 = announcedHp25 = announcedHp10 = false;
+                crystalsActive = false;
+                lastCrystalCount = 0;
+                EnterPhase(EscortPhase.Ommoran);
+            }
         }
 
         public void OnOmmoranDestroyed()
         {
+            if (!announcedOmmoranDestroyed)
+            {
+                announcedOmmoranDestroyed = true;
+                ScreenReader.Interrupt(ModLocalization.Get("escort_ommoran_destroyed"));
+            }
             ExitPhase();
         }
 
-        public void OnCrystalsSpawned()
+        /// <summary>Crystals appeared. Called by the SpawnCrystals patch and by polling.</summary>
+        public void OnCrystalsSpawned(int count)
         {
+            if (count < 1 || crystalsActive) return;
+
             crystalsActive = true;
+            lastCrystalCount = count;
             beepGenerator.Mode = BeaconMode.OmmoranCrystal;
             lastAnnouncedZone = ProximityZone.None;
+            ScreenReader.Interrupt(ModLocalization.Get("escort_crystals_spawned", count));
         }
 
+        /// <summary>Crystal destroyed. Called by the OnCrystalDeath patch and by polling.</summary>
         public void OnCrystalDestroyed(int remaining)
         {
-            if (remaining <= 0)
+            if (!crystalsActive || remaining >= lastCrystalCount) return;
+            lastCrystalCount = remaining;
+
+            if (remaining > 0)
             {
+                ScreenReader.Interrupt(ModLocalization.Get("escort_crystal_destroyed", remaining));
+            }
+            else
+            {
+                ScreenReader.Interrupt(ModLocalization.Get("escort_crystals_cleared"));
                 crystalsActive = false;
                 beepGenerator.Active = false;
                 lastAnnouncedZone = ProximityZone.None;
@@ -168,6 +222,8 @@ namespace drgAccess.Components
 
         private void EnterPhase(EscortPhase phase)
         {
+            if (currentPhase == phase) return;
+
             currentPhase = phase;
             lastAnnouncedZone = ProximityZone.None;
 
@@ -185,10 +241,10 @@ namespace drgAccess.Components
 
         private void ExitPhase()
         {
+            if (currentPhase == EscortPhase.None) return;
+
             currentPhase = EscortPhase.None;
             beepGenerator.Active = false;
-            tntPhaseDetectedByPatch = false;
-            registeredDetonators.Clear();
             activeHeartstone = null;
             crystalsActive = false;
             lastAnnouncedZone = ProximityZone.None;
@@ -198,6 +254,18 @@ namespace drgAccess.Components
                 DrillBeaconAudio.Instance.SuppressForEscortPhase = false;
 
             Plugin.Log.LogInfo("[EscortPhaseAudio] Exited phase");
+        }
+
+        /// <summary>Full reset for a new stage/run (new GameController or scene).</summary>
+        private void ResetForNewStage()
+        {
+            ExitPhase();
+            missionHandler = null;
+            lastArmedCount = -1;
+            announcedArmTnt = false;
+            announcedOmmoranAppeared = false;
+            announcedOmmoranDestroyed = false;
+            lastCrystalCount = 0;
         }
 
         // === Update Loop ===
@@ -228,9 +296,11 @@ namespace drgAccess.Components
                     return;
                 }
 
-                // Fallback: poll for TNT detonators if patch didn't fire
-                if (currentPhase == EscortPhase.None && !tntPhaseDetectedByPatch)
-                    PollForTNTPhase();
+                if (Time.time >= nextPhasePollTime)
+                {
+                    nextPhasePollTime = Time.time + PHASE_POLL_INTERVAL;
+                    PollPhases();
+                }
 
                 if (currentPhase == EscortPhase.TNT)
                     UpdateTNTPhase();
@@ -245,25 +315,144 @@ namespace drgAccess.Components
             }
         }
 
-        // === TNT Phase Logic ===
+        // === Phase Polling (source of truth) ===
 
-        private void PollForTNTPhase()
+        private void PollPhases()
         {
-            if (Time.time < nextDetonatorScanTime) return;
-            nextDetonatorScanTime = Time.time + 2f;
+            // --- Ommoran phase (takes priority over TNT) ---
+            try
+            {
+                // Validate cached heartstone (destroyed on stage end)
+                if (activeHeartstone != null)
+                {
+                    try { var _ = activeHeartstone.state; }
+                    catch { activeHeartstone = null; }
+                }
+                if (activeHeartstone == null)
+                    activeHeartstone = UnityEngine.Object.FindObjectOfType<OmmoranHeartstone>();
 
+                if (activeHeartstone != null)
+                {
+                    var st = activeHeartstone.state;
+                    if (st == OmmoranHeartstone.OmmoranState.BASIC ||
+                        st == OmmoranHeartstone.OmmoranState.FLINCH)
+                    {
+                        if (currentPhase != EscortPhase.Ommoran)
+                        {
+                            Plugin.Log.LogInfo("[EscortPhaseAudio] Ommoran phase detected by polling");
+                            OnOmmoranPhaseStarted(activeHeartstone);
+                        }
+
+                        // Crystal fallback (SpawnCrystals/OnCrystalDeath patches may be
+                        // bypassed by native-to-native calls)
+                        var live = activeHeartstone.LiveCrystals;
+                        int liveCount = live != null ? live.Count : 0;
+                        if (!crystalsActive && liveCount > 0)
+                            OnCrystalsSpawned(liveCount);
+                        else if (crystalsActive && liveCount < lastCrystalCount)
+                            OnCrystalDestroyed(liveCount);
+                        return;
+                    }
+
+                    if (st == OmmoranHeartstone.OmmoranState.DEAD &&
+                        currentPhase == EscortPhase.Ommoran)
+                    {
+                        OnOmmoranDestroyed();
+                        return;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[EscortPhaseAudio] Ommoran poll error: {e.Message}");
+            }
+
+            if (currentPhase == EscortPhase.Ommoran) return;
+
+            // --- TNT phase ---
+            // Authoritative source when a patch captured the handler:
+            bool handlerSaysTnt = false, handlerKnown = false;
+            try
+            {
+                if (missionHandler != null)
+                {
+                    handlerSaysTnt = missionHandler.state == EscortMissionHandler.EState.PREPARE_TNT;
+                    handlerKnown = true;
+                }
+            }
+            catch { missionHandler = null; }
+
+            // Detonators are map blocks that exist from level generation, so their mere
+            // presence must NOT trigger the phase (that suppressed the drill beacon for
+            // the whole mission — the original escort bug). Only detonators whose Beacon
+            // is active count: those are live and waiting to be armed.
             try
             {
                 var detonators = UnityEngine.Object.FindObjectsOfType<TNTDetonator>();
-                if (detonators != null && detonators.Length > 0)
+                int liveUnarmed = 0, total = 0;
+                if (detonators != null)
                 {
-                    Plugin.Log.LogInfo("[EscortPhaseAudio] TNT detonators detected by polling fallback");
-                    ScreenReader.Interrupt(ModLocalization.Get("escort_arm_tnt"));
-                    EnterPhase(EscortPhase.TNT);
+                    total = detonators.Length;
+                    foreach (var det in detonators)
+                    {
+                        if (det == null) continue;
+                        try
+                        {
+                            var beacon = det.Beacon;
+                            if (beacon != null && beacon.activeInHierarchy) liveUnarmed++;
+                        }
+                        catch { }
+                    }
+                }
+
+                bool tntActive = handlerKnown ? handlerSaysTnt : liveUnarmed > 0;
+
+                if (tntActive && currentPhase == EscortPhase.None)
+                {
+                    // Guard against beacons that might be active from level generation:
+                    // TNT phase only happens after Bobby finished escorting.
+                    if (!handlerKnown && !BobbyFinishedEscort()) return;
+
+                    Plugin.Log.LogInfo($"[EscortPhaseAudio] TNT phase detected by polling ({liveUnarmed}/{total} live)");
+                    if (lastArmedCount < 0) lastArmedCount = total - liveUnarmed;
+                    OnTNTPhaseStarted();
+                }
+                else if (!tntActive && currentPhase == EscortPhase.TNT && liveUnarmed == 0)
+                {
+                    // All armed — announce (guarded) and hand control back to the drill beacon
+                    OnDetonatorArmed(total, total);
+                    ExitPhase();
+                }
+                else if (currentPhase == EscortPhase.TNT && liveUnarmed > 0 && total > 0)
+                {
+                    // Progress fallback when the OnTNTProgress patch is bypassed
+                    OnDetonatorArmed(total - liveUnarmed, total);
                 }
             }
-            catch { }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[EscortPhaseAudio] TNT poll error: {e.Message}");
+            }
         }
+
+        /// <summary>
+        /// True when Bobby exists and is past the escort drive (TNT arming happens
+        /// after Bobby reaches its destination). Used to reject false TNT-phase
+        /// positives before/while Bobby is still drilling.
+        /// </summary>
+        private bool BobbyFinishedEscort()
+        {
+            try
+            {
+                var bobby = UnityEngine.Object.FindObjectOfType<Bobby>();
+                if (bobby == null) return false;
+                var st = bobby.State;
+                return st != Bobby.EState.INTRO && st != Bobby.EState.ESCORT;
+            }
+            catch { return false; }
+        }
+
+        // === TNT Phase Logic ===
 
         private void UpdateTNTPhase()
         {
@@ -280,7 +469,6 @@ namespace drgAccess.Components
                 var detonators = UnityEngine.Object.FindObjectsOfType<TNTDetonator>();
                 if (detonators == null || detonators.Length == 0)
                 {
-                    // No detonators left — phase complete
                     beepGenerator.Active = false;
                     return;
                 }
@@ -547,7 +735,7 @@ namespace drgAccess.Components
                 if (!string.IsNullOrEmpty(lastSceneName) && currentScene != lastSceneName)
                 {
                     Plugin.Log.LogInfo($"[EscortPhaseAudio] Scene changed to {currentScene} - resetting");
-                    ExitPhase();
+                    ResetForNewStage();
                     playerTransform = null;
                     cameraTransform = null;
                     nextPlayerSearchTime = 0f;
@@ -596,15 +784,21 @@ namespace drgAccess.Components
 
                 if (gameStateProvider != null)
                 {
-                    var gc = gameStateProvider.TryCast<GameController>();
-                    if (gc == null) gameStateProvider = null;
+                    // Validate: on retry/stage change the old GameController is destroyed
+                    // but the wrapper survives; reading State throws, forcing a re-search.
+                    try { var _ = gameStateProvider.State; }
+                    catch { gameStateProvider = null; }
                 }
 
                 if (gameStateProvider == null)
                 {
                     var gameController = UnityEngine.Object.FindObjectOfType<GameController>();
                     if (gameController != null)
+                    {
                         gameStateProvider = gameController.Cast<IGameStateProvider>();
+                        // New GameController == new run or stage: reset phase/announce state
+                        ResetForNewStage();
+                    }
                     else
                         return false;
                 }

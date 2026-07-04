@@ -356,8 +356,10 @@ namespace drgAccess.Components
 
                 if (gameStateProvider != null)
                 {
-                    var gc = gameStateProvider.TryCast<GameController>();
-                    if (gc == null) gameStateProvider = null;
+                    // Validate: on retry the old GameController is destroyed but the
+                    // wrapper survives; reading State throws, forcing a re-search.
+                    try { var _ = gameStateProvider.State; }
+                    catch { gameStateProvider = null; }
                 }
 
                 if (gameStateProvider == null)

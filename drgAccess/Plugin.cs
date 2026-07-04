@@ -52,6 +52,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.DrillBeaconAudio>();
         AddComponent<Components.EscortPhaseAudio>();
         AddComponent<Components.CocoonAudioSystem>();
+        AddComponent<Components.DodgeAssistComponent>();
         AddComponent<Components.ObjectiveReaderComponent>();
         AddComponent<Components.GearNavigationFix>();
 

@@ -34,10 +34,29 @@ namespace drgAccess.Patches
                 ScreenReader.Interrupt(ModLocalization.Get("boss_charge"));
                 var pos = GetBossPosition(__instance);
                 BossAttackAudio.PlayAttackSound(BossAttackType.Charge, pos);
+                DodgeAssistComponent.Instance?.OnChargeTelegraph(GetBossTransform(__instance));
             }
             catch (Exception e)
             {
                 Plugin.Log.LogDebug($"[BossAttack] Charge telegraph error: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// The charge actually starts (direction is locked in). BeginCharge is
+        /// declared directly on DreadnoughtAnimator, safe to patch.
+        /// </summary>
+        [HarmonyPatch(typeof(DreadnoughtAnimator), "BeginCharge")]
+        [HarmonyPostfix]
+        public static void BeginCharge_Postfix(DreadnoughtAnimator __instance)
+        {
+            try
+            {
+                DodgeAssistComponent.Instance?.OnChargeStarted(GetBossTransform(__instance));
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[BossAttack] BeginCharge error: {e.Message}");
             }
         }
 
@@ -67,6 +86,7 @@ namespace drgAccess.Patches
                 ScreenReader.Interrupt(ModLocalization.Get("boss_fireball"));
                 var pos = GetBossPosition(__instance);
                 BossAttackAudio.PlayAttackSound(BossAttackType.Fireball, pos);
+                DodgeAssistComponent.Instance?.OnFireballTelegraph();
             }
             catch (Exception e)
             {
@@ -107,6 +127,18 @@ namespace drgAccess.Patches
             }
             catch { }
             return Vector3.zero;
+        }
+
+        private static Transform GetBossTransform(DreadnoughtAnimator animator)
+        {
+            try
+            {
+                var component = animator.TryCast<Component>();
+                if (component != null)
+                    return component.transform;
+            }
+            catch { }
+            return null;
         }
 
         // --- Boss HP Tracking Patches ---

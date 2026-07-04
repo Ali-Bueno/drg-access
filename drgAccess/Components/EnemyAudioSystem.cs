@@ -1034,12 +1034,14 @@ namespace drgAccess.Components
                     return false;
                 }
 
-                // Validate gameStateProvider using Unity's null check (IL2CPP-safe)
+                // Validate gameStateProvider: on retry the old GameController is
+                // destroyed but the wrapper survives; reading State throws.
                 if (gameStateProvider != null)
                 {
-                    // Try to cast back to GameController to test if destroyed
-                    var gc = gameStateProvider.TryCast<GameController>();
-                    if (gc == null) // Unity's overloaded null check detects destroyed objects
+                    bool providerAlive = true;
+                    try { var _ = gameStateProvider.State; }
+                    catch { providerAlive = false; }
+                    if (!providerAlive)
                     {
                         if (Time.frameCount % 300 == 0)
                             Plugin.Log.LogInfo("[EnemyAudio] GameController was destroyed, searching for new one");

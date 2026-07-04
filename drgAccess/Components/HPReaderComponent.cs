@@ -66,7 +66,7 @@ public class HPReaderComponent : MonoBehaviour
                 {
                     var maxHpStat = stats.GetStat(EStatType.MAX_HP);
                     if (maxHpStat != null)
-                        maxHp = maxHpStat.Value;
+                        maxHp = (float)maxHpStat.Value;
                 }
             }
             catch { }
@@ -101,8 +101,10 @@ public class HPReaderComponent : MonoBehaviour
 
                 if (gameStateProvider != null)
                 {
-                    var gc = gameStateProvider.TryCast<GameController>();
-                    if (gc == null) gameStateProvider = null;
+                    // Validate: on retry the old GameController is destroyed but the
+                    // wrapper survives; reading State throws, forcing a re-search.
+                    try { var _ = gameStateProvider.State; }
+                    catch { gameStateProvider = null; }
                 }
 
                 if (gameStateProvider == null)

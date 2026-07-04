@@ -2,6 +2,62 @@ CHANGELOG
 =========
 
 
+v0.10.0 - July 3, 2026
+---------------------------
+
+Game Update Compatibility (IMPORTANT):
+
+  - The game's June 2026 update moved to Unity 6, which broke BepInEx and
+    every mod. This release restores full compatibility.
+  - IMPORTANT: the "plugin only" package is NOT enough to update this time.
+    You MUST install the FULL package: it includes an updated BepInEx
+    (bleeding edge be.785) and repaired interop assemblies. Older BepInEx
+    versions cannot load the updated game (unsupported IL2CPP metadata v39),
+    and BepInEx's own interop generator currently produces corrupted
+    assemblies for Unity 6 games — the full package ships pre-repaired ones
+    (see tools/InteropFixer in the repository).
+
+New Features:
+
+  - Dreadnought Dodge Assistance: the mod now tells you whether you are
+    actually in danger during boss attacks, and which way to move:
+      - Charge: if you stand in the charge path, you hear "In the charge
+        path! Move left/right/up/down!" (shortest way out, screen-relative),
+        repeated while you remain in danger, and "Safe" once you are out.
+        The corridor width is measured from the boss's real collider.
+      - Ground spikes: each spike's real damage radius is tracked. If you
+        stand on one: "Spikes underfoot! Move [direction]!"
+      - Fireball: if you have not moved ~2.5 m shortly after the telegraph,
+        you hear "Move now!"
+
+  - Launch Pad Audio Cue: launch ramps/catapults that fling you across the
+    map now have an 8-bit style double "boing boing" positional beacon with
+    proximity announcements ("Launch pad nearby up-right", etc.) and an
+    entry in the Audio Cue Preview menu.
+
+  - Smart Beacon (priority-based): new toggle in Mod Settings (F1), off by
+    default. Instead of every collectible category beeping at once, targets
+    are scored by importance (loot crates and gear high, XP low; healing
+    jumps the queue when your HP is below 40%; Bobby fuel is top priority
+    in escort missions) and only the most important one plays. Inspired by
+    the Hades 2 accessibility mod's Target Scoring System.
+
+Bug Fixes:
+
+  - Escort Duty fixed: the TNT-phase detector previously triggered at
+    mission start (detonators exist in the map from level generation),
+    which silenced Bobby's drill beacon for the whole mission. Phase
+    detection is now driven by the real mission state (live detonator
+    beacons, Ommoran Heartstone state) with correct enter/exit conditions,
+    arming progress fallback announcements, and per-stage resets.
+  - Audio systems no longer die after clicking Retry or between escort
+    stages: all 15 gameplay components now detect the recreated
+    GameController and re-attach automatically.
+  - Bobby fuel warnings now use the game's real MAX_FUEL value instead of
+    assuming 100.
+  - Class unlock rank announcements adapted to the updated game UI.
+
+
 v0.9.0 - March 13, 2026
 ---------------------------
 

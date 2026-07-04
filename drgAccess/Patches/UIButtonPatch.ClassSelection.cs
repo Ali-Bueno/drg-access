@@ -30,8 +30,8 @@ public static partial class UIButtonPatch
                     {
                         result += ", " + ModLocalization.Get("ui_locked");
 
-                        // Find unlock rank requirement from the page
-                        int unlockRank = GetClassUnlockRank(classButton.dwarf);
+                        // Unlock rank requirement now lives on the button itself
+                        int unlockRank = classButton.UnlockAtPlayerRank;
                         if (unlockRank > 0)
                         {
                             result += ". " + ModLocalization.Get("class_unlock_rank", unlockRank);
@@ -63,39 +63,6 @@ public static partial class UIButtonPatch
         }
 
         return null;
-    }
-
-    private static UIClassSelectPage cachedClassPage;
-    private static bool classPageSearched = false;
-
-    private static int GetClassUnlockRank(EDwarf dwarf)
-    {
-        try
-        {
-            if (cachedClassPage == null && !classPageSearched)
-            {
-                classPageSearched = true;
-                var pages = UnityEngine.Resources.FindObjectsOfTypeAll<UIClassSelectPage>();
-                if (pages != null && pages.Count > 0)
-                    cachedClassPage = pages[0];
-            }
-
-            if (cachedClassPage == null)
-                return 0;
-
-            return dwarf switch
-            {
-                EDwarf.DRILLER => cachedClassPage.drillerUnlocksAtRank,
-                EDwarf.ENGINEER => cachedClassPage.engineerUnlocksAtRank,
-                EDwarf.GUNNER => cachedClassPage.gunnerUnlocksAtRank,
-                _ => 0
-            };
-        }
-        catch (System.Exception ex)
-        {
-            Plugin.Log?.LogDebug($"UIButtonPatch.GetClassUnlockRank error: {ex.Message}");
-            return 0;
-        }
     }
 
     private static string GetClassArtifactButtonText(UIClassArtifactButton artifactButton)
