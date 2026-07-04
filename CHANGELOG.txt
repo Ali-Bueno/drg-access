@@ -2,118 +2,6 @@ CHANGELOG
 =========
 
 
-v0.10.5 - July 3, 2026
----------------------------
-
-Bug Fixes:
-
-  - Audio cues no longer die after Retry (for real this time): on retry the
-    game reuses the scene and quietly replaces its internal game controller;
-    both previous detection methods turned out to be unreliable — the old
-    controller object survives in memory and keeps reporting stale state
-    without ever throwing. All components now share one game-state helper
-    that re-finds the controller every 2 seconds and compares instances,
-    so every cue re-arms on retry, next stage, and new runs.
-  - Pathfinding now respects indestructible walls: they are not mineable
-    blocks, so the v0.10.4 grid ignored them and the beacon could guide
-    you straight into a solid wall (as reported at an extraction). Solid
-    obstacles on the game's obstacle layer now block the path grid, so
-    routes go around them.
-
-
-v0.10.4 - July 3, 2026
----------------------------
-
-New:
-
-  - Beacon pathfinding is back — without the crash. Instead of Unity's
-    NavMesh (whose native interface changed in the Unity 6 game update and
-    crashed the game at extraction), the mod now runs its own pathfinding
-    over the game's real block grid: mined blocks open the path, walls
-    block it. The drop pod and drill beacons guide you around obstacles
-    again, corner by corner, and the F-key compass reports true path
-    distance. Being fully managed code, it cannot crash the game the way
-    the NavMesh interop did.
-
-
-v0.10.3 - July 3, 2026
----------------------------
-
-Critical Bug Fixes:
-
-  - Extraction crash fixed: the game hard-crashed the moment the drop pod
-    beacon started its NavMesh pathfinding — the Unity 6 update changed the
-    NavMesh native interfaces and calling them corrupts memory (an
-    uncatchable native crash). NavMesh pathfinding is disabled for now:
-    the drop pod and drill beacons guide in a straight line toward the
-    target (as they did before pathfinding was added), and the F-key
-    compass reports direct distance. It will return once the NavMesh
-    interop is verified safe.
-  - XP sound restored: since the game update, XP orbs lying on the ground
-    progressively turn into "duds" (a performance feature of the new game
-    version), and the mod ignored duds. Duds are still collectible XP, so
-    the XP tone now includes them.
-  - Supply pod loot now has a cue: after completing a supply zone, the
-    landed pod with its loot had no sound (the zone beacon rightly goes
-    silent when the zone completes). The waiting pod now plays the loot
-    crate shimmer and announces "Supply pod loot nearby [direction]".
-
-
-v0.10.2 - July 3, 2026
----------------------------
-
-Bug Fixes:
-
-  - Positional audio restored: after the Unity 6 game update, every spatial
-    audio cue (walls, XP, drop pod beacon, enemies, collectibles, footsteps,
-    and the rest) went silent while screen reader announcements kept working.
-    Cause: the game update renamed the player object, and all positional
-    audio located the player by its old name. The mod now finds the player
-    through the game's own Player component, with the old name search kept
-    as fallback.
-  - Wall detection now picks up the game's real obstacle layer mask once a
-    run starts (it was resolved once at startup, in the main menu, where it
-    never existed).
-
-Changes:
-
-  - All audio cues are about 2 dB louder overall (user request — they sat
-    slightly too quiet against the game's own audio). Per-category volume
-    sliders in Mod Settings work as before.
-  - Gate navigation reworked: the Tab / R3 shortcut from v0.10.1 is gone.
-    Gates now join the game's normal arrow-key/d-pad navigation: their
-    underlying Unity button ships non-navigable, which is why the selection
-    could never reach them — the mod now enables it, so you can arrow over
-    to a gate exactly like any mission node. No extra keys to learn.
-
-
-v0.10.1 - July 3, 2026
----------------------------
-
-Improvements based on player feedback:
-
-  - Jump Zones properly detected: the "launch ramps/catapults" from v0.10.0
-    turned out to be the Azure Weald jump zones (bounce holes that fling you
-    across the map, required for a mission node). The 8-bit "boing boing"
-    beacon now finds them reliably through the game's own jump-zone objects
-    instead of guessing by name, and all messages now call them "Jump zone".
-  - Gate keyboard focus: players reported that gates ("Biome select gate 2")
-    could not be reached with the keyboard — the only workaround was wiggling
-    the mouse over them. New shortcut: press Tab (or R3 on gamepad) on the
-    mission/biome map to move focus directly to the gate button (press again
-    to cycle if there are several). The gate is announced, and Enter opens it
-    as usual. Tab does nothing on screens without gates.
-
-Notes:
-
-  - Biome mission node goals: goal descriptions are read since v0.9.0 when
-    you select a mission node (this was reported before that feature
-    shipped). The remaining gap — the biome statistics panel — is still on
-    the known issues list.
-  - Healing areas already have their own beacon since v0.9.0, using the
-    same water-drop sound as Red Sugar, exactly as suggested.
-
-
 v0.10.0 - July 3, 2026
 ---------------------------
 
@@ -121,53 +9,92 @@ Game Update Compatibility (IMPORTANT):
 
   - The game's June 2026 update moved to Unity 6, which broke BepInEx and
     every mod. This release restores full compatibility.
-  - IMPORTANT: the "plugin only" package is NOT enough to update this time.
-    You MUST install the FULL package: it includes an updated BepInEx
-    (bleeding edge be.785) and repaired interop assemblies. Older BepInEx
-    versions cannot load the updated game (unsupported IL2CPP metadata v39),
-    and BepInEx's own interop generator currently produces corrupted
-    assemblies for Unity 6 games — the full package ships pre-repaired ones
-    (see tools/InteropFixer in the repository).
+  - You MUST install the FULL package this time, even to update: it
+    includes an updated BepInEx (bleeding edge be.785) and repaired interop
+    assemblies. Older BepInEx versions cannot load the updated game, and
+    BepInEx's own generator currently produces corrupted assemblies for
+    Unity 6 games — the full package ships pre-repaired ones (see
+    tools/InteropFixer in the repository).
 
 New Features:
 
   - Dreadnought Dodge Assistance: the mod now tells you whether you are
-    actually in danger during boss attacks, and which way to move:
-      - Charge: if you stand in the charge path, you hear "In the charge
-        path! Move left/right/up/down!" (shortest way out, screen-relative),
-        repeated while you remain in danger, and "Safe" once you are out.
-        The corridor width is measured from the boss's real collider.
-      - Ground spikes: each spike's real damage radius is tracked. If you
-        stand on one: "Spikes underfoot! Move [direction]!"
-      - Fireball: if you have not moved ~2.5 m shortly after the telegraph,
-        you hear "Move now!"
+    actually IN danger during boss attacks and which way to move:
+      - Charge: "In the charge path! Move left/right/up/down!" (shortest
+        way out, screen-relative), repeated while you remain in danger,
+        and "Safe" once you escape. The corridor width comes from the
+        boss's real size.
+      - Ground spikes: each spike's real damage radius is tracked —
+        "Spikes underfoot! Move [direction]!"
+      - Fireball: if you haven't moved shortly after the telegraph —
+        "Move now!"
 
-  - Launch Pad Audio Cue: launch ramps/catapults that fling you across the
-    map now have an 8-bit style double "boing boing" positional beacon with
-    proximity announcements ("Launch pad nearby up-right", etc.) and an
-    entry in the Audio Cue Preview menu.
+  - Jump Zone audio cue: the Azure Weald bounce holes that fling you
+    across the map (required for a mission node) now have an 8-bit style
+    double "boing boing" positional beacon, proximity announcements with
+    direction, and an entry in the Audio Cue Preview menu.
 
-  - Smart Beacon (priority-based): new toggle in Mod Settings (F1), off by
-    default. Instead of every collectible category beeping at once, targets
-    are scored by importance (loot crates and gear high, XP low; healing
-    jumps the queue when your HP is below 40%; Bobby fuel is top priority
-    in escort missions) and only the most important one plays. Inspired by
-    the Hades 2 accessibility mod's Target Scoring System.
+  - Smart Beacon (EXPERIMENTAL, off by default): a new toggle in the Mod
+    Settings (F1) that changes how collectible audio works. Instead of
+    every category beeping at once, each detected target is scored by how
+    much it matters right now and only the most important one plays,
+    keeping its own recognizable sound. Loot crates and gear score high,
+    XP low; healing jumps the queue when your health drops below 40
+    percent; Bobby's fuel is top priority in escort missions. Inspired by
+    the Hades 2 accessibility mod's Target Scoring System. The toggle
+    reads this explanation aloud in the menu. Being experimental, the
+    scoring will be tuned with player feedback.
+
+  - Supply pod loot cue: after completing a supply zone, the landed pod
+    with its reward now plays the loot-crate shimmer and announces
+    "Supply pod loot nearby [direction]". It previously had no sound.
+
+  - Beacon pathfinding rebuilt: Unity 6 broke the NavMesh system the mod
+    used (calling it crashed the game at extraction), so the mod now runs
+    its own pathfinding over the game's real block grid — mined blocks
+    open the path, walls (including indestructible ones) block it. The
+    drop pod and drill beacons guide you around obstacles corner by
+    corner, the guidance always ends at the pod ENTRANCE so following the
+    sound leads you inside, and the F-key compass reports true path
+    distance.
+
+  - Gate keyboard navigation: gates ("Biome select gate 2") were
+    unreachable with the keyboard — their underlying button is not
+    navigable in the base game. The mod enables it, so you can arrow over
+    to a gate exactly like any mission node. No new keys to learn.
+
+Audio Tuning:
+
+  - All audio cues are about 2 dB louder overall.
+  - The drop pod and supply pod beacons get an extra 1.5 dB on top — they
+    were getting buried under combat chaos.
+  - XP tone: detection range raised from 8 to 14 meters and roughly
+    double the volume; it was inaudible.
+  - The BepInEx console window is disabled in the shipped configuration —
+    no extra window when launching the game.
 
 Bug Fixes:
 
-  - Escort Duty fixed: the TNT-phase detector previously triggered at
-    mission start (detonators exist in the map from level generation),
-    which silenced Bobby's drill beacon for the whole mission. Phase
-    detection is now driven by the real mission state (live detonator
-    beacons, Ommoran Heartstone state) with correct enter/exit conditions,
-    arming progress fallback announcements, and per-stage resets.
-  - Audio systems no longer die after clicking Retry or between escort
-    stages: all 15 gameplay components now detect the recreated
-    GameController and re-attach automatically.
-  - Bobby fuel warnings now use the game's real MAX_FUEL value instead of
-    assuming 100.
-  - Class unlock rank announcements adapted to the updated game UI.
+  - Escort Duty fixed: the TNT-phase detector triggered at mission start
+    (detonators exist in the map from level generation), which silenced
+    Bobby's drill beacon for the whole mission. Phase detection is now
+    driven by the real mission state, with arming progress announcements
+    and per-stage resets.
+  - Positional audio (walls, XP, drop pod, enemies, collectibles,
+    footsteps) restored after the game update renamed the player object;
+    the mod now finds the player through the game's own Player component.
+  - Audio cues no longer die after Retry: the game quietly swaps its
+    internal controller on retry and the old one keeps reporting stale
+    state; all audio systems now share one tracker that detects the swap,
+    so every cue re-arms on retry, next stage, and new runs.
+  - XP orbs that convert into "duds" over time (a performance feature of
+    the new game version) now still count for the XP tone.
+  - Wall detection uses the game's real obstacle layer mask once a run
+    starts, instead of a guess made in the main menu.
+  - Bobby fuel warnings use the game's real maximum fuel value.
+  - Class unlock ranks and the end screen adapted to the updated game UI.
+  - The mod log records a snapshot of detected collectibles every 10
+    seconds to make audio reports diagnosable.
 
 
 v0.9.0 - March 13, 2026

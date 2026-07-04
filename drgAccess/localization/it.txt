@@ -409,3 +409,4 @@ cue_launch_pad=Oggetto: zona di salto
 cue_launch_pad_desc=Zona di salto nelle vicinanze (buchi propulsori di Azure Weald). Doppio boing 8 bit; calpestala per farti lanciare attraverso la mappa.
 setting_smart_beacon=Segnale intelligente (per priorità)
 collect_supply_loot=Bottino della capsula di rifornimento
+setting_smart_beacon_desc=Sperimentale. Invece di far suonare tutti i collezionabili insieme, suona solo l'obiettivo più importante: casse di bottino ed equipaggiamento contano molto, l'esperienza poco, le cure hanno la precedenza quando la salute scende sotto il 40 percento, e il carburante di Bobby è la priorità assoluta nelle missioni di scorta.

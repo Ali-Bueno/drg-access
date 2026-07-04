@@ -535,10 +535,16 @@ namespace drgAccess.Components
             Plugin.Log.LogInfo("[DropPodAudio] Player entered pod - beacon stopped");
         }
 
+        // How far outside the ramp the far-field guidance target sits. The pod
+        // hull blocks the path grid, so aiming at the ramp itself can make the
+        // path end against a wrong side of the pod; this point is always in open
+        // ground on the ENTRY side, and the ramp tone takes over from there.
+        private const float RAMP_APPROACH_OFFSET = 2.5f;
+
         /// <summary>
-        /// Gets the target position for beacon guidance.
-        /// Prefers the ramp (entry side) over the pod center, since the player
-        /// needs to walk onto the ramp to enter the pod.
+        /// Gets the target position for beacon guidance: a point just outside the
+        /// ramp, on the entry side of the pod, so following the beacon always ends
+        /// facing the entrance.
         /// </summary>
         private Vector3 GetBeaconTargetPosition()
         {
@@ -547,7 +553,18 @@ namespace drgAccess.Components
                 // Prefer ramp detector position - that's where the player enters
                 var ramp = activePod.rampDetector;
                 if (ramp != null)
-                    return ramp.position;
+                {
+                    Vector3 rampPos = ramp.position;
+
+                    // Push outward from the pod interior through the ramp
+                    Vector3 interior = GetPodInteriorPosition();
+                    Vector3 outward = rampPos - interior;
+                    outward.y = 0;
+                    if (outward.sqrMagnitude > 0.01f)
+                        return rampPos + outward.normalized * RAMP_APPROACH_OFFSET;
+
+                    return rampPos;
+                }
             }
             catch { }
 

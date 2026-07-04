@@ -409,3 +409,4 @@ cue_launch_pad=Colecționabil: zonă de salt
 cue_launch_pad_desc=Zonă de salt în apropiere (găurile propulsoare din Azure Weald). Dublu boing 8-bit; calc-o și te aruncă peste hartă.
 setting_smart_beacon=Semnal inteligent (pe priorități)
 collect_supply_loot=Pradă din capsula de aprovizionare
+setting_smart_beacon_desc=Experimental. În loc ca toate obiectele să sune simultan, sună doar ținta cea mai importantă: lăzile cu pradă și echipamentul au prioritate mare, experiența mică, vindecarea trece în față când viața scade sub 40 la sută, iar combustibilul lui Bobby e prioritatea maximă în misiunile de escortă.

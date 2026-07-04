@@ -409,3 +409,4 @@ cue_launch_pad=Coleccionable: zona de salto
 cue_launch_pad_desc=Zona de salto cerca (agujeros impulsores de Azure Weald). Doble boing 8 bits; písala y te lanza por el mapa.
 setting_smart_beacon=Baliza inteligente (por prioridades)
 collect_supply_loot=Botín del pod de suministros
+setting_smart_beacon_desc=Experimental. En vez de que todos los coleccionables suenen a la vez, solo suena el objetivo más importante: las cajas de botín y el equipo puntúan alto, la experiencia bajo, la curación pasa a ser prioritaria si tu vida baja del 40 por ciento, y el combustible de Bobby es máxima prioridad en las misiones de escolta.

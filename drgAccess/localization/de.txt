@@ -409,3 +409,4 @@ cue_launch_pad=Sammelobjekt: Sprungzone
 cue_launch_pad_desc=Sprungzone in der Nähe (Azure-Weald-Schleuderlöcher). 8-Bit-Doppel-Boing; betreten, um über die Karte geschleudert zu werden.
 setting_smart_beacon=Intelligentes Leitsignal (prioritätsbasiert)
 collect_supply_loot=Versorgungskapsel-Beute
+setting_smart_beacon_desc=Experimentell. Statt dass alle Sammelobjekte gleichzeitig piepen, ertönt nur das wichtigste Ziel: Beutekisten und Ausrüstung zählen hoch, Erfahrung niedrig, Heilung hat Vorrang, wenn deine Gesundheit unter 40 Prozent fällt, und Bobbys Treibstoff hat in Eskortmissionen höchste Priorität.

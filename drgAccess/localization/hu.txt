@@ -409,3 +409,4 @@ cue_launch_pad=Gyűjthető: ugrózóna
 cue_launch_pad_desc=Ugrózóna a közelben (Azure Weald pattogó gödrei). 8 bites dupla boing; lépj rá, és átrepít a térképen.
 setting_smart_beacon=Okos jelzőfény (prioritás alapú)
 collect_supply_loot=Ellátókapszula zsákmánya
+setting_smart_beacon_desc=Kísérleti. Ahelyett, hogy minden gyűjthető egyszerre szólna, csak a legfontosabb cél hallható: a zsákmányládák és a felszerelés magas prioritású, a tapasztalat alacsony, a gyógyítás előre sorolódik, ha az életerőd 40 százalék alá esik, kísérőküldetésekben pedig Bobby üzemanyaga az első.

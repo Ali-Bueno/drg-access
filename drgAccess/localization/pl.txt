@@ -409,3 +409,4 @@ cue_launch_pad=Znajdźka: strefa skoku
 cue_launch_pad_desc=W pobliżu strefa skoku (sprężyste dziury w Azure Weald). Podwójne 8-bitowe „boing”; stań na niej, a wystrzeli cię przez mapę.
 setting_smart_beacon=Inteligentny sygnał (wg priorytetów)
 collect_supply_loot=Łup z kapsuły zaopatrzeniowej
+setting_smart_beacon_desc=Eksperymentalne. Zamiast wszystkich znajdziek naraz słychać tylko najważniejszy cel: skrzynie z łupem i ekwipunek mają wysoki priorytet, doświadczenie niski, leczenie wskakuje do przodu, gdy zdrowie spadnie poniżej 40 procent, a paliwo Bobby'ego to najwyższy priorytet w misjach eskortowych.

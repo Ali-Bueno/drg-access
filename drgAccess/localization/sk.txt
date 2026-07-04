@@ -409,3 +409,4 @@ cue_launch_pad=Zberateľský predmet: skoková zóna
 cue_launch_pad_desc=Neďaleko je skoková zóna (odrazové diery v Azure Weald). Dvojité 8-bitové „boing“; stúp na ňu a vystrelí ťa cez mapu.
 setting_smart_beacon=Inteligentný maják (podľa priorít)
 collect_supply_loot=Korisť zo zásobovacieho modulu
+setting_smart_beacon_desc=Experimentálne. Namiesto toho, aby zneli všetky predmety naraz, znie len najdôležitejší cieľ: debny s korisťou a výbava majú vysokú prioritu, skúsenosti nízku, liečenie sa predradí, keď zdravie klesne pod 40 percent, a Bobbyho palivo má v sprievodných misiách najvyššiu prioritu.

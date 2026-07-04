@@ -166,12 +166,24 @@ namespace drgAccess.Helpers
         private const float GLOBAL_CUE_BOOST = 1.2589f;
 
         /// <summary>
-        /// Effective volume: category multiplier * game master volume * global boost.
+        /// Per-category loudness trims on top of the global boost. The two
+        /// extraction-critical beacons get +1.5 dB (10^(1.5/20)) extra — they
+        /// were getting buried under combat chaos (user-tuned).
+        /// </summary>
+        private static readonly Dictionary<string, float> categoryBoosts = new()
+        {
+            { DROP_POD_BEACON,   1.1885f },
+            { SUPPLY_POD_BEACON, 1.1885f },
+        };
+
+        /// <summary>
+        /// Effective volume: category multiplier * game master volume * boosts.
         /// </summary>
         public static float GetVolume(string category)
         {
             float catVol = volumes.TryGetValue(category, out float vol) ? vol : 1.0f;
-            return catVol * GameMasterVolume * GLOBAL_CUE_BOOST;
+            float boost = categoryBoosts.TryGetValue(category, out float b) ? b : 1.0f;
+            return catVol * GameMasterVolume * GLOBAL_CUE_BOOST * boost;
         }
 
         // --- Settings access ---

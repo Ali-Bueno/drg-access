@@ -54,7 +54,8 @@ namespace drgAccess.Components
             new CategoryConfig(CollectibleSoundType.CurrencyPickup, 28f, 0.16f, 0.30f, 600f, 900f, 0.45f, 0.07f),
             new CategoryConfig(CollectibleSoundType.MineralVein, 28f, 0.22f, 0.40f, 300f, 500f, 0.7f, 0.10f),
             new CategoryConfig(CollectibleSoundType.LootCrate, 40f, 0.25f, 0.42f, 1200f, 1800f, 0.5f, 0.08f),
-            new CategoryConfig(CollectibleSoundType.XpNearby, 8f, 0.05f, 0.14f, 350f, 700f, 0f, 0f),
+            // XP range/volume raised in v0.10.6 — users could not hear it at all
+            new CategoryConfig(CollectibleSoundType.XpNearby, 14f, 0.12f, 0.28f, 350f, 700f, 0f, 0f),
             new CategoryConfig(CollectibleSoundType.BobbyFuel, 35f, 0.22f, 0.42f, 200f, 400f, 0.5f, 0.08f),
             new CategoryConfig(CollectibleSoundType.HealingZone, 30f, 0.22f, 0.40f, 500f, 750f, 0.5f, 0.08f),
             new CategoryConfig(CollectibleSoundType.LaunchPad, 35f, 0.25f, 0.45f, 400f, 800f, 0.7f, 0.12f),
@@ -251,11 +252,31 @@ namespace drgAccess.Components
 
                 UpdateAudio();
                 AnnounceItems();
+                LogScanDiagnostics();
             }
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[CollectibleAudio] Update error: {e.Message}");
             }
+        }
+
+        // Periodic scan snapshot so user logs show what each category detected
+        private float nextDiagTime;
+        private void LogScanDiagnostics()
+        {
+            if (Time.time < nextDiagTime) return;
+            nextDiagTime = Time.time + 10f;
+
+            var sb = new System.Text.StringBuilder("[CollectibleAudio] targets:");
+            bool any = false;
+            for (int i = 0; i < configs.Length; i++)
+            {
+                if (!nearestTargets[i].Found) continue;
+                any = true;
+                sb.Append($" {configs[i].Type}={nearestTargets[i].Distance:0.0}m");
+            }
+            if (!any) sb.Append(" none");
+            Plugin.Log.LogInfo(sb.ToString());
         }
 
         private void ScanPickups()

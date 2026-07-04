@@ -84,6 +84,7 @@ namespace drgAccess.Components
         {
             public string Category; // Volume or setting key
             public string DisplayName;
+            public string Description; // Optional, read after the name/state
             public MainItemType Type;
             public Action PlayPreview;
         }
@@ -160,6 +161,7 @@ namespace drgAccess.Components
                 {
                     Category = ModConfig.SMART_BEACON,
                     DisplayName = ModLocalization.Get("setting_smart_beacon"),
+                    Description = ModLocalization.Get("setting_smart_beacon_desc"),
                     Type = MainItemType.Toggle
                 },
                 new MainMenuItem
@@ -581,7 +583,9 @@ namespace drgAccess.Components
                     break;
                 case MainItemType.Toggle:
                     bool isOn = GetPendingToggle(item.Category);
-                    SpeakDirect($"{item.DisplayName}. {(isOn ? ModLocalization.Get("toggle_on") : ModLocalization.Get("toggle_off"))}");
+                    string state = isOn ? ModLocalization.Get("toggle_on") : ModLocalization.Get("toggle_off");
+                    string desc = string.IsNullOrEmpty(item.Description) ? "" : $". {item.Description}";
+                    SpeakDirect($"{item.DisplayName}. {state}{desc}");
                     break;
                 default:
                     SpeakDirect(item.DisplayName);

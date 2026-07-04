@@ -409,3 +409,4 @@ cue_launch_pad=Verzamelobject: springzone
 cue_launch_pad_desc=Springzone in de buurt (stuiterkuilen van Azure Weald). 8-bit dubbele boing; stap erop om over de kaart geslingerd te worden.
 setting_smart_beacon=Slim baken (op prioriteit)
 collect_supply_loot=Bevoorradingspod-buit
+setting_smart_beacon_desc=Experimenteel. In plaats van dat alle verzamelobjecten tegelijk piepen, klinkt alleen het belangrijkste doelwit: buitkisten en uitrusting scoren hoog, ervaring laag, genezing krijgt voorrang als je gezondheid onder de 40 procent zakt, en Bobby's brandstof heeft topprioriteit in escortmissies.
