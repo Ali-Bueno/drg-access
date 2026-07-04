@@ -408,3 +408,4 @@ dodge_move_now=Mozdulj most!
 cue_launch_pad=Gyűjthető: ugrózóna
 cue_launch_pad_desc=Ugrózóna a közelben (Azure Weald pattogó gödrei). 8 bites dupla boing; lépj rá, és átrepít a térképen.
 setting_smart_beacon=Okos jelzőfény (prioritás alapú)
+collect_supply_loot=Ellátókapszula zsákmánya

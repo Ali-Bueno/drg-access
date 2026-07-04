@@ -408,3 +408,4 @@ dodge_move_now=Beweeg nu!
 cue_launch_pad=Verzamelobject: springzone
 cue_launch_pad_desc=Springzone in de buurt (stuiterkuilen van Azure Weald). 8-bit dubbele boing; stap erop om over de kaart geslingerd te worden.
 setting_smart_beacon=Slim baken (op prioriteit)
+collect_supply_loot=Bevoorradingspod-buit

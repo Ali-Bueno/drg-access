@@ -408,3 +408,4 @@ dodge_move_now=Pohni se hned!
 cue_launch_pad=Sběratelský předmět: skoková zóna
 cue_launch_pad_desc=Poblíž je skoková zóna (odrazové díry v Azure Weald). Dvojité 8bitové „boing“; šlápni na ni a vystřelí tě přes mapu.
 setting_smart_beacon=Chytrý maják (podle priorit)
+collect_supply_loot=Kořist ze zásobovacího modulu

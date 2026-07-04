@@ -2,6 +2,29 @@ CHANGELOG
 =========
 
 
+v0.10.3 - July 3, 2026
+---------------------------
+
+Critical Bug Fixes:
+
+  - Extraction crash fixed: the game hard-crashed the moment the drop pod
+    beacon started its NavMesh pathfinding — the Unity 6 update changed the
+    NavMesh native interfaces and calling them corrupts memory (an
+    uncatchable native crash). NavMesh pathfinding is disabled for now:
+    the drop pod and drill beacons guide in a straight line toward the
+    target (as they did before pathfinding was added), and the F-key
+    compass reports direct distance. It will return once the NavMesh
+    interop is verified safe.
+  - XP sound restored: since the game update, XP orbs lying on the ground
+    progressively turn into "duds" (a performance feature of the new game
+    version), and the mod ignored duds. Duds are still collectible XP, so
+    the XP tone now includes them.
+  - Supply pod loot now has a cue: after completing a supply zone, the
+    landed pod with its loot had no sound (the zone beacon rightly goes
+    silent when the zone completes). The waiting pod now plays the loot
+    crate shimmer and announces "Supply pod loot nearby [direction]".
+
+
 v0.10.2 - July 3, 2026
 ---------------------------
 

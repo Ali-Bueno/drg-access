@@ -412,3 +412,4 @@ dodge_move_now=Move now!
 cue_launch_pad=Collectible: Jump Zone
 cue_launch_pad_desc=Jump zone nearby (Azure Weald bounce holes). 8-bit double boing; step on it to get flung across the map.
 setting_smart_beacon=Smart Beacon (priority-based)
+collect_supply_loot=Supply pod loot

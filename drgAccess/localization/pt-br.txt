@@ -408,3 +408,4 @@ dodge_move_now=Mova-se agora!
 cue_launch_pad=Colecionável: zona de salto
 cue_launch_pad_desc=Zona de salto por perto (buracos propulsores de Azure Weald). Duplo boing 8 bits; pise nela para ser arremessado pelo mapa.
 setting_smart_beacon=Sinalizador inteligente (por prioridades)
+collect_supply_loot=Saque da cápsula de suprimentos

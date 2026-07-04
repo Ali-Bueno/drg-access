@@ -408,3 +408,4 @@ dodge_move_now=快移動！
 cue_launch_pad=可收集物：跳躍區
 cue_launch_pad_desc=附近有跳躍區（蔚藍曠野的彈跳洞）。8位元風格雙重彈簧音；踩上去會被彈射到地圖另一邊。
 setting_smart_beacon=智慧信標（基於優先順序）
+collect_supply_loot=補給艙戰利品

@@ -408,3 +408,4 @@ dodge_move_now=Bouge maintenant !
 cue_launch_pad=Objet : zone de saut
 cue_launch_pad_desc=Zone de saut à proximité (trous propulseurs d'Azure Weald). Double boing 8 bits ; marche dessus pour être projeté à travers la carte.
 setting_smart_beacon=Balise intelligente (par priorités)
+collect_supply_loot=Butin de la capsule de ravitaillement

@@ -294,7 +294,13 @@ namespace drgAccess.Components
                         EPickupType.CURRENCY => 3,
                         EPickupType.XP => 6,
                         EPickupType.XP_LARGE => 6,
-                        _ => -1 // Duds excluded
+                        // Since the Unity 6 update, ground XP orbs convert into "duds"
+                        // over time (XpDudConfig.DudChancePrSecond) — excluding them
+                        // silenced the XP cue almost entirely. Duds are still
+                        // collectible XP, so they count.
+                        EPickupType.XP_DUD => 6,
+                        EPickupType.XP_LARGE_DUD => 6,
+                        _ => -1
                     };
 
                     if (categoryIndex < 0) continue;
@@ -448,6 +454,36 @@ namespace drgAccess.Components
                             Position = crate.transform.position,
                             Distance = dist
                         };
+                    }
+                }
+
+                // Landed supply pods waiting for the player to collect their loot.
+                // The supply ZONE beacon (ActivationZoneAudio) goes silent once the
+                // zone completes, so without this the loot itself had no cue.
+                var pods = UnityEngine.Object.FindObjectsOfType<SupplyPod>();
+                if (pods != null)
+                {
+                    foreach (var pod in pods)
+                    {
+                        if (pod == null) continue;
+                        var podState = pod.state;
+                        if (podState != SupplyPod.EState.OPENING &&
+                            podState != SupplyPod.EState.WAITING_FOR_PLAYER)
+                            continue;
+
+                        float dist = Vector3.Distance(playerPos, pod.transform.position);
+                        if (dist > maxDist) continue;
+
+                        if (!nearestTargets[5].Found || dist < nearestTargets[5].Distance)
+                        {
+                            nearestTargets[5] = new NearestTarget
+                            {
+                                Found = true,
+                                Position = pod.transform.position,
+                                Distance = dist,
+                                Name = ModLocalization.Get("collect_supply_loot")
+                            };
+                        }
                     }
                 }
             }

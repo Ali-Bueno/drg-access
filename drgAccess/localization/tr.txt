@@ -408,3 +408,4 @@ dodge_move_now=Hemen hareket et!
 cue_launch_pad=Toplanabilir: zıplama bölgesi
 cue_launch_pad_desc=Yakında zıplama bölgesi var (Azure Weald sıçrama delikleri). 8-bit çift boing; üstüne bas, haritanın öbür ucuna fırlatılırsın.
 setting_smart_beacon=Akıllı işaretçi (öncelik tabanlı)
+collect_supply_loot=İkmal kapsülü ganimeti

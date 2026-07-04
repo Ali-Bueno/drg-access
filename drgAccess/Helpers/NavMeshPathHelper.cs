@@ -10,6 +10,14 @@ namespace drgAccess.Helpers
     /// </summary>
     public static class NavMeshPathHelper
     {
+        // DISABLED since the Unity 6 game update: calling into the NavMesh interop
+        // (SamplePosition/CalculatePath with out-struct marshaling) crashes the game
+        // natively the moment the drop pod beacon starts pathfinding — an
+        // AccessViolation that .NET 6 cannot catch, so a try/catch is useless.
+        // Until the AIModule interop is verified safe on Unity 6, beacons use
+        // direct-line guidance (the built-in fallback below).
+        private const bool NAVMESH_ENABLED = false;
+
         // Cached NavMeshPath (reused to avoid GC)
         private static NavMeshPath cachedPath;
 
@@ -51,6 +59,18 @@ namespace drgAccess.Helpers
         public static PathResult GetNextWaypoint(Vector3 playerPos, Vector3 targetPos)
         {
             float directDist = Vector3.Distance(playerPos, targetPos);
+
+            if (!NAVMESH_ENABLED)
+            {
+                return new PathResult
+                {
+                    IsValid = true,
+                    NextWaypoint = targetPos,
+                    TotalPathDistance = directDist,
+                    WaypointDistance = directDist,
+                    UsingDirectFallback = true
+                };
+            }
 
             // Within very close range AND clear line of sight, skip pathfinding for precision
             if (directDist < DIRECT_TARGET_DISTANCE && HasLineOfSight(playerPos, targetPos))
