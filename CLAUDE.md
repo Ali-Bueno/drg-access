@@ -12,7 +12,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.10.2 (first Unity 6 compatible version: v0.10.0)
+- **Current version**: v0.10.0 (first Unity 6 compatible version, published July 3, 2026 — interim releases v0.10.1–v0.10.5 were consolidated into this single release per user preference)
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -111,7 +111,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - **Very close (< 1.5m from playerPoint)**: Peak intensity (1800-2200 Hz), screen reader announces "Almost inside, keep going"
   - Screen reader announces "Near the pod, follow the tone inside" at 5m
   - **Inside pod**: All audio stops, screen reader announces "Inside the pod"
-  - **NavMesh pathfinding**: Uses Unity's NavMesh to calculate paths around walls/obstacles instead of pointing in a straight line. Beacon guides toward next path waypoint. Falls back to direct targeting only within 3m AND with clear line of sight (raycast check). Path recalculated every 0.3s via `NavMeshPathHelper`
+  - **Grid pathfinding**: calculates paths around walls/obstacles via `GridPathHelper` (managed A* over the game's block grid — Unity NavMesh crashes natively on the Unity 6 build, see Unity 6 section). Beacon guides toward the next path waypoint; `NavMeshPathHelper` keeps the public contract and delegates. Far-field target is a point ~2.5m OUTSIDE the ramp on the entry side (`RAMP_APPROACH_OFFSET`) so following the sound always ends facing the entrance — the pod hull blocks the path grid, so aiming at the ramp itself could end the path on a wrong side
   - **F key compass**: Announces screen-relative direction (up/down/left/right/diagonals) + path distance to ramp, adapted for top-down perspective (directions correspond to WASD movement)
   - Only activates for extraction pod (not initial drop pod)
 - **Gameplay Audio - Supply Pod Beacon**: Warbling trill for ActivationZone (supply pod zones)
@@ -245,7 +245,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - Progress tracking: announces at 25%, 50%, 75% of drill path
   - Player range: "Out of Bobby's range, get closer" with 5s cooldown
   - F key compass: direction + distance to Bobby (drop pod gets priority if active)
-  - NavMesh pathfinding via `NavMeshPathHelper` (no conflict — Bobby during ESCORT, drop pod during extraction)
+  - Grid pathfinding via `NavMeshPathHelper` → `GridPathHelper` (no conflict — Bobby during ESCORT, drop pod during extraction)
   - Volume configurable via Drill Beacon slider in Mod Settings
   - `BeaconMode.Drill` added to `BeaconBeepGenerator` with `DrillRunning` property
 - **Objective Reader (O key)**: Press O during gameplay to hear all active objectives
@@ -302,9 +302,17 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - `Player.TryLaunchIntoAir` postfix (`LaunchPadPatches`) logs nearby trigger collider names when the player gets flung (30s throttle) — check user logs for "Launch source candidate" to learn other pad prefab names
   - Audio Cue Preview menu entry (cue_launch_pad); user-facing name is "Jump zone" (collect_launch_pad key)
 
-- **Gate Navigation Fix (native)**: `GateNavigationFix` component (v0.10.2, replaces the short-lived Tab/R3 shortcut from v0.10.1 — user wants game-native navigation only). Gates (`UIMissionGateButton`, `UIBiomeSelectButton_Gate`) were unreachable by keyboard because their `UIButton.button` (the `UnityEngine.UI.Button` Selectable that Unity arrow navigation moves between) ships non-interactable/non-navigable. The component polls visible gates every 1s and sets `interactable = true` + `Navigation.Mode.Automatic` on the gate's Selectable, so standard arrow/d-pad navigation reaches gates like any node. Selection announcement via existing `UIButton.OnSelect` patch, activation via existing `OnUpdateSelected` Enter fix. Key insight: `UIButton` (MonoBehaviour) carries a `public Button button` field — that Button is what keyboard navigation actually operates on.
+- **Gate Navigation Fix (native)**: `GateNavigationFix` component (replaced a short-lived Tab/R3 shortcut — user wants game-native navigation only, no invented keybinds). Gates (`UIMissionGateButton`, `UIBiomeSelectButton_Gate`) were unreachable by keyboard because their `UIButton.button` (the `UnityEngine.UI.Button` Selectable that Unity arrow navigation moves between) ships non-interactable/non-navigable. The component polls visible gates every 1s and sets `interactable = true` + `Navigation.Mode.Automatic` on the gate's Selectable, so standard arrow/d-pad navigation reaches gates like any node. Selection announcement via existing `UIButton.OnSelect` patch, activation via existing `OnUpdateSelected` Enter fix. Key insight: `UIButton` (MonoBehaviour) carries a `public Button button` field — that Button is what keyboard navigation actually operates on.
 
-- **Smart Beacon (priority scoring, Hades 2 style)**: optional toggle in Mod Settings (`ModConfig.SMART_BEACON`, default off). When enabled, `CollectibleAudioSystem.ApplySmartBeaconFilter()` scores every found target as basePriority × (0.5 + 0.5 × proximity) and keeps only the winner audible (its own category sound, so the player still knows what it is). Base priorities: BobbyFuel 85, LootCrate 80, GearDrop 75, Buff 60, HealingZone 55, RedSugar 50, MineralVein 45, Currency 40, LaunchPad 30, XP 10. Health need: below 40% HP, RedSugar/HealingZone priority ×2.5 (player HP read via cached GameController)
+- **Smart Beacon (priority scoring, Hades 2 style, EXPERIMENTAL)**: optional toggle in Mod Settings (`ModConfig.SMART_BEACON`, default off). When enabled, `CollectibleAudioSystem.ApplySmartBeaconFilter()` scores every found target as basePriority × (0.5 + 0.5 × proximity) and keeps only the winner audible (its own category sound, so the player still knows what it is). Base priorities: BobbyFuel 85, LootCrate 80, GearDrop 75, Buff 60, HealingZone 55, RedSugar 50, MineralVein 45, Currency 40, LaunchPad 30, XP 10. Health need: below 40% HP, RedSugar/HealingZone priority ×2.5 (player HP read via `GameStateHelper.CachedGameController`). The menu toggle reads a full localized explanation aloud (`setting_smart_beacon_desc`, `MainMenuItem.Description` field)
+
+- **Supply Pod Loot Cue**: landed supply pods (`SupplyPod`, own MonoBehaviour, EState OPENING/WAITING_FOR_PLAYER) join the LootCrate category with custom announcement name (`collect_supply_loot`) — the zone beacon rightly goes silent when the zone completes, so the loot itself needed a cue
+
+- **XP Duds Count as XP**: since the Unity 6 update, ground XP orbs progressively convert into "duds" (`XpDudConfig.DudChancePrSecond`) — `EPickupType.XP_DUD`/`XP_LARGE_DUD` now map to the XP category or the tone goes almost silent. XP config tuned: range 8→14m, volume 0.05-0.14 → 0.12-0.28 (was inaudible)
+
+- **Volume Boosts**: `ModConfig.GetVolume` applies `GLOBAL_CUE_BOOST` (+2 dB, all cues) and per-category `categoryBoosts` (+1.5 dB extra for DROP_POD_BEACON and SUPPLY_POD_BEACON — buried under combat chaos). User-tuned; keep these when touching volume code
+
+- **Collectible Scan Diagnostics**: `CollectibleAudioSystem.LogScanDiagnostics()` logs a per-category snapshot ("targets: XpNearby=6.2m ...") every 10s during gameplay so "X doesn't sound" reports are diagnosable from user logs
 
 - **Healing Zone Announcements**: Azure Weald healing pillar areas announce "Healing zone" on entry and "Left healing zone" on exit via patches on `AzureWealdBuffPillars.BeginTickOnPlayer` and `EndTickOnPlayer`. Healing zones also have a collectible audio beacon (water-drop bloop, same as Red Sugar) for spatial guidance.
 
@@ -345,7 +353,10 @@ drgAccess/
 │   ├── TextHelper.cs              # Shared text cleaning (CleanText, IsJustNumber)
 │   ├── LocalizationHelper.cs      # Cached localization lookups (stats, rarity, gear slots, formatting)
 │   ├── ModLocalization.cs         # Mod string localization (loads localization/*.txt, locale detection, Get())
-│   ├── NavMeshPathHelper.cs       # NavMesh pathfinding for beacon guidance around obstacles
+│   ├── NavMeshPathHelper.cs       # Pathfinding facade for beacons (delegates to GridPathHelper; NavMesh disabled on Unity 6)
+│   ├── GridPathHelper.cs          # Managed A* over the game block grid (walls incl. indestructible block the path)
+│   ├── PlayerLocator.cs           # Shared player lookup via Player component (name search broke in Unity 6)
+│   ├── GameStateHelper.cs         # Single source of truth for IsInActiveGameplay (native-pointer compare fixes retry)
 │   ├── AudioDirectionHelper.cs    # Shared forward/behind pitch modulation for all audio cues
 │   ├── InputHelper.cs             # Shared keyboard + gamepad input checking
 │   └── ModConfig.cs               # Settings persistence (volumes, detection ranges, master volume sync)
@@ -493,6 +504,8 @@ The game updated to **Unity 6000.4.7f1** in June 2026 (GameAssembly.dll 24/06/20
 6. Unity 6 API changes hit the mod: `PlayerHealArgs.ActualHeal` is now `long`, `Stat.Value` is `double`, `UIClassSelectPage.*UnlocksAtRank` moved to `UIClassSelectButton.UnlockAtPlayerRank`, `UIEndScreen` lost `endlessButton`/`OnEndlessButton`/`endlessRankXpText`/`endlessCreditsText` (endless flow moved to a popup), `UISkinOverridesButton.streamerTitle` removed, and the interop now requires a `UnityEngine.UIElementsModule` reference in the csproj.
    **The player GameObject was renamed**, which silently killed ALL positional audio (walls, XP, drop pod, enemies...) while screen reader output kept working — every component located the player via `GameObject.Find("Player"...)`. Fixed with `Helpers/PlayerLocator.FindPlayerTransform()` (uses `FindObjectOfType<Player>()`, name search as fallback). NEVER locate the player by GameObject name.
 7. The decompiled reference in `drg code/` was regenerated with `ilspycmd` from the new interop Assembly-CSharp.dll (namespace-nested directories now, e.g. `drg code/DRS/UI/`, `drg code/Assets/Scripts/...`).
+8. **Unity NavMesh interop crashes natively on this build** — an uncatchable AccessViolation the moment `NavMesh.SamplePosition`/`CalculatePath` runs (game closes, log just stops). NEVER call UnityEngine.AI through the interop. Beacon pathfinding is `Helpers/GridPathHelper`: managed A* over the block grid (`MineableBlock.x/y` cells; world↔cell offset calibrated from a real block transform; indestructible walls marked from solid colliders on the game's obstacle mask, skipping colliders wider than 60 units so floor/bounds volumes can't block the grid). `NavMeshPathHelper` keeps its contract behind `NAVMESH_ENABLED = false`.
+9. **Retry silently swaps the GameController** and the old object keeps reporting stale state from il2cpp memory — neither `TryCast` nor reading `.State` detects it (no throw!). ALL components delegate `IsInActiveGameplay()` to `Helpers/GameStateHelper`, which re-finds the controller every 2s and compares native pointers; `RunGeneration` increments per new controller so components (EscortPhaseAudio) reset per-run state. Never implement per-component game-state checks.
 
 ## IL2CPP / Harmony Critical Rules
 
