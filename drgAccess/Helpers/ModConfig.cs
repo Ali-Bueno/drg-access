@@ -160,12 +160,18 @@ namespace drgAccess.Helpers
         // --- Volume access ---
 
         /// <summary>
-        /// Effective volume: category multiplier * game master volume.
+        /// Global loudness boost for all mod audio cues: +2 dB (10^(2/20)),
+        /// requested by users — cues were slightly too quiet against game audio.
+        /// </summary>
+        private const float GLOBAL_CUE_BOOST = 1.2589f;
+
+        /// <summary>
+        /// Effective volume: category multiplier * game master volume * global boost.
         /// </summary>
         public static float GetVolume(string category)
         {
             float catVol = volumes.TryGetValue(category, out float vol) ? vol : 1.0f;
-            return catVol * GameMasterVolume;
+            return catVol * GameMasterVolume * GLOBAL_CUE_BOOST;
         }
 
         // --- Settings access ---

@@ -20,6 +20,9 @@ Bug Fixes:
 
 Changes:
 
+  - All audio cues are about 2 dB louder overall (user request — they sat
+    slightly too quiet against the game's own audio). Per-category volume
+    sliders in Mod Settings work as before.
   - Gate navigation reworked: the Tab / R3 shortcut from v0.10.1 is gone.
     Gates now join the game's normal arrow-key/d-pad navigation: their
     underlying Unity button ships non-navigable, which is why the selection
