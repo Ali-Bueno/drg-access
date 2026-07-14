@@ -284,16 +284,29 @@ public static partial class UIButtonPatch
     {
         try
         {
+            bool isLocked = button.lockedGroup != null && button.lockedGroup.activeSelf;
+
             var sb = new StringBuilder();
             var nameText = button.nameText;
             if (nameText != null && !string.IsNullOrEmpty(nameText.text))
                 sb.Append(TextHelper.CleanText(nameText.text));
+
+            // While locked, the name/progress live under the inactive unlockedGroup,
+            // so the fields above can be empty and the button would announce nothing.
+            if (sb.Length == 0)
+                sb.Append(GetActiveGroupText(isLocked ? button.lockedGroup : button.unlockedGroup));
 
             var progressText = button.progressText;
             if (progressText != null && !string.IsNullOrEmpty(progressText.text))
             {
                 if (sb.Length > 0) sb.Append(". ");
                 sb.Append(TextHelper.CleanText(progressText.text));
+            }
+
+            if (isLocked)
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append(ModLocalization.Get("ui_locked"));
             }
 
             return sb.Length > 0 ? sb.ToString() : null;

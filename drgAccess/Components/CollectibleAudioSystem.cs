@@ -45,6 +45,10 @@ namespace drgAccess.Components
         // Loot crate scanning
         private float nextCrateScanTime = 0f;
 
+        // Objective resource + lootbug scanning
+        private float nextObjectiveResScanTime = 0f;
+        private float nextLootbugScanTime = 0f;
+
         // Category config
         private static readonly CategoryConfig[] configs = new[]
         {
@@ -59,6 +63,10 @@ namespace drgAccess.Components
             new CategoryConfig(CollectibleSoundType.BobbyFuel, 35f, 0.22f, 0.42f, 200f, 400f, 0.5f, 0.08f),
             new CategoryConfig(CollectibleSoundType.HealingZone, 30f, 0.22f, 0.40f, 500f, 750f, 0.5f, 0.08f),
             new CategoryConfig(CollectibleSoundType.LaunchPad, 35f, 0.25f, 0.45f, 400f, 800f, 0.7f, 0.12f),
+            // Resources an objective asks for (Morkite veins, Apoca Bloom, Boolo Cap):
+            // longer range than plain minerals — the run cannot end without them
+            new CategoryConfig(CollectibleSoundType.ObjectiveRes, 40f, 0.26f, 0.46f, 550f, 900f, 0.6f, 0.10f),
+            new CategoryConfig(CollectibleSoundType.Lootbug, 25f, 0.18f, 0.34f, 700f, 1100f, 0.45f, 0.12f),
         };
 
         private struct CategoryConfig
@@ -103,7 +111,8 @@ namespace drgAccess.Components
         {
             "collect_red_sugar", "collect_gear", "collect_buff", "collect_currency",
             "collect_mineral_vein", "collect_loot_crate", "collect_xp",
-            "collect_bobby_fuel", "collect_healing_zone", "collect_launch_pad"
+            "collect_bobby_fuel", "collect_healing_zone", "collect_launch_pad",
+            "collect_objective_resource", "collect_lootbug"
         };
 
         // Bobby fuel scanning
@@ -226,6 +235,19 @@ namespace drgAccess.Components
                     nextMaterialScanTime = Time.time + 3f;
                 }
 
+                if (Time.time >= nextObjectiveResScanTime)
+                {
+                    ScanObjectiveResources();
+                    nextObjectiveResScanTime = Time.time + 1f;
+                }
+
+                // Lootbugs run away, so they need a pickup-rate scan, not a block-rate one
+                if (Time.time >= nextLootbugScanTime)
+                {
+                    ScanLootbugs();
+                    nextLootbugScanTime = Time.time + 0.3f;
+                }
+
                 if (Time.time >= nextCrateScanTime)
                 {
                     ScanLootCrates();
@@ -249,6 +271,12 @@ namespace drgAccess.Components
                     ScanLaunchPads();
                     nextLaunchPadScanTime = Time.time + 3f;
                 }
+
+                // Snapshot before UpdateAudio: the smart-beacon filter clears every
+                // target except its winner, and the ping must still see them all
+                if (pingSnapshot == null || pingSnapshot.Length != nearestTargets.Length)
+                    pingSnapshot = new NearestTarget[nearestTargets.Length];
+                Array.Copy(nearestTargets, pingSnapshot, nearestTargets.Length);
 
                 UpdateAudio();
                 AnnounceItems();
@@ -417,6 +445,14 @@ namespace drgAccess.Components
                         continue;
                     }
 
+                    // Minerals an objective asks for (e.g. Morkite) get their own,
+                    // higher-priority cue — see ScanObjectiveResources
+                    try
+                    {
+                        if (ObjectiveHelper.IsObjectiveCurrency(block.materialType)) continue;
+                    }
+                    catch { }
+
                     float dist = Vector3.Distance(playerPos, block.transform.position);
                     if (dist <= maxDist && dist < nearestDist)
                     {
@@ -441,6 +477,134 @@ namespace drgAccess.Components
             catch (Exception e)
             {
                 Plugin.Log.LogError($"[CollectibleAudio] ScanMaterialBlocks error: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Resources the current objectives require. Two different game classes back
+        /// these: mission minerals (Morkite and friends) are ordinary MineableBlocks
+        /// singled out by materialType, while Apoca Bloom / Boolo Cap are LevelPickups,
+        /// a class the scanner ignored entirely — hence "not announced".
+        /// </summary>
+        private void ScanObjectiveResources()
+        {
+            nearestTargets[10] = default; // ObjectiveRes
+
+            try
+            {
+                Vector3 playerPos = playerTransform.position;
+                float maxDist = GetEffectiveMaxDistance(10);
+
+                // Mission minerals — reuse the block cache ScanMaterialBlocks maintains
+                foreach (var block in cachedMaterialBlocks)
+                {
+                    try
+                    {
+                        if (block == null || block.state != MineableBlock.EState.ALIVE) continue;
+                        if (!ObjectiveHelper.IsObjectiveCurrency(block.materialType)) continue;
+
+                        float dist = Vector3.Distance(playerPos, block.transform.position);
+                        if (dist > maxDist) continue;
+
+                        if (!nearestTargets[10].Found || dist < nearestTargets[10].Distance)
+                        {
+                            string name = null;
+                            try { name = LocalizationHelper.GetCurrencyName(block.materialType); }
+                            catch { }
+
+                            nearestTargets[10] = new NearestTarget
+                            {
+                                Found = true,
+                                Position = block.transform.position,
+                                Distance = dist,
+                                Name = name
+                            };
+                        }
+                    }
+                    catch { }
+                }
+
+                // Apoca Bloom / Boolo Cap
+                var levelPickups = UnityEngine.Object.FindObjectsOfType<LevelPickup>();
+                if (levelPickups != null)
+                {
+                    foreach (var pickup in levelPickups)
+                    {
+                        try
+                        {
+                            if (pickup == null) continue;
+                            if (pickup.state != LevelPickup.EState.WAITING_TO_BE_CLAIMED) continue;
+
+                            var type = pickup.type;
+                            if (!ObjectiveHelper.IsObjectivePickup(type)) continue;
+
+                            float dist = Vector3.Distance(playerPos, pickup.transform.position);
+                            if (dist > maxDist) continue;
+
+                            if (!nearestTargets[10].Found || dist < nearestTargets[10].Distance)
+                            {
+                                nearestTargets[10] = new NearestTarget
+                                {
+                                    Found = true,
+                                    Position = pickup.transform.position,
+                                    Distance = dist,
+                                    Name = ObjectiveHelper.GetObjectivePickupName(type)
+                                };
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogError($"[CollectibleAudio] ScanObjectiveResources error: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Lootbugs. They are enemies, so EnemyAudioSystem filters the common ones out
+        /// (they are far too numerous to beep at). Here only the NEAREST one gets a cue,
+        /// like any other collectible — which is what makes them announceable at all.
+        /// </summary>
+        private void ScanLootbugs()
+        {
+            nearestTargets[11] = default; // Lootbug
+
+            try
+            {
+                var tracker = EnemyTracker.Instance;
+                if (tracker == null) return;
+
+                Vector3 playerPos = playerTransform.position;
+                float maxDist = GetEffectiveMaxDistance(11);
+
+                foreach (var enemy in tracker.GetActiveEnemies())
+                {
+                    try
+                    {
+                        if (enemy == null || !enemy.isAlive) continue;
+                        if (enemy.id != EEnemy.LOOTBUG) continue;
+
+                        float dist = Vector3.Distance(playerPos, enemy.position);
+                        if (dist > maxDist) continue;
+
+                        if (!nearestTargets[11].Found || dist < nearestTargets[11].Distance)
+                        {
+                            nearestTargets[11] = new NearestTarget
+                            {
+                                Found = true,
+                                Position = enemy.position,
+                                Distance = dist
+                            };
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch (Exception e)
+            {
+                Plugin.Log.LogDebug($"[CollectibleAudio] ScanLootbugs error: {e.Message}");
             }
         }
 
@@ -742,6 +906,8 @@ namespace drgAccess.Components
             85f,  // BobbyFuel (escort-critical)
             55f,  // HealingZone (boosted when hurt)
             30f,  // LaunchPad
+            90f,  // ObjectiveRes (the run cannot be completed without these)
+            35f,  // Lootbug
         };
         // Below this HP fraction, healing sources get their priority multiplied.
         private const float LOW_HP_FRACTION = 0.4f;
@@ -811,9 +977,7 @@ namespace drgAccess.Components
 
             Vector3 playerPos = playerTransform.position;
 
-            Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-            forward.y = 0;
-            forward.Normalize();
+            Vector3 forward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
             Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
             for (int i = 0; i < configs.Length; i++)
@@ -865,9 +1029,7 @@ namespace drgAccess.Components
             try
             {
                 Vector3 playerPos = playerTransform.position;
-                Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                forward.y = 0;
-                forward.Normalize();
+                Vector3 forward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
 
                 for (int i = 0; i < configs.Length; i++)
                 {
@@ -934,28 +1096,52 @@ namespace drgAccess.Components
         /// adapted for top-down perspective (up=W, down=S, left=A, right=D).
         /// </summary>
         private string GetDirectionLabel(Vector3 forward, Vector3 toTarget)
+            => AudioDirectionHelper.GetDirectionLabel(forward, toTarget);
+
+        /// <summary>
+        /// What the environment ping reports: the nearest item of every category found
+        /// by the scans, taken BEFORE the smart-beacon filter narrows the audio down to
+        /// a single winner — the ping is meant to list everything, not just what is
+        /// currently audible.
+        /// </summary>
+        public struct PingTarget
         {
-            Vector3 right = new Vector3(forward.z, 0, -forward.x);
-            float dotForward = Vector3.Dot(forward, toTarget);
-            float dotRight = Vector3.Dot(right, toTarget);
+            public string Name;
+            public Vector3 Position;
+            public float Distance;
+            public float Priority;
+        }
 
-            // Thresholds for diagonal detection
-            const float diagThreshold = 0.38f;
+        private NearestTarget[] pingSnapshot;
 
-            bool isForward = dotForward > diagThreshold;
-            bool isBack = dotForward < -diagThreshold;
-            bool isRight = dotRight > diagThreshold;
-            bool isLeft = dotRight < -diagThreshold;
+        public List<PingTarget> GetPingTargets()
+        {
+            var result = new List<PingTarget>();
+            var snapshot = pingSnapshot;
+            if (snapshot == null) return result;
 
-            if (isForward && isRight) return ModLocalization.Get("dir_up_right");
-            if (isForward && isLeft) return ModLocalization.Get("dir_up_left");
-            if (isBack && isRight) return ModLocalization.Get("dir_down_right");
-            if (isBack && isLeft) return ModLocalization.Get("dir_down_left");
-            if (isForward) return ModLocalization.Get("dir_up");
-            if (isBack) return ModLocalization.Get("dir_down");
-            if (isRight) return ModLocalization.Get("dir_right");
-            if (isLeft) return ModLocalization.Get("dir_left");
-            return ModLocalization.Get("dir_ahead");
+            for (int i = 0; i < configs.Length && i < snapshot.Length; i++)
+            {
+                if (!snapshot[i].Found) continue;
+                if (configs[i].Type == CollectibleSoundType.XpNearby) continue; // everywhere, never news
+
+                string name = snapshot[i].Name;
+                if (string.IsNullOrEmpty(name))
+                {
+                    try { name = ModLocalization.Get(categoryNameKeys[i]); }
+                    catch { continue; }
+                }
+
+                result.Add(new PingTarget
+                {
+                    Name = name,
+                    Position = snapshot[i].Position,
+                    Distance = snapshot[i].Distance,
+                    Priority = categoryBasePriority[i]
+                });
+            }
+
+            return result;
         }
 
         private void SilenceAll()

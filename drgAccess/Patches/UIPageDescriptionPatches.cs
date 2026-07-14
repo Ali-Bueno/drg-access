@@ -46,6 +46,18 @@ public static class UIPageDescriptionPatches
         }
     }
 
+    // Endless was the only mode without this patch, so its description panel
+    // (including the localized reason it is locked) was never announced.
+    [HarmonyPatch(typeof(UIChallengeSetSelectPage), nameof(UIChallengeSetSelectPage.OnEndlessSelect))]
+    public static class ChallengeSetPage_OnEndlessSelect
+    {
+        [HarmonyPostfix]
+        public static void Postfix(UIChallengeSetSelectPage __instance)
+        {
+            AnnounceChallengeSetPageDescription(__instance);
+        }
+    }
+
     [HarmonyPatch(typeof(UIChallengeSetSelectPage), nameof(UIChallengeSetSelectPage.OnDailyRunSelect))]
     public static class ChallengeSetPage_OnDailyRunSelect
     {

@@ -669,15 +669,62 @@ public static partial class UIButtonPatch
     {
         try
         {
+            bool isLocked = button.lockedGroup != null && button.lockedGroup.activeSelf;
+
+            var sb = new StringBuilder();
             var progressText = button.progressText;
             if (progressText != null && !string.IsNullOrEmpty(progressText.text))
-                return TextHelper.CleanText(progressText.text);
-            return null;
+                sb.Append(TextHelper.CleanText(progressText.text));
+
+            // Locked sets hide their progress text (it lives under unlockedGroup),
+            // which used to leave the button silent.
+            if (sb.Length == 0)
+                sb.Append(GetActiveGroupText(isLocked ? button.lockedGroup : button.unlockedGroup));
+
+            if (isLocked)
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append(ModLocalization.Get("ui_locked"));
+            }
+
+            return sb.Length > 0 ? sb.ToString() : null;
         }
         catch (System.Exception ex)
         {
             Plugin.Log?.LogError($"UIButtonPatch.GetSetProgressButtonText error: {ex.Message}");
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Reads the visible TMP texts under a locked/unlocked group. Play-menu buttons
+    /// keep their label inside whichever group is active, so a button whose named
+    /// TMP field sits in the hidden group has no text to announce without this.
+    /// </summary>
+    private static string GetActiveGroupText(UnityEngine.GameObject group)
+    {
+        try
+        {
+            if (group == null || !group.activeSelf) return string.Empty;
+
+            var sb = new StringBuilder();
+            var texts = group.GetComponentsInChildren<TextMeshProUGUI>();
+            if (texts == null) return string.Empty;
+
+            foreach (var tmp in texts)
+            {
+                if (tmp == null || !tmp.gameObject.activeInHierarchy) continue;
+                string text = TextHelper.CleanText(tmp.text);
+                if (string.IsNullOrEmpty(text)) continue;
+                if (sb.Length > 0) sb.Append(". ");
+                sb.Append(text);
+            }
+
+            return sb.ToString();
+        }
+        catch
+        {
+            return string.Empty;
         }
     }
 

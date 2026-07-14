@@ -54,6 +54,7 @@ public class Plugin : BasePlugin
         AddComponent<Components.CocoonAudioSystem>();
         AddComponent<Components.DodgeAssistComponent>();
         AddComponent<Components.ObjectiveReaderComponent>();
+        AddComponent<Components.EnvironmentPingComponent>();
         AddComponent<Components.GearNavigationFix>();
         AddComponent<Components.GateNavigationFix>();
 

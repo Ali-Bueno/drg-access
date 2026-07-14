@@ -394,20 +394,10 @@ namespace drgAccess.Components
             {
                 Vector3 playerPos = playerTransform.position;
 
-                // Use forward from camera or player
-                Vector3 forward = Vector3.forward;
-                Vector3 right = Vector3.right;
-
-                if (cameraTransform != null)
-                {
-                    forward = cameraTransform.forward;
-                    forward.y = 0;
-                    if (forward.sqrMagnitude > 0.001f)
-                    {
-                        forward = forward.normalized;
-                        right = new Vector3(forward.z, 0, -forward.x); // Perpendicular
-                    }
-                }
+                // Screen-relative on foot; nose-relative while driving the Rock Dozer,
+                // so "wall ahead" always means the direction the player is heading.
+                Vector3 forward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
+                Vector3 right = new Vector3(forward.z, 0, -forward.x); // Perpendicular
 
                 Vector3 back = -forward;
                 Vector3 left = -right;

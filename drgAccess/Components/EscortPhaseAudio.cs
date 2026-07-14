@@ -648,9 +648,7 @@ namespace drgAccess.Components
             toTarget.y = 0;
             toTarget.Normalize();
 
-            Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-            forward.y = 0;
-            forward.Normalize();
+            Vector3 forward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
             Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
             float pan = Mathf.Clamp(Vector3.Dot(toTarget, right), -1f, 1f);

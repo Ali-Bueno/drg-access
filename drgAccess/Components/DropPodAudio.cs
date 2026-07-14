@@ -623,9 +623,7 @@ namespace drgAccess.Components
             toWaypoint.y = 0;
             toWaypoint.Normalize();
 
-            Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-            forward.y = 0;
-            forward.Normalize();
+            Vector3 forward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
             Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
             float pan = Mathf.Clamp(Vector3.Dot(toWaypoint, right), -1f, 1f);
@@ -652,9 +650,7 @@ namespace drgAccess.Components
                 toTarget.Normalize();
 
                 // Camera forward projected to XZ = "up on screen" (W key direction)
-                Vector3 screenUp = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                screenUp.y = 0;
-                screenUp.Normalize();
+                Vector3 screenUp = AudioDirectionHelper.GetReferenceForward(cameraTransform);
                 Vector3 screenRight = new Vector3(screenUp.z, 0, -screenUp.x);
 
                 float upDot = Vector3.Dot(toTarget, screenUp);     // >0 = up on screen
@@ -719,9 +715,7 @@ namespace drgAccess.Components
                 Vector3 toInterior = interiorPos - playerTransform.position;
                 toInterior.y = 0;
                 toInterior.Normalize();
-                Vector3 camForward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                camForward.y = 0;
-                camForward.Normalize();
+                Vector3 camForward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
                 Vector3 camRight = new Vector3(camForward.z, 0, -camForward.x);
                 float interiorPan = Mathf.Clamp(Vector3.Dot(toInterior, camRight), -1f, 1f);
                 float interiorFacingDot = Vector3.Dot(camForward, toInterior);
@@ -851,9 +845,7 @@ namespace drgAccess.Components
                     Vector3 toInterior = interiorPos - playerTransform.position;
                     toInterior.y = 0;
                     toInterior.Normalize();
-                    Vector3 screenUp = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                    screenUp.y = 0;
-                    screenUp.Normalize();
+                    Vector3 screenUp = AudioDirectionHelper.GetReferenceForward(cameraTransform);
                     Vector3 screenRight = new Vector3(screenUp.z, 0, -screenUp.x);
                     float upDot = Vector3.Dot(toInterior, screenUp);
                     float rightDot = Vector3.Dot(toInterior, screenRight);

@@ -1,5 +1,10 @@
 # DRG Survivor Accessibility Mod
 
+> **Shared accessibility playbook:** this mod follows the shared playbook at `D:\code\modding projects`
+> (`PRINCIPLES.md` engineering ground rules + `reference/` library — PRISM integration, audio-navigation,
+> UI specs, per-engine screen-reader transport). The file below holds the game-specific rules for Deep Rock Galactic Survivor.
+> Progress and next steps live in this repo's `STATUS.md` — open it first.
+
 ## Project Overview
 Accessibility mod for **Deep Rock Galactic Survivor** using:
 - **BepInEx 6** (IL2CPP)
@@ -12,7 +17,7 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
 
 - **Repository**: https://github.com/Ali-Bueno/drg-access
 - **Latest release page**: https://github.com/Ali-Bueno/drg-access/releases/latest
-- **Current version**: v0.10.0 (first Unity 6 compatible version, published July 3, 2026 — interim releases v0.10.1–v0.10.5 were consolidated into this single release per user preference)
+- **Current version**: v0.11.0 (player-feedback batch, published July 14, 2026). Previous: v0.10.0 (first Unity 6 compatible version, July 3, 2026 — interim releases v0.10.1–v0.10.5 were consolidated into it per user preference)
 - **Permanent download links** (always point to latest release):
   - Full: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-full.zip
   - Plugin only: https://github.com/Ali-Bueno/drg-access/releases/latest/download/DRGAccess-plugin-only.zip
@@ -332,6 +337,22 @@ Accessibility mod for **Deep Rock Galactic Survivor** using:
   - English fallback for any missing keys
   - `ModLocalization.Get(key)` and `ModLocalization.Get(key, args)` for all mod strings
   - ~375 localized string keys covering all mod UI: form announcements, boss telegraphs, drop pod/supply zone/drill beacon/cocoon beacon announcements, elimination mode events, enemy proximity, collectible proximity, action feedback, wallet, pickups, HP reader, objectives, milestones, pause/end screen, mod settings menu, audio cue previews, gear labels, mission labels, save slots, and common UI terms
+
+- **Environment Ping (v0.11.0, P key / R3)**: `EnvironmentPingComponent` reads the surroundings on demand — it never scans the scene itself, it reads the snapshots the audio systems already produce (`CollectibleAudioSystem.GetPingTargets()`, `HazardWarningAudio.GetHazardSnapshot()`, `EnemyTracker`). Sorted by priority (hazards 100 > boss 95 > exploder 92 > elite 88 > collectible base priorities), max 6 entries, each with 8-way direction + distance, closing with the enemy head count. The collectible snapshot is taken BEFORE `ApplySmartBeaconFilter()` clears the losing categories, or the ping would only ever report the single audible target
+
+- **Objective Resources (v0.11.0)**: `CollectibleSoundType.ObjectiveRes` (index 10, two-note ascending bell, priority 90 — the run cannot finish without them). Two different game classes back them: mission minerals (Morkite & co.) are ordinary `MineableBlock`s told apart by matching `materialType` against the active `LevelObjectiveCollect.materialType`, while Apoca Bloom / Boolo Cap are `LevelPickup` (`EType.APOCA`/`BOOLO`, `EState.WAITING_TO_BE_CLAIMED`) — a class the scanner never looked at, hence total silence. `Helpers/ObjectiveHelper` is the single source of truth for both sets and for the pause reader's objectives; it caches per `GameStateHelper.RunGeneration`
+
+- **Lootbug Cue (v0.11.0)**: `CollectibleSoundType.Lootbug` (index 11, chirping squeak). LOOTBUG stays filtered out of `EnemyAudioSystem` (too numerous), but as a collectible only the NEAREST one ever sounds — that is what makes them announceable without spam
+
+- **Spiky Roots / Hollow Bough (v0.11.0)**: `HazardType.SpikyVine`. The biome places dozens of `RedVineRockBlock`s (`MapBuilderHollowBough.PlaceVines`), so one hazard per vine would fill all 5 alarm channels — a vine field is ONE danger AREA and gets ONE cue: the nearest live vine (`IsRegenAlive`) stands in for the whole area, lowest/slowest alarm of the set, critical only inside the game's own `RedVineSystem.damageDist`. `RedVineSystem` is Zenject-injected, reachable only via `MapGenerator.RedVineSystem`
+
+- **Rock Dozer / DRIVER class (v0.11.0)**: the DLC class uses `EPlayerBehaviour.DRIVER` (`DriverPlayerMovement`: throttle + steering, continuous rotation), so W is not "screen up" — it accelerates along the vehicle's nose. ALL directional audio was camera-anchored, which is why movement "felt weird". `AudioDirectionHelper.GetReferenceForward(cameraTransform)` is now the single source of the reference forward for every cue, the compass and wall detection: camera forward on foot, vehicle facing while driving. The facing comes from `BasePlayerMovement.GetFaceDirection()` (a Vector2 in the same space as the move input) mapped to world through the camera axes — never guess an axis. Toggle: `ModConfig.VEHICLE_RELATIVE_DIRECTIONS` (default on)
+
+- **Player Rank anywhere (v0.11.0)**: `PlayerRankManager` is Zenject-injected and is NOT a MonoBehaviour — `FindObjectOfType` cannot find it. `PlayerRankPatch` caches the instance the game itself injects into `UIPlayerRankWidget.Inject`. G / RB announces rank + class levels to the next rank (`GetPlayerRankSegments()` / `PlayerRankSettings.ClassRanksPerPlayerRank`), and it rides along with the wallet reading
+
+- **Play Menu locked buttons (v0.11.0)**: locked modes keep their label inside `unlockedGroup`, which is inactive — so the named TMP field is empty and the button announced NOTHING (this is why Endless was silent on a fresh save). `UIButtonPatch.GetActiveGroupText()` reads the TMPs of whichever group is actually active, and locked buttons now append "Locked". `UIChallengeSetSelectPage.OnEndlessSelect` was also the only mode select without a page-description patch (it takes a `UIChallengeSetButton` parameter, unlike the others)
+
+- **Bonus Objectives in Pause (v0.11.0)**: `UICorePauseForm` has no field for them at all (its only objective-like section is biome milestones), so `PauseReaderComponent.CollectObjectives()` reads the run's real objectives from `LevelObjectiveTracker.PrimaryObjectives`/`SecondaryObjectives` via `ObjectiveHelper`
 
 ### Known Issues
 - [ ] Biome statistics panel (complete exploration, weapon level, gold requirements, etc.) not being read - needs investigation of the UI structure to find where these stats are displayed

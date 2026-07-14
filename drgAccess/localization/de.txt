@@ -410,3 +410,38 @@ cue_launch_pad_desc=Sprungzone in der Nähe (Azure-Weald-Schleuderlöcher). 8-Bi
 setting_smart_beacon=Intelligentes Leitsignal (prioritätsbasiert)
 collect_supply_loot=Versorgungskapsel-Beute
 setting_smart_beacon_desc=Experimentell. Statt dass alle Sammelobjekte gleichzeitig piepen, ertönt nur das wichtigste Ziel: Beutekisten und Ausrüstung zählen hoch, Erfahrung niedrig, Heilung hat Vorrang, wenn deine Gesundheit unter 40 Prozent fällt, und Bobbys Treibstoff hat in Eskortmissionen höchste Priorität.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} Meter
+ping_nothing=Nichts Bemerkenswertes in der Nähe
+ping_boss=Boss
+ping_elite=Elite
+ping_exploder=Sprengkörper
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Missionsressource
+collect_lootbug=Beutekäfer
+cue_objective_resource=Sammelbar: Missionsressource
+cue_objective_resource_desc=Zweitöniges Glockenspiel für eine Ressource, die deine Mission verlangt, wie Morkite, Apoca Bloom oder Boolo Cap. Höhere Priorität als gewöhnliche Mineralien.
+cue_lootbug=Sammelbar: Beutekäfer
+cue_lootbug_desc=Kurzes zirpendes Piepsen für den nächsten Beutekäfer. Nur der nächstgelegene ertönt, damit es nie zu viel wird.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Gescheitert
+pause_objectives=Ziele. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Stachelwurzeln
+hazard_spiky_roots_on=Stachelwurzeln! Weg da!
+hazard_ground_spikes=Bodenstacheln
+hazard_falling_rock=Herabfallender Fels
+
+# === Player rank ===
+player_rank=Spielerrang {0}
+player_rank_progress={0} von {1} Klassenstufen bis zum nächsten Rang
+player_rank_unavailable=Spielerrang noch nicht verfügbar
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Fahrzeugrelative Richtungen
+setting_vehicle_directions_desc=Beim Fahren des Rock Dozer werden Richtungen und Audiosignale ab der Nase des Fahrzeugs gemessen statt am Bildschirm, weil W entlang der Nase vorwärts fährt und A und D lenken. Schalte dies aus, um jede Richtung wie bei den laufenden Klassen bildschirmrelativ zu halten.

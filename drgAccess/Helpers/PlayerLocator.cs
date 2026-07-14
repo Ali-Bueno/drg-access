@@ -12,6 +12,42 @@ namespace drgAccess.Helpers
     /// </summary>
     public static class PlayerLocator
     {
+        private static Player cachedPlayer;
+        private static float nextPlayerSearchTime;
+        private static int cachedRunGeneration = -1;
+
+        /// <summary>
+        /// The Player component itself, cached — callers that need more than a position
+        /// (facing, movement behaviour) go through here instead of searching every frame.
+        /// The cache is dropped whenever a new run starts: a retry replaces the player
+        /// without changing the scene, and the dead one keeps answering.
+        /// </summary>
+        public static Player FindPlayer()
+        {
+            try
+            {
+                if (cachedRunGeneration != GameStateHelper.RunGeneration)
+                {
+                    cachedRunGeneration = GameStateHelper.RunGeneration;
+                    cachedPlayer = null;
+                    nextPlayerSearchTime = 0f;
+                }
+
+                if (cachedPlayer != null) return cachedPlayer;
+
+                if (Time.time < nextPlayerSearchTime) return null;
+                nextPlayerSearchTime = Time.time + 1f;
+
+                cachedPlayer = Object.FindObjectOfType<Player>();
+                return cachedPlayer;
+            }
+            catch
+            {
+                cachedPlayer = null;
+                return null;
+            }
+        }
+
         public static Transform FindPlayerTransform()
         {
             try

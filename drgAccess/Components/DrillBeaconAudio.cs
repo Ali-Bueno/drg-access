@@ -422,9 +422,7 @@ namespace drgAccess.Components
                 toTarget.y = 0;
                 toTarget.Normalize();
 
-                Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                forward.y = 0;
-                forward.Normalize();
+                Vector3 forward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
                 Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
                 // Stereo panning
@@ -501,9 +499,7 @@ namespace drgAccess.Components
                 toTarget.y = 0;
                 toTarget.Normalize();
 
-                Vector3 screenUp = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                screenUp.y = 0;
-                screenUp.Normalize();
+                Vector3 screenUp = AudioDirectionHelper.GetReferenceForward(cameraTransform);
                 Vector3 screenRight = new Vector3(screenUp.z, 0, -screenUp.x);
 
                 float upDot = Vector3.Dot(toTarget, screenUp);

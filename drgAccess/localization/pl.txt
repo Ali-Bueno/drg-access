@@ -410,3 +410,38 @@ cue_launch_pad_desc=W pobliżu strefa skoku (sprężyste dziury w Azure Weald). 
 setting_smart_beacon=Inteligentny sygnał (wg priorytetów)
 collect_supply_loot=Łup z kapsuły zaopatrzeniowej
 setting_smart_beacon_desc=Eksperymentalne. Zamiast wszystkich znajdziek naraz słychać tylko najważniejszy cel: skrzynie z łupem i ekwipunek mają wysoki priorytet, doświadczenie niski, leczenie wskakuje do przodu, gdy zdrowie spadnie poniżej 40 procent, a paliwo Bobby'ego to najwyższy priorytet w misjach eskortowych.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} metrów
+ping_nothing=Nic wartego uwagi w pobliżu
+ping_boss=Boss
+ping_elite=Elita
+ping_exploder=Eksploder
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Surowiec misji
+collect_lootbug=Żuk łupu
+cue_objective_resource=Przedmiot: Surowiec misji
+cue_objective_resource_desc=Dwutonowy dzwonek dla surowca wymaganego przez misję, jak Morkite, Apoca Bloom czy Boolo Cap. Wyższy priorytet niż zwykłe minerały.
+cue_lootbug=Przedmiot: Żuk łupu
+cue_lootbug_desc=Krótki ćwierkający pisk najbliższego żuka łupu. Słychać tylko najbliższego, więc nigdy nie robi się głośno.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Nieudane
+pause_objectives=Cele. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Kolczaste korzenie
+hazard_spiky_roots_on=Kolczaste korzenie! Odsuń się!
+hazard_ground_spikes=Kolce
+hazard_falling_rock=Spadający głaz
+
+# === Player rank ===
+player_rank=Ranga gracza {0}
+player_rank_progress={0} z {1} poziomów klasy do następnej rangi
+player_rank_unavailable=Ranga gracza jeszcze niedostępna
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Kierunki względem pojazdu
+setting_vehicle_directions_desc=Podczas prowadzenia Rock Dozera kierunki i sygnały dźwiękowe są mierzone od dziobu pojazdu zamiast od ekranu, ponieważ W jedzie do przodu wzdłuż dziobu, a A i D skręcają. Wyłącz to, aby każdy kierunek pozostał względny wobec ekranu, tak jak w klasach pieszych.

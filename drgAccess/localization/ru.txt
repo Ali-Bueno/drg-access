@@ -410,3 +410,38 @@ cue_launch_pad_desc=Рядом зона прыжка (пружинные ямы 
 setting_smart_beacon=Умный маяк (по приоритетам)
 collect_supply_loot=Добыча из капсулы снабжения
 setting_smart_beacon_desc=Экспериментально. Вместо того чтобы все предметы звучали одновременно, звучит только самая важная цель: ящики с добычей и снаряжение в приоритете, опыт — нет, лечение выходит вперёд, когда здоровье ниже 40 процентов, а топливо Бобби — главный приоритет в миссиях сопровождения.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} метров
+ping_nothing=Ничего примечательного рядом
+ping_boss=Босс
+ping_elite=Элитный
+ping_exploder=Взрывник
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Ресурс задания
+collect_lootbug=Жук-добытчик
+cue_objective_resource=Предмет: Ресурс задания
+cue_objective_resource_desc=Двухтональный колокольчик для ресурса, который требует ваша миссия, например Morkite, Apoca Bloom или Boolo Cap. Приоритет выше, чем у обычных минералов.
+cue_lootbug=Предмет: Жук-добытчик
+cue_lootbug_desc=Короткий стрекочущий писк для ближайшего жука-добытчика. Звучит только самый близкий, чтобы не было какофонии.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Провалено
+pause_objectives=Цели. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Колючие корни
+hazard_spiky_roots_on=Колючие корни! Отойдите!
+hazard_ground_spikes=Шипы из земли
+hazard_falling_rock=Падающий камень
+
+# === Player rank ===
+player_rank=Ранг игрока {0}
+player_rank_progress={0} из {1} уровней класса до следующего ранга
+player_rank_unavailable=Ранг игрока пока недоступен
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Направления относительно машины
+setting_vehicle_directions_desc=При управлении Rock Dozer направления и звуковые сигналы измеряются от носа машины, а не от экрана, потому что W едет вперёд вдоль носа, а A и D поворачивают. Отключите это, чтобы все направления оставались относительно экрана, как у пеших классов.

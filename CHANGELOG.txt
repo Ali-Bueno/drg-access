@@ -2,6 +2,63 @@ CHANGELOG
 =========
 
 
+v0.11.0 - July 14, 2026
+---------------------------
+
+This release is built entirely from player feedback.
+
+New Features:
+
+  - Environment Ping (P key, or R3 on a gamepad): asks "what is around me?"
+    and reads it out on demand — hazards first, then boss / explosive /
+    elite, then items, ending with the enemy count. Each entry gives its
+    direction and distance ("Loot crate, up-right, 18 meters"). It reports
+    everything found, even when the Smart Beacon is narrowing the audio
+    down to a single target, so you can rely on it instead of the
+    continuous cues.
+
+  - Objective resources now have their own cue and announcements: a
+    two-note bell, higher priority than ordinary minerals. This covers
+    Morkite veins (told apart from other minerals by what your mission
+    actually asks for) and Apoca Bloom / Boolo Cap, which the scanner did
+    not look at at all — they were completely silent before.
+
+  - Lootbugs are announced again. They stay out of the enemy beeps (there
+    are far too many of them for that), and instead behave like a
+    collectible: only the nearest one ever chirps.
+
+  - Hollow Bough's spiky roots are now a hazard. A vine field is dozens of
+    blocks but a single area to avoid, so it produces ONE alarm — the
+    nearest live root stands in for the whole area — using the lowest,
+    slowest tone of the hazard set. It turns critical, and speaks up, only
+    once you are inside the roots' real damage radius.
+
+  - Player rank can be checked at any time: outside gameplay, G (or RB)
+    announces your rank and how many class levels remain to the next one.
+    It also rides along with the wallet reading. Previously it was only
+    readable on the save-slot screen at launch.
+
+  - Rock Dozer (DLC class) support: while driving, all directions — audio
+    cues, compass, wall detection — are measured from the vehicle's nose
+    instead of the screen. Driving uses a throttle and a steering wheel, so
+    screen-relative cues no longer matched the controls and movement felt
+    wrong. A new "Vehicle-Relative Directions" toggle in the mod settings
+    turns this off if you prefer the old, screen-relative behaviour.
+
+Fixes:
+
+  - Play menu: the Endless button was silent, and locked entries never said
+    they were locked. Locked buttons keep their label in a hidden group, so
+    the mod was reading an empty field; it now reads the group that is
+    actually visible and announces "Locked". The Endless mode description
+    (including the reason it is locked) is announced too — it was the only
+    mode missing that hook.
+
+  - Bonus objectives are now in the pause menu. The pause screen has no
+    field for them at all, so they are read from the run's own objective
+    tracker, with progress and completion state.
+
+
 v0.10.0 - July 3, 2026
 ---------------------------
 

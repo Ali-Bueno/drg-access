@@ -410,3 +410,38 @@ cue_launch_pad_desc=Poblíž je skoková zóna (odrazové díry v Azure Weald). 
 setting_smart_beacon=Chytrý maják (podle priorit)
 collect_supply_loot=Kořist ze zásobovacího modulu
 setting_smart_beacon_desc=Experimentální. Místo aby zněly všechny předměty najednou, zní jen nejdůležitější cíl: bedny s kořistí a vybavení mají vysokou prioritu, zkušenosti nízkou, léčení se předřadí, když zdraví klesne pod 40 procent, a Bobbyho palivo má v doprovodných misích nejvyšší prioritu.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} metrů
+ping_nothing=Nic pozoruhodného poblíž
+ping_boss=Boss
+ping_elite=Elitní
+ping_exploder=Výbušný
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Surovina úkolu
+collect_lootbug=Kořistní brouk
+cue_objective_resource=Sběr: Surovina úkolu
+cue_objective_resource_desc=Dvoutónový zvonek pro surovinu, kterou vyžaduje tvá mise, jako Morkite, Apoca Bloom nebo Boolo Cap. Vyšší priorita než běžné minerály.
+cue_lootbug=Sběr: Kořistní brouk
+cue_lootbug_desc=Krátké cvrlikavé pípnutí pro nejbližšího kořistního brouka. Zní jen ten nejbližší, takže to nikdy není rušivé.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Selhalo
+pause_objectives=Cíle. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Trnité kořeny
+hazard_spiky_roots_on=Trnité kořeny! Uhni!
+hazard_ground_spikes=Pozemní hroty
+hazard_falling_rock=Padající kámen
+
+# === Player rank ===
+player_rank=Hodnost hráče {0}
+player_rank_progress={0} z {1} úrovní třídy do další hodnosti
+player_rank_unavailable=Hodnost hráče zatím není dostupná
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Směry vůči vozidlu
+setting_vehicle_directions_desc=Při řízení Rock Dozeru se směry a zvukové signály měří od přídě vozidla místo od obrazovky, protože W jede dopředu podél přídě a A a D zatáčejí. Vypni to, aby všechny směry zůstaly vůči obrazovce jako u pěších tříd.

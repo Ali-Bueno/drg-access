@@ -410,3 +410,38 @@ cue_launch_pad_desc=Наблизо има зона за скок (отскача
 setting_smart_beacon=Умен маяк (по приоритети)
 collect_supply_loot=Плячка от капсулата за доставки
 setting_smart_beacon_desc=Експериментално. Вместо всички предмети да звучат едновременно, звучи само най-важната цел: сандъците с плячка и екипировката са с висок приоритет, опитът — с нисък, лечението излиза напред при здраве под 40 процента, а горивото на Боби е топ приоритет в ескортните мисии.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} метра
+ping_nothing=Нищо забележително наблизо
+ping_boss=Бос
+ping_elite=Елит
+ping_exploder=Експлозив
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Ресурс за мисията
+collect_lootbug=Плячков бръмбар
+cue_objective_resource=Предмет: Ресурс за мисията
+cue_objective_resource_desc=Двутонално звънче за ресурс, който мисията ти изисква, като Morkite, Apoca Bloom или Boolo Cap. По-висок приоритет от обикновените минерали.
+cue_lootbug=Предмет: Плячков бръмбар
+cue_lootbug_desc=Кратко цвърчащо писукане за най-близкия плячков бръмбар. Звучи само най-близкият, за да не се получи какофония.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Провалено
+pause_objectives=Цели. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Бодливи корени
+hazard_spiky_roots_on=Бодливи корени! Отдръпни се!
+hazard_ground_spikes=Шипове от земята
+hazard_falling_rock=Падащ камък
+
+# === Player rank ===
+player_rank=Ранг на играча {0}
+player_rank_progress={0} от {1} нива на класа до следващия ранг
+player_rank_unavailable=Рангът на играча още не е наличен
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Посоки спрямо превозното средство
+setting_vehicle_directions_desc=При управление на Rock Dozer посоките и звуковите сигнали се измерват от носа на превозното средство, а не от екрана, защото W кара напред по посока на носа, а A и D завиват. Изключи това, за да останат всички посоки спрямо екрана, както при пешите класове.

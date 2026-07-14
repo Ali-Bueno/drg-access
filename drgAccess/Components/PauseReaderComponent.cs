@@ -393,6 +393,7 @@ public class PauseReaderComponent : MonoBehaviour
         {
             CollectWeapons();
             CollectArtifacts();
+            CollectObjectives();
             CollectStats();
         }
         catch (Exception e)
@@ -534,6 +535,24 @@ public class PauseReaderComponent : MonoBehaviour
             {
                 Plugin.Log?.LogDebug($"PauseReader artifact {i} error: {e.Message}");
             }
+        }
+    }
+
+    /// <summary>
+    /// Mission objectives, including the bonus (secondary) ones. The pause form has
+    /// no field for them, so they come from the run's objective tracker.
+    /// </summary>
+    private void CollectObjectives()
+    {
+        var objectives = ObjectiveHelper.GetObjectives();
+        if (objectives.Count == 0) return;
+
+        for (int i = 0; i < objectives.Count; i++)
+        {
+            string text = objectives[i].Text;
+            if (string.IsNullOrEmpty(text)) continue;
+
+            AddItem(i == 0 ? ModLocalization.Get("pause_objectives", text) : text);
         }
     }
 

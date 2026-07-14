@@ -4,6 +4,7 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using UnityEngine;
 using Il2CppInterop.Runtime.Injection;
+using Assets.Scripts.LevelGeneration;
 using drgAccess.Helpers;
 
 namespace drgAccess.Components
@@ -100,7 +101,8 @@ namespace drgAccess.Components
     {
         GroundSpike,
         FallingRock,
-        Exploder
+        Exploder,
+        SpikyVine
     }
 
     /// <summary>
@@ -137,6 +139,16 @@ namespace drgAccess.Components
         private float nextExploderCheckTime = 0f;
         private const float EXPLODER_CHECK_INTERVAL = 0.2f;
         private const float EXPLODER_WARNING_DISTANCE = 12f;
+
+        // Spiky vines (Hollow Bough). Static field placed in the map, so a slower
+        // cadence than enemies is plenty.
+        private float nextVineCheckTime = 0f;
+        private const float VINE_CHECK_INTERVAL = 0.5f;
+        private float lastVineAnnounceTime = -10f;
+        private const float VINE_ANNOUNCE_COOLDOWN = 4f;
+        private MapGenerator cachedMapGenerator;
+        private float nextMapGeneratorSearchTime = 0f;
+        private int cachedVineRunGeneration = -1;
 
         // Configuration
         private const float CRITICAL_DISTANCE = 5f;
@@ -268,6 +280,12 @@ namespace drgAccess.Components
                     nextExploderCheckTime = Time.time + EXPLODER_CHECK_INTERVAL;
                 }
 
+                if (Time.time >= nextVineCheckTime)
+                {
+                    CheckSpikyVines();
+                    nextVineCheckTime = Time.time + VINE_CHECK_INTERVAL;
+                }
+
                 CleanExpiredHazards();
                 UpdateWarningAudio();
             }
@@ -350,6 +368,137 @@ namespace drgAccess.Components
             }
         }
 
+        /// <summary>
+        /// Hollow Bough's spiky roots (RedVineRockBlock). The biome places dozens of
+        /// them, so registering one hazard per vine would fill every alarm channel and
+        /// drown out everything else — the exact "audio spam" players reported. A vine
+        /// field is one danger AREA, so it gets ONE cue: the closest live vine stands in
+        /// for the whole area, and the alarm turns critical once the player is inside
+        /// the game's own damage radius (RedVineSystem.damageDist).
+        /// </summary>
+        private void CheckSpikyVines()
+        {
+            try
+            {
+                var vineSystem = GetRedVineSystem();
+                if (vineSystem == null)
+                {
+                    RemoveHazardsOfType(HazardType.SpikyVine);
+                    return;
+                }
+
+                var vines = vineSystem.RedVines;
+                if (vines == null || vines.Count == 0)
+                {
+                    RemoveHazardsOfType(HazardType.SpikyVine);
+                    return;
+                }
+
+                Vector3 playerPos = playerTransform.position;
+                float maxWarningDistance = ModConfig.GetSetting(ModConfig.HAZARD_RANGE);
+
+                float nearestDist = float.MaxValue;
+                Vector3 nearestPos = Vector3.zero;
+
+                for (int i = 0; i < vines.Count; i++)
+                {
+                    try
+                    {
+                        var vine = vines[i];
+                        if (vine == null) continue;
+                        if (!vine.IsRegenAlive) continue; // destroyed / regrowing: harmless
+
+                        Vector3 pos = vine.transform.position;
+                        float dist = Vector3.Distance(playerPos, pos);
+                        if (dist < nearestDist)
+                        {
+                            nearestDist = dist;
+                            nearestPos = pos;
+                        }
+                    }
+                    catch { }
+                }
+
+                RemoveHazardsOfType(HazardType.SpikyVine);
+
+                if (nearestDist > maxWarningDistance) return;
+
+                lock (hazardLock)
+                {
+                    activeHazards.Add(new HazardInfo
+                    {
+                        Position = nearestPos,
+                        ExpiryTime = Time.time + VINE_CHECK_INTERVAL + 0.1f,
+                        Type = HazardType.SpikyVine
+                    });
+                }
+
+                // Inside the vines' real damage radius: say so, the alarm alone cannot
+                // tell the player they are already being hurt.
+                float damageDist = RedVineSystem.damageDist;
+                if (nearestDist <= damageDist && Time.time - lastVineAnnounceTime >= VINE_ANNOUNCE_COOLDOWN)
+                {
+                    lastVineAnnounceTime = Time.time;
+                    ScreenReader.Interrupt(ModLocalization.Get("hazard_spiky_roots_on"));
+                }
+            }
+            catch (Exception e)
+            {
+                if (Time.frameCount % 300 == 0)
+                    Plugin.Log.LogDebug($"[HazardAudio] CheckSpikyVines error: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// RedVineSystem is Zenject-injected (not a MonoBehaviour), so it can only be
+        /// reached through the MapGenerator that owns it.
+        /// </summary>
+        private RedVineSystem GetRedVineSystem()
+        {
+            try
+            {
+                // A retry rebuilds the map without a scene change, so the generation
+                // counter — not a null check — decides when this cache is stale.
+                if (cachedVineRunGeneration != GameStateHelper.RunGeneration)
+                {
+                    cachedVineRunGeneration = GameStateHelper.RunGeneration;
+                    cachedMapGenerator = null;
+                    nextMapGeneratorSearchTime = 0f;
+                }
+
+                if (cachedMapGenerator == null)
+                {
+                    if (Time.time < nextMapGeneratorSearchTime) return null;
+                    nextMapGeneratorSearchTime = Time.time + 3f;
+                    cachedMapGenerator = UnityEngine.Object.FindObjectOfType<MapGenerator>();
+                }
+
+                return cachedMapGenerator != null ? cachedMapGenerator.RedVineSystem : null;
+            }
+            catch
+            {
+                cachedMapGenerator = null;
+                return null;
+            }
+        }
+
+        /// <summary>Copy of the currently tracked hazards, for the environment ping.</summary>
+        public List<HazardInfo> GetHazardSnapshot()
+        {
+            lock (hazardLock)
+            {
+                return new List<HazardInfo>(activeHazards);
+            }
+        }
+
+        private void RemoveHazardsOfType(HazardType type)
+        {
+            lock (hazardLock)
+            {
+                activeHazards.RemoveAll(h => h.Type == type);
+            }
+        }
+
         private void CleanExpiredHazards()
         {
             lock (hazardLock)
@@ -375,9 +524,7 @@ namespace drgAccess.Components
                 }
 
                 Vector3 playerPos = playerTransform.position;
-                Vector3 forward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-                forward.y = 0;
-                forward.Normalize();
+                Vector3 forward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
                 Vector3 right = new Vector3(forward.z, 0, -forward.x);
 
                 // Sort hazards by distance (closest first)
@@ -441,6 +588,20 @@ namespace drgAccess.Components
                             volume = 0.2f + proximityFactor * 0.2f;
                             alarmRate = 4 + proximityFactor * 8;
                             if (isCritical) volume *= 1.4f;
+                            break;
+
+                        case HazardType.SpikyVine:
+                            // Lowest, slowest alarm of the set: a static field you can
+                            // walk around, not something coming at you. Critical only
+                            // once the player is inside the vines' real damage radius.
+                            frequency = 250 + proximityFactor * 200;
+                            volume = 0.16f + proximityFactor * 0.18f;
+                            alarmRate = 3 + proximityFactor * 6;
+                            if (distance <= RedVineSystem.damageDist)
+                            {
+                                volume *= 1.5f;
+                                alarmRate = 14;
+                            }
                             break;
 
                         default: // GroundSpike

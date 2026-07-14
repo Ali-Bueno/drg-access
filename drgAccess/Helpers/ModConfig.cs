@@ -37,6 +37,7 @@ namespace drgAccess.Helpers
         // --- Toggle settings ---
         public const string FOOTSTEPS_ENABLED = "FootstepsEnabled";
         public const string SMART_BEACON = "SmartBeacon";
+        public const string VEHICLE_RELATIVE_DIRECTIONS = "VehicleRelativeDirections";
 
         // --- Detection settings ---
         public const string ENEMY_RANGE = "EnemyRange";
@@ -58,6 +59,7 @@ namespace drgAccess.Helpers
         {
             { FOOTSTEPS_ENABLED,   new SettingDef { Default = 1f,   Min = 0f,  Max = 1f,   Step = 1f,  DisplayName = "Footsteps",               Unit = "toggle" } },
             { SMART_BEACON,        new SettingDef { Default = 0f,   Min = 0f,  Max = 1f,   Step = 1f,  DisplayName = "Smart Collectible Beacon", Unit = "toggle" } },
+            { VEHICLE_RELATIVE_DIRECTIONS, new SettingDef { Default = 1f, Min = 0f, Max = 1f, Step = 1f, DisplayName = "Vehicle-Relative Directions", Unit = "toggle" } },
             { ENEMY_RANGE,         new SettingDef { Default = 35f,  Min = 10f, Max = 60f,  Step = 5f,  DisplayName = "Enemy Detection Range",   Unit = "m" } },
             { HAZARD_RANGE,        new SettingDef { Default = 25f,  Min = 10f, Max = 50f,  Step = 5f,  DisplayName = "Hazard Warning Range",    Unit = "m" } },
             { COLLECTIBLE_RANGE,   new SettingDef { Default = 1.0f, Min = 0.5f, Max = 2.0f, Step = 0.1f, DisplayName = "Collectible Range",     Unit = "x" } },
@@ -67,7 +69,8 @@ namespace drgAccess.Helpers
 
         public static readonly string[] AllSettingKeys = new[]
         {
-            FOOTSTEPS_ENABLED, SMART_BEACON, ENEMY_RANGE, HAZARD_RANGE, COLLECTIBLE_RANGE, WALL_RANGE, MAX_HAZARD_CHANNELS
+            FOOTSTEPS_ENABLED, SMART_BEACON, VEHICLE_RELATIVE_DIRECTIONS,
+            ENEMY_RANGE, HAZARD_RANGE, COLLECTIBLE_RANGE, WALL_RANGE, MAX_HAZARD_CHANNELS
         };
 
         // --- State ---

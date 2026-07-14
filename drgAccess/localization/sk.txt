@@ -410,3 +410,38 @@ cue_launch_pad_desc=Neďaleko je skoková zóna (odrazové diery v Azure Weald).
 setting_smart_beacon=Inteligentný maják (podľa priorít)
 collect_supply_loot=Korisť zo zásobovacieho modulu
 setting_smart_beacon_desc=Experimentálne. Namiesto toho, aby zneli všetky predmety naraz, znie len najdôležitejší cieľ: debny s korisťou a výbava majú vysokú prioritu, skúsenosti nízku, liečenie sa predradí, keď zdravie klesne pod 40 percent, a Bobbyho palivo má v sprievodných misiách najvyššiu prioritu.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} metrov
+ping_nothing=Nič pozoruhodné v blízkosti
+ping_boss=Boss
+ping_elite=Elitný
+ping_exploder=Výbušný
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Surovina úlohy
+collect_lootbug=Koristný chrobák
+cue_objective_resource=Zberateľské: Surovina úlohy
+cue_objective_resource_desc=Dvojtónový zvonček pre surovinu, ktorú vyžaduje tvoja misia, ako Morkite, Apoca Bloom alebo Boolo Cap. Vyššia priorita než bežné minerály.
+cue_lootbug=Zberateľské: Koristný chrobák
+cue_lootbug_desc=Krátke cvrlikavé pípnutie pre najbližšieho koristného chrobáka. Znie len ten najbližší, takže to nikdy nie je rušivé.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Zlyhalo
+pause_objectives=Ciele. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Tŕnisté korene
+hazard_spiky_roots_on=Tŕnisté korene! Uhni!
+hazard_ground_spikes=Pozemné hroty
+hazard_falling_rock=Padajúci kameň
+
+# === Player rank ===
+player_rank=Hodnosť hráča {0}
+player_rank_progress={0} z {1} úrovní triedy do ďalšej hodnosti
+player_rank_unavailable=Hodnosť hráča zatiaľ nie je dostupná
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Smery vzhľadom na vozidlo
+setting_vehicle_directions_desc=Pri jazde s Rock Dozerom sa smery a zvukové signály merajú od predku vozidla namiesto obrazovky, pretože W ide dopredu pozdĺž predku a A a D zatáčajú. Vypni to, aby všetky smery zostali vzhľadom na obrazovku, ako u peších tried.

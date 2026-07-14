@@ -5,7 +5,7 @@ namespace drgAccess.Helpers;
 /// <summary>
 /// Shared input helper that checks both keyboard and gamepad for mod actions.
 /// Gamepad mapping: D-Pad for navigation, A=confirm, B=cancel, Y=audio menu,
-/// LB=HP, RB=wallet, L3=compass.
+/// LB=HP, RB=wallet, L3=compass, R3=environment ping.
 /// </summary>
 public static class InputHelper
 {
@@ -52,6 +52,15 @@ public static class InputHelper
     public static bool ReadEquippedGear()
     {
         return KeyPressed(Key.T);
+    }
+
+    /// <summary>
+    /// Sweeps the surroundings on demand, so players can turn the continuous cues
+    /// down and still know what is around them.
+    /// </summary>
+    public static bool PingEnvironment()
+    {
+        return KeyPressed(Key.P) || GamepadPressed(gp => gp.rightStickButton);
     }
 
     public static bool ReadObjectives()

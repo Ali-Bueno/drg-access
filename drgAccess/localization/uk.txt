@@ -410,3 +410,38 @@ cue_launch_pad_desc=Поруч зона стрибка (пружинні ями 
 setting_smart_beacon=Розумний маяк (за пріоритетами)
 collect_supply_loot=Здобич із капсули постачання
 setting_smart_beacon_desc=Експериментально. Замість того, щоб усі предмети звучали одночасно, звучить лише найважливіша ціль: скрині зі здобиччю та спорядження мають високий пріоритет, досвід — низький, лікування виходить наперед, коли здоров'я нижче 40 відсотків, а паливо Боббі — головний пріоритет у місіях супроводу.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} метрів
+ping_nothing=Нічого примітного поблизу
+ping_boss=Бос
+ping_elite=Еліта
+ping_exploder=Вибухівка
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Ресурс завдання
+collect_lootbug=Жук здобичі
+cue_objective_resource=Об'єкт: Ресурс завдання
+cue_objective_resource_desc=Двотональний дзвіночок для ресурсу, який вимагає ваша місія, наприклад Morkite, Apoca Bloom або Boolo Cap. Пріоритет вищий, ніж у звичайних мінералів.
+cue_lootbug=Об'єкт: Жук здобичі
+cue_lootbug_desc=Короткий цвіркотливий писк для найближчого жука здобичі. Звучить лише найближчий, тож галасу ніколи не буде.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Провалено
+pause_objectives=Цілі. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Колючі корені
+hazard_spiky_roots_on=Колючі корені! Відійдіть!
+hazard_ground_spikes=Шипи з землі
+hazard_falling_rock=Камінь, що падає
+
+# === Player rank ===
+player_rank=Ранг гравця {0}
+player_rank_progress={0} з {1} рівнів класу до наступного рангу
+player_rank_unavailable=Ранг гравця ще не доступний
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Напрямки відносно машини
+setting_vehicle_directions_desc=Під час керування Rock Dozer напрямки та звукові сигнали вимірюються від носа машини, а не від екрана, бо W їде вперед вздовж носа, а A і D повертають. Вимкніть це, щоб усі напрямки залишались відносно екрана, як у пішохідних класів.

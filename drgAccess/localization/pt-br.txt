@@ -410,3 +410,38 @@ cue_launch_pad_desc=Zona de salto por perto (buracos propulsores de Azure Weald)
 setting_smart_beacon=Sinalizador inteligente (por prioridades)
 collect_supply_loot=Saque da cápsula de suprimentos
 setting_smart_beacon_desc=Experimental. Em vez de todos os colecionáveis soarem ao mesmo tempo, soa apenas o alvo mais importante: caixas de saque e equipamento pontuam alto, a experiência baixo, a cura fura a fila quando sua vida cai abaixo de 40 por cento, e o combustível do Bobby é prioridade máxima nas missões de escolta.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} metros
+ping_nothing=Nada relevante por perto
+ping_boss=Chefe
+ping_elite=Elite
+ping_exploder=Explosivo
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Recurso da missão
+collect_lootbug=Bicho do saque
+cue_objective_resource=Coletável: Recurso da missão
+cue_objective_resource_desc=Sino de duas notas para um recurso pedido pela sua missão, como Morkite, Apoca Bloom ou Boolo Cap. Prioridade mais alta que os minerais comuns.
+cue_lootbug=Coletável: Bicho do saque
+cue_lootbug_desc=Guincho curto para o bicho do saque mais próximo. Só o mais próximo toca, para nunca virar bagunça sonora.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Falhou
+pause_objectives=Objetivos. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Raízes espinhosas
+hazard_spiky_roots_on=Raízes espinhosas! Afaste-se!
+hazard_ground_spikes=Espinhos do chão
+hazard_falling_rock=Queda de rochas
+
+# === Player rank ===
+player_rank=Rank de jogador {0}
+player_rank_progress={0} de {1} níveis de classe até o próximo rank
+player_rank_unavailable=Rank de jogador ainda não disponível
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Direções relativas ao veículo
+setting_vehicle_directions_desc=Ao dirigir o Rock Dozer, as direções e os sinais sonoros são medidos a partir da frente do veículo em vez da tela, porque o W avança na direção da frente e o A e o D fazem a curva. Desative isso para manter cada direção relativa à tela, como nas classes a pé.

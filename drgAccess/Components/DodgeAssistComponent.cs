@@ -306,9 +306,7 @@ namespace drgAccess.Components
             worldDir.y = 0;
             worldDir.Normalize();
 
-            Vector3 screenUp = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
-            screenUp.y = 0;
-            screenUp.Normalize();
+            Vector3 screenUp = AudioDirectionHelper.GetReferenceForward(cameraTransform);
             Vector3 screenRight = new Vector3(screenUp.z, 0, -screenUp.x);
 
             float upDot = Vector3.Dot(worldDir, screenUp);

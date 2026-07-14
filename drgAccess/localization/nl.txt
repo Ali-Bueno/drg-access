@@ -410,3 +410,38 @@ cue_launch_pad_desc=Springzone in de buurt (stuiterkuilen van Azure Weald). 8-bi
 setting_smart_beacon=Slim baken (op prioriteit)
 collect_supply_loot=Bevoorradingspod-buit
 setting_smart_beacon_desc=Experimenteel. In plaats van dat alle verzamelobjecten tegelijk piepen, klinkt alleen het belangrijkste doelwit: buitkisten en uitrusting scoren hoog, ervaring laag, genezing krijgt voorrang als je gezondheid onder de 40 procent zakt, en Bobby's brandstof heeft topprioriteit in escortmissies.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} meter
+ping_nothing=Niets opvallends in de buurt
+ping_boss=Baas
+ping_elite=Elite
+ping_exploder=Ontploffer
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Missieresource
+collect_lootbug=Buitkever
+cue_objective_resource=Verzamelbaar: Missieresource
+cue_objective_resource_desc=Belletje met twee tonen voor een grondstof die je missie vraagt, zoals Morkite, Apoca Bloom of Boolo Cap. Hogere prioriteit dan gewone mineralen.
+cue_lootbug=Verzamelbaar: Buitkever
+cue_lootbug_desc=Kort tsjirpend piepje voor de dichtstbijzijnde buitkever. Alleen de dichtstbijzijnde klinkt, zodat het nooit een kabaal wordt.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Mislukt
+pause_objectives=Doelen. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Stekelige wortels
+hazard_spiky_roots_on=Stekelige wortels! Ga weg!
+hazard_ground_spikes=Grondstekels
+hazard_falling_rock=Vallende rots
+
+# === Player rank ===
+player_rank=Spelersrang {0}
+player_rank_progress={0} van {1} klasseniveaus tot de volgende rang
+player_rank_unavailable=Spelersrang nog niet beschikbaar
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Voertuiggerelateerde richtingen
+setting_vehicle_directions_desc=Bij het besturen van de Rock Dozer worden richtingen en geluidssignalen gemeten vanaf de neus van het voertuig in plaats van het scherm, omdat W vooruit rijdt langs de neus en A en D sturen. Zet dit uit om elke richting schermgerelateerd te houden, zoals bij de lopende klassen.

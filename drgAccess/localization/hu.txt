@@ -410,3 +410,38 @@ cue_launch_pad_desc=Ugrózóna a közelben (Azure Weald pattogó gödrei). 8 bit
 setting_smart_beacon=Okos jelzőfény (prioritás alapú)
 collect_supply_loot=Ellátókapszula zsákmánya
 setting_smart_beacon_desc=Kísérleti. Ahelyett, hogy minden gyűjthető egyszerre szólna, csak a legfontosabb cél hallható: a zsákmányládák és a felszerelés magas prioritású, a tapasztalat alacsony, a gyógyítás előre sorolódik, ha az életerőd 40 százalék alá esik, kísérőküldetésekben pedig Bobby üzemanyaga az első.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} meter
+ping_nothing=Nincs semmi kulonleges a kozelben
+ping_boss=Fonok
+ping_elite=Elit
+ping_exploder=Robbanekony
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Kuldetesi nyersanyag
+collect_lootbug=Zsakmanybogar
+cue_objective_resource=Gyujtheto: Kuldetesi nyersanyag
+cue_objective_resource_desc=Kethangu csengo egy olyan nyersanyaghoz, amit a kuldetesed ker, mint a Morkite, az Apoca Bloom vagy a Boolo Cap. Magasabb prioritasu, mint a szokasos asvanyok.
+cue_lootbug=Gyujtheto: Zsakmanybogar
+cue_lootbug_desc=Rovid csiripelo hang a legkozelebbi zsakmanybogarhoz. Csak a legkozelebbi szolal meg, igy sosem lesz zajos.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Sikertelen
+pause_objectives=Celok. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Tuskes gyokerek
+hazard_spiky_roots_on=Tuskes gyokerek! Menj el!
+hazard_ground_spikes=Foldtuskek
+hazard_falling_rock=Zuhano szikla
+
+# === Player rank ===
+player_rank=Jatekos rang {0}
+player_rank_progress={0}/{1} osztalyszint a kovetkezo rangig
+player_rank_unavailable=A jatekos rang meg nem elerheto
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Jarmuhoz kepesti iranyok
+setting_vehicle_directions_desc=A Rock Dozer vezetesekor az iranyok es a hangjelzesek a jarmu orra alapjan vannak merve a kepernyo helyett, mert a W az orr menten visz elore, az A es a D pedig kormanyoz. Kapcsold ki ezt, hogy minden irany kepernyohoz kepesti maradjon, mint a gyalogos osztalyoknal.

@@ -414,3 +414,38 @@ cue_launch_pad_desc=Jump zone nearby (Azure Weald bounce holes). 8-bit double bo
 setting_smart_beacon=Smart Beacon (priority-based)
 collect_supply_loot=Supply pod loot
 setting_smart_beacon_desc=Experimental. Instead of every collectible beeping at once, only the most important target sounds: loot crates and gear rank high, XP low, healing jumps the queue when your health is below 40 percent, and Bobby's fuel is top priority in escort missions.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} meters
+ping_nothing=Nothing notable nearby
+ping_boss=Boss
+ping_elite=Elite
+ping_exploder=Explosive enemy
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Objective resource
+collect_lootbug=Lootbug
+cue_objective_resource=Collectible: Objective Resource
+cue_objective_resource_desc=Two-note bell for a resource your mission asks for, like Morkite, Apoca Bloom or Boolo Cap. Higher priority than ordinary minerals.
+cue_lootbug=Collectible: Lootbug
+cue_lootbug_desc=Short chirping squeak for the nearest lootbug. Only the closest one ever sounds, so they never spam.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Failed
+pause_objectives=Objectives. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Spiky roots
+hazard_spiky_roots_on=Spiky roots! Move away
+hazard_ground_spikes=Ground spikes
+hazard_falling_rock=Falling rock
+
+# === Player rank ===
+player_rank=Player rank {0}
+player_rank_progress={0} of {1} class levels to the next rank
+player_rank_unavailable=Player rank not available yet
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Vehicle-Relative Directions
+setting_vehicle_directions_desc=When driving the Rock Dozer, directions and audio cues are measured from the vehicle's nose instead of the screen, because W drives forward along the nose and A and D steer. Turn this off to keep every direction screen-relative like the walking classes.

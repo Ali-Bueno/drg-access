@@ -410,3 +410,38 @@ cue_launch_pad_desc=近くにジャンプゾーンがあります（アジュー
 setting_smart_beacon=スマートビーコン（優先度ベース）
 collect_supply_loot=補給ポッドの戦利品
 setting_smart_beacon_desc=実験的機能。すべての収集物が同時に鳴るのではなく、最も重要なターゲットだけが鳴ります。戦利品箱と装備は優先度が高く、経験値は低く、体力が40パーセントを下回ると回復が最優先になり、護衛ミッションではボビーの燃料が最優先です。
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}、{1}、{2}メートル
+ping_nothing=近くに目立ったものはない
+ping_boss=ボス
+ping_elite=エリート
+ping_exploder=爆発敵
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=任務資源
+collect_lootbug=ルートバグ
+cue_objective_resource=収集物: 任務資源
+cue_objective_resource_desc=Morkite、Apoca Bloom、Boolo Capなど任務が求める資源に鳴る二音のベル。通常の鉱石より優先度が高い。
+cue_lootbug=収集物: ルートバグ
+cue_lootbug_desc=最も近いルートバグに鳴る短いさえずり音。一番近い一体だけが鳴るので、うるさくならない。
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=失敗
+pause_objectives=目標。{0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=棘の根
+hazard_spiky_roots_on=棘の根！離れろ！
+hazard_ground_spikes=地面のスパイク
+hazard_falling_rock=落石
+
+# === Player rank ===
+player_rank=プレイヤーランク{0}
+player_rank_progress=次のランクまでクラスレベル{1}中{0}
+player_rank_unavailable=プレイヤーランクはまだ利用できない
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=車両基準の方向
+setting_vehicle_directions_desc=Rock Dozerを運転しているとき、方向と効果音は画面ではなく車両の先端を基準に測定される。Wは先端に沿って前進し、AとDで操縦するため。オフにすると、徒歩クラスと同じように常に画面基準の方向になる。

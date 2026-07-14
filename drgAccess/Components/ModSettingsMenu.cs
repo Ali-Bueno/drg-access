@@ -166,6 +166,13 @@ namespace drgAccess.Components
                 },
                 new MainMenuItem
                 {
+                    Category = ModConfig.VEHICLE_RELATIVE_DIRECTIONS,
+                    DisplayName = ModLocalization.Get("setting_vehicle_directions"),
+                    Description = ModLocalization.Get("setting_vehicle_directions_desc"),
+                    Type = MainItemType.Toggle
+                },
+                new MainMenuItem
+                {
                     Category = ModConfig.FOOTSTEPS_ENABLED,
                     DisplayName = ModLocalization.Get("setting_footsteps_toggle"),
                     Type = MainItemType.Toggle
@@ -395,6 +402,18 @@ namespace drgAccess.Components
                     Name = ModLocalization.Get("cue_launch_pad"),
                     Description = ModLocalization.Get("cue_launch_pad_desc"),
                     PlayPreview = () => PreviewCollectible(CollectibleSoundType.LaunchPad, 600f, 0.7f, ModConfig.COLLECTIBLES)
+                },
+                new AudioCueItem
+                {
+                    Name = ModLocalization.Get("cue_objective_resource"),
+                    Description = ModLocalization.Get("cue_objective_resource_desc"),
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.ObjectiveRes, 700f, 0.22f, ModConfig.COLLECTIBLES)
+                },
+                new AudioCueItem
+                {
+                    Name = ModLocalization.Get("cue_lootbug"),
+                    Description = ModLocalization.Get("cue_lootbug_desc"),
+                    PlayPreview = () => PreviewCollectible(CollectibleSoundType.Lootbug, 850f, 0.2f, ModConfig.COLLECTIBLES)
                 },
                 // --- Boss Attack Cues ---
                 new AudioCueItem

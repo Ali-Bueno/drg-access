@@ -23,3 +23,6 @@ DRGAccess release plugin only/
 Thumbs.db
 .DS_Store
 nul
+
+# Release zips (uploaded to GitHub releases, not versioned)
+DRGAccess-*.zip

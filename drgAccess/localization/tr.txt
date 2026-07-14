@@ -410,3 +410,38 @@ cue_launch_pad_desc=Yakında zıplama bölgesi var (Azure Weald sıçrama delikl
 setting_smart_beacon=Akıllı işaretçi (öncelik tabanlı)
 collect_supply_loot=İkmal kapsülü ganimeti
 setting_smart_beacon_desc=Deneysel. Tüm toplanabilirler aynı anda ötmek yerine yalnızca en önemli hedef duyulur: ganimet sandıkları ve ekipman yüksek, tecrübe düşük önceliklidir; canın yüzde 40'ın altına düşünce iyileştirme öne geçer ve eskort görevlerinde Bobby'nin yakıtı en yüksek önceliktir.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} metre
+ping_nothing=Yakında dikkat çekici bir şey yok
+ping_boss=Boss
+ping_elite=Elit
+ping_exploder=Patlayıcı
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Görev kaynağı
+collect_lootbug=Ganimet böceği
+cue_objective_resource=Toplanabilir: Görev kaynağı
+cue_objective_resource_desc=Morkite, Apoca Bloom veya Boolo Cap gibi görevinin istediği bir kaynak için iki notalı çan sesi. Sıradan minerallerden daha yüksek öncelikli.
+cue_lootbug=Toplanabilir: Ganimet böceği
+cue_lootbug_desc=En yakın ganimet böceği için kısa cırlama sesi. Sadece en yakını ses çıkarır, böylece asla kalabalıklaşmaz.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Başarısız
+pause_objectives=Hedefler. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Dikenli kökler
+hazard_spiky_roots_on=Dikenli kökler! Uzaklaş!
+hazard_ground_spikes=Yer dikenleri
+hazard_falling_rock=Düşen kaya
+
+# === Player rank ===
+player_rank=Oyuncu rütbesi {0}
+player_rank_progress=Sonraki rütbeye {1} sınıf seviyesinden {0}
+player_rank_unavailable=Oyuncu rütbesi henüz kullanılamıyor
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Araca Göre Yönler
+setting_vehicle_directions_desc=Rock Dozer'ı kullanırken yönler ve ses ipuçları ekrana göre değil, aracın burnuna göre ölçülür; çünkü W burnun ekseninde ileri gider, A ve D ise yönlendirir. Yürüyen sınıflarda olduğu gibi her yönü ekrana göre tutmak için bunu kapat.

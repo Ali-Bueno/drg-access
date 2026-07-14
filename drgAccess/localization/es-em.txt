@@ -410,3 +410,38 @@ cue_launch_pad_desc=Zona de salto cerca (agujeros impulsores de Azure Weald). Do
 setting_smart_beacon=Baliza inteligente (por prioridades)
 collect_supply_loot=Botín del pod de suministros
 setting_smart_beacon_desc=Experimental. En vez de que todos los coleccionables suenen a la vez, solo suena el objetivo más importante: las cajas de botín y el equipo puntúan alto, la experiencia bajo, la curación pasa a ser prioritaria si tu vida baja del 40 por ciento, y el combustible de Bobby es máxima prioridad en las misiones de escolta.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} metros
+ping_nothing=Nada destacable cerca
+ping_boss=Jefe
+ping_elite=Élite
+ping_exploder=Explosivo
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Recurso de la misión
+collect_lootbug=Bicho del botín
+cue_objective_resource=Coleccionable: Recurso de la misión
+cue_objective_resource_desc=Campanita de dos notas para un recurso que pide tu misión, como Morkite, Apoca Bloom o Boolo Cap. Prioridad más alta que los minerales comunes.
+cue_lootbug=Coleccionable: Bicho del botín
+cue_lootbug_desc=Chillido corto para el bicho del botín más cercano. Solo suena el más cercano, para que nunca se amontonen los sonidos.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Fallido
+pause_objectives=Objetivos. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Raíces espinosas
+hazard_spiky_roots_on=¡Raíces espinosas! ¡Aléjate!
+hazard_ground_spikes=Pinchos del suelo
+hazard_falling_rock=Caída de rocas
+
+# === Player rank ===
+player_rank=Rango de jugador {0}
+player_rank_progress={0} de {1} niveles de clase para el siguiente rango
+player_rank_unavailable=Rango de jugador no disponible todavía
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Direcciones relativas al vehículo
+setting_vehicle_directions_desc=Al manejar el Rock Dozer, las direcciones y los sonidos se miden desde el frente del vehículo en vez de la pantalla, porque W avanza hacia adelante y A y D giran. Desactiva esto para mantener cada dirección relativa a la pantalla, como con las clases a pie.

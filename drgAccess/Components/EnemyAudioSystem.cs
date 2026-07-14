@@ -486,9 +486,7 @@ namespace drgAccess.Components
                     Plugin.Log.LogInfo("[EnemyAudio] Groups reset, getting player position");
 
                 Vector3 playerPos = playerTransform.position;
-                Vector3 forward = cameraTransform.forward;
-                forward.y = 0;
-                forward.Normalize();
+                Vector3 forward = AudioDirectionHelper.GetReferenceForward(cameraTransform);
 
                 // Correct cross product order for right vector
                 Vector3 right = new Vector3(forward.z, 0, -forward.x); // Perpendicular to forward on XZ plane

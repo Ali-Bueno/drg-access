@@ -418,6 +418,12 @@ public static class WalletReader
             if (sb.Length == 0)
                 sb.Append(ModLocalization.Get("wallet_no_currency"));
 
+            // Player rank rides along: it was otherwise only readable on the save-slot
+            // screen at launch.
+            string rank = PlayerRankReader.GetRankText();
+            if (!string.IsNullOrEmpty(rank))
+                sb.Append(". ").Append(rank);
+
             ScreenReader.Interrupt(sb.ToString());
         }
         catch (System.Exception ex)

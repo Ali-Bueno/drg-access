@@ -14,7 +14,9 @@ namespace drgAccess.Components
         XpNearby,       // Continuous soft tone, pitch = distance to nearest XP
         BobbyFuel,      // Bubbling/gurgle for escort mission fuel blocks
         HealingZone,    // Water-drop bloop (same as RedSugar) for healing pillars
-        LaunchPad       // 8-bit "boing boing" (square wave, double pitch drop) for launch ramps
+        LaunchPad,      // 8-bit "boing boing" (square wave, double pitch drop) for launch ramps
+        ObjectiveRes,   // Two-note ascending bell for resources an objective asks for
+        Lootbug         // Short chirping squeak for lootbugs (they run away)
     }
 
     /// <summary>
@@ -102,6 +104,8 @@ namespace drgAccess.Components
                 CollectibleSoundType.BobbyFuel => (int)(sampleRate * 0.18),
                 CollectibleSoundType.HealingZone => (int)(sampleRate * 0.15),
                 CollectibleSoundType.LaunchPad => (int)(sampleRate * 0.30), // two "boings"
+                CollectibleSoundType.ObjectiveRes => (int)(sampleRate * 0.22), // two bell notes
+                CollectibleSoundType.Lootbug => (int)(sampleRate * 0.09),
                 _ => (int)(sampleRate * 0.08)
             };
             beepDurationSamples = duration;
@@ -216,6 +220,14 @@ namespace drgAccess.Components
 
                 // Two bounces: each half of the beep is its own attack + decay
                 CollectibleSoundType.LaunchPad => ComputeBoingEnvelope(progress),
+
+                // Two bell notes: each half of the beep is struck and rings out
+                CollectibleSoundType.ObjectiveRes => ComputeTwoNoteEnvelope(progress),
+
+                // Very sharp attack, fast decay (squeak)
+                CollectibleSoundType.Lootbug => progress < 0.02f
+                    ? progress / 0.02f
+                    : (float)Math.Exp(-(progress - 0.02) * 6.0),
 
                 _ => 1f
             };
@@ -359,9 +371,47 @@ namespace drgAccess.Components
                     if (phase >= 1.0) phase -= 1.0;
                     return (float)(square * 0.35);
                 }
+                case CollectibleSoundType.ObjectiveRes:
+                {
+                    // Two-note ascending bell (root, then a fifth above) with a bright
+                    // 3rd harmonic — reads as "this is what the mission wants", clearly
+                    // apart from the metallic clink of an ordinary mineral vein.
+                    double freq = progress < 0.5f ? currentFrequency : currentFrequency * 1.5;
+                    double s1 = Math.Sin(2.0 * Math.PI * phase);
+                    double s2 = Math.Sin(2.0 * Math.PI * phase2) * 0.35;
+                    phase += freq / sampleRate;
+                    phase2 += (freq * 3.0) / sampleRate;
+                    if (phase >= 1.0) phase -= 1.0;
+                    if (phase2 >= 1.0) phase2 -= 1.0;
+                    return (float)((s1 + s2) * 0.75);
+                }
+                case CollectibleSoundType.Lootbug:
+                {
+                    // Chirpy squeak: fast upward glide with vibrato — animal, not mineral
+                    double sweepMult = 1.0 + progress * 0.6; // glides up over the beep
+                    double vibrato = 1.0 + 0.08 * Math.Sin(2.0 * Math.PI * phase2);
+                    double freq = currentFrequency * sweepMult * vibrato;
+                    // Triangle wave: softer/rounder than a square, still "voiced"
+                    double triPhase = (phase * 2.0) % 2.0;
+                    double triangle = triPhase < 1.0 ? (triPhase * 2.0 - 1.0) : (1.0 - (triPhase - 1.0) * 2.0);
+                    phase += freq / sampleRate;
+                    phase2 += 35.0 / sampleRate; // 35 Hz vibrato
+                    if (phase >= 1.0) phase -= 1.0;
+                    if (phase2 >= 1.0) phase2 -= 1.0;
+                    return (float)(triangle * 0.7);
+                }
                 default:
                     return 0f;
             }
+        }
+
+        /// <summary>Envelope for the two-note bell: each note is struck and rings out.</summary>
+        private static float ComputeTwoNoteEnvelope(float progress)
+        {
+            float noteProgress = progress < 0.5f ? progress * 2f : (progress - 0.5f) * 2f;
+            return noteProgress < 0.03f
+                ? noteProgress / 0.03f
+                : (float)Math.Exp(-(noteProgress - 0.03) * 3.0);
         }
 
         /// <summary>Envelope for the double "boing": two attack+decay humps per beep.</summary>

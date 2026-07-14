@@ -410,3 +410,38 @@ cue_launch_pad_desc=Zone de saut à proximité (trous propulseurs d'Azure Weald)
 setting_smart_beacon=Balise intelligente (par priorités)
 collect_supply_loot=Butin de la capsule de ravitaillement
 setting_smart_beacon_desc=Expérimental. Au lieu que tous les objets sonnent en même temps, seule la cible la plus importante est audible : les caisses de butin et l'équipement comptent beaucoup, l'expérience peu, les soins deviennent prioritaires quand ta santé passe sous 40 pour cent, et le carburant de Bobby est la priorité absolue en mission d'escorte.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} mètres
+ping_nothing=Rien de notable à proximité
+ping_boss=Boss
+ping_elite=Élite
+ping_exploder=Explosif
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Ressource de mission
+collect_lootbug=Cafard à butin
+cue_objective_resource=Collectible : Ressource de mission
+cue_objective_resource_desc=Carillon à deux notes pour une ressource demandée par ta mission, comme le Morkite, l'Apoca Bloom ou le Boolo Cap. Priorité plus haute que les minerais ordinaires.
+cue_lootbug=Collectible : Cafard à butin
+cue_lootbug_desc=Petit couinement pour le cafard à butin le plus proche. Seul le plus proche sonne, pour éviter le chaos sonore.
+
+# === Mission objectives ===
+objective_with_progress={0} : {1}/{2}
+objective_failed=Échoué
+pause_objectives=Objectifs. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Racines épineuses
+hazard_spiky_roots_on=Racines épineuses ! Éloigne-toi !
+hazard_ground_spikes=Pics au sol
+hazard_falling_rock=Chute de rocher
+
+# === Player rank ===
+player_rank=Rang {0}
+player_rank_progress={0} niveau(x) de classe sur {1} avant le prochain rang
+player_rank_unavailable=Rang du joueur pas encore disponible
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Directions relatives au véhicule
+setting_vehicle_directions_desc=En conduisant le Rock Dozer, les directions et les sons sont mesurés depuis l'avant du véhicule plutôt que depuis l'écran, car W avance dans l'axe du véhicule tandis que A et D dirigent. Désactive ceci pour garder chaque direction relative à l'écran, comme avec les classes à pied.

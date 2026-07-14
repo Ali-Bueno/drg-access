@@ -410,3 +410,38 @@ cue_launch_pad_desc=Zonă de salt în apropiere (găurile propulsoare din Azure 
 setting_smart_beacon=Semnal inteligent (pe priorități)
 collect_supply_loot=Pradă din capsula de aprovizionare
 setting_smart_beacon_desc=Experimental. În loc ca toate obiectele să sune simultan, sună doar ținta cea mai importantă: lăzile cu pradă și echipamentul au prioritate mare, experiența mică, vindecarea trece în față când viața scade sub 40 la sută, iar combustibilul lui Bobby e prioritatea maximă în misiunile de escortă.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} metri
+ping_nothing=Nimic notabil în apropiere
+ping_boss=Boss
+ping_elite=Elită
+ping_exploder=Exploziv
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Resursă de misiune
+collect_lootbug=Gândac de pradă
+cue_objective_resource=Colecționabil: Resursă de misiune
+cue_objective_resource_desc=Clopoțel cu două note pentru o resursă cerută de misiunea ta, precum Morkite, Apoca Bloom sau Boolo Cap. Prioritate mai mare decât mineralele obișnuite.
+cue_lootbug=Colecționabil: Gândac de pradă
+cue_lootbug_desc=Scâncet scurt pentru cel mai apropiat gândac de pradă. Sună doar cel mai apropiat, ca să nu se facă gălăgie.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Eșuat
+pause_objectives=Obiective. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Rădăcini țepoase
+hazard_spiky_roots_on=Rădăcini țepoase! Îndepărtează-te!
+hazard_ground_spikes=Țepi din sol
+hazard_falling_rock=Cădere de piatră
+
+# === Player rank ===
+player_rank=Rangul jucătorului {0}
+player_rank_progress={0} din {1} niveluri de clasă până la rangul următor
+player_rank_unavailable=Rangul jucătorului nu este încă disponibil
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Direcții relative la vehicul
+setting_vehicle_directions_desc=Când conduci Rock Dozer, direcțiile și semnalele audio sunt măsurate din partea din față a vehiculului în loc de ecran, deoarece W merge înainte pe direcția din față, iar A și D virează. Dezactivează asta pentru a păstra fiecare direcție relativă la ecran, ca la clasele pe jos.

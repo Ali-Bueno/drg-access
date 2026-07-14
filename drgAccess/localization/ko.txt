@@ -410,3 +410,38 @@ cue_launch_pad_desc=근처에 점프 구역이 있습니다(어주어 윌드의 
 setting_smart_beacon=스마트 비컨(우선순위 기반)
 collect_supply_loot=보급 포드 전리품
 setting_smart_beacon_desc=실험적 기능. 모든 수집품이 동시에 울리는 대신 가장 중요한 목표만 소리가 납니다. 전리품 상자와 장비는 우선순위가 높고 경험치는 낮으며, 체력이 40퍼센트 아래로 떨어지면 회복이 우선되고, 호위 임무에서는 보비의 연료가 최우선입니다.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2}미터
+ping_nothing=근처에 특별한 것 없음
+ping_boss=보스
+ping_elite=정예
+ping_exploder=폭발충
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=임무 자원
+collect_lootbug=전리품 벌레
+cue_objective_resource=수집품: 임무 자원
+cue_objective_resource_desc=Morkite, Apoca Bloom, Boolo Cap처럼 임무가 요구하는 자원에 울리는 두 음의 종소리. 일반 광물보다 우선순위가 높습니다.
+cue_lootbug=수집품: 전리품 벌레
+cue_lootbug_desc=가장 가까운 전리품 벌레에서 나는 짧은 찍찍 소리. 가장 가까운 것만 소리를 내므로 시끄러워지지 않습니다.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=실패
+pause_objectives=목표. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=가시 뿌리
+hazard_spiky_roots_on=가시 뿌리! 물러나세요!
+hazard_ground_spikes=지면 가시
+hazard_falling_rock=낙석
+
+# === Player rank ===
+player_rank=플레이어 랭크 {0}
+player_rank_progress=다음 랭크까지 클래스 레벨 {1} 중 {0}
+player_rank_unavailable=플레이어 랭크를 아직 사용할 수 없습니다
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=차량 기준 방향
+setting_vehicle_directions_desc=Rock Dozer를 운전할 때는 방향과 오디오 신호가 화면이 아니라 차량의 앞부분을 기준으로 측정됩니다. W가 앞부분을 따라 전진하고 A와 D로 조향하기 때문입니다. 걷는 클래스처럼 모든 방향을 화면 기준으로 유지하려면 이 옵션을 끄세요.

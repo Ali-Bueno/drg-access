@@ -410,3 +410,38 @@ cue_launch_pad_desc=Zona di salto nelle vicinanze (buchi propulsori di Azure Wea
 setting_smart_beacon=Segnale intelligente (per priorità)
 collect_supply_loot=Bottino della capsula di rifornimento
 setting_smart_beacon_desc=Sperimentale. Invece di far suonare tutti i collezionabili insieme, suona solo l'obiettivo più importante: casse di bottino ed equipaggiamento contano molto, l'esperienza poco, le cure hanno la precedenza quando la salute scende sotto il 40 percento, e il carburante di Bobby è la priorità assoluta nelle missioni di scorta.
+
+# === Environment Ping (P key / R3) ===
+ping_entry={0}, {1}, {2} metri
+ping_nothing=Niente di rilevante nelle vicinanze
+ping_boss=Boss
+ping_elite=Elite
+ping_exploder=Esplosivo
+
+# === Objective resources & lootbugs ===
+collect_objective_resource=Risorsa di missione
+collect_lootbug=Scarafaggio del bottino
+cue_objective_resource=Collezionabile: Risorsa di missione
+cue_objective_resource_desc=Campanello a due note per una risorsa richiesta dalla missione, come Morkite, Apoca Bloom o Boolo Cap. Priorità più alta rispetto ai minerali normali.
+cue_lootbug=Collezionabile: Scarafaggio del bottino
+cue_lootbug_desc=Breve squittio per lo scarafaggio del bottino più vicino. Suona solo il più vicino, così non fanno mai confusione.
+
+# === Mission objectives ===
+objective_with_progress={0}: {1}/{2}
+objective_failed=Fallito
+pause_objectives=Obiettivi. {0}
+
+# === Hollow Bough hazards ===
+hazard_spiky_roots=Radici spinose
+hazard_spiky_roots_on=Radici spinose! Allontanati!
+hazard_ground_spikes=Spine dal terreno
+hazard_falling_rock=Caduta di rocce
+
+# === Player rank ===
+player_rank=Rango giocatore {0}
+player_rank_progress={0} di {1} livelli di classe al prossimo rango
+player_rank_unavailable=Rango giocatore non ancora disponibile
+
+# === Vehicle-relative directions (Rock Dozer) ===
+setting_vehicle_directions=Direzioni relative al veicolo
+setting_vehicle_directions_desc=Quando guidi il Rock Dozer, le direzioni e i segnali audio vengono misurati dal muso del veicolo invece che dallo schermo, perché W avanza lungo il muso mentre A e D sterzano. Disattivalo per mantenere ogni direzione relativa allo schermo come con le classi a piedi.
